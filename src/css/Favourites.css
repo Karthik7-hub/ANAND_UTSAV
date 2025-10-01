@@ -1,3 +1,4 @@
+/* --- Favourites Page --- */
 .favourites-page {
   padding: 1.5rem 2rem;
 }
@@ -24,64 +25,153 @@
   background-color: rgba(255, 103, 31, 0.2);
 }
 
-/* --- Slide View --- */
-.slide-container {
-  display: flex;
-  overflow-x: auto;
-  gap: 1rem;
+/* --- Slide / Grid Layout for Favourites --- */
+.slide-view {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  /* always 3 per row */
+  gap: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
   padding: 1rem 0;
 }
 
-.slide-card {
-  min-width: 280px;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  flex-shrink: 0;
-}
-
-.slide-card img {
+/* --- Service Card --- */
+.slide-view .service-card {
+  position: relative;
   width: 100%;
-  height: 180px;
-  object-fit: cover;
-  border-radius: 12px 12px 0 0;
-}
-
-.slide-content {
-  padding: 0.8rem 1rem;
-}
-
-.slide-content h4 {
-  margin: 0;
-  font-size: 1.1rem;
-  font-weight: 600;
-}
-
-.slide-content p {
-  margin: 0.5rem 0;
-  font-size: 0.95rem;
-  color: #555;
-}
-
-.slide-actions {
+  max-width: 400px;
+  /* fixed width */
+  height: 460px;
+  border-radius: 1.25rem;
+  overflow: hidden;
+  box-shadow: var(--shadow-light);
+  border: 1px solid var(--card-border);
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 0.5rem;
+  flex-direction: column;
+  justify-content: flex-end;
+  background: #ccc;
+  margin: 0 auto;
+  /* centers card in column */
 }
 
-.slide-actions button {
-  background: none;
+.slide-view .service-card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-heavy);
+}
+
+/* --- Background Image --- */
+.slide-view .card-background-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+  transition: transform 0.4s ease, filter 0.4s ease;
+}
+
+.slide-view .service-card:hover .card-background-image {
+  transform: scale(1.08);
+  filter: brightness(1.05);
+}
+
+/* --- Overlay Content Box --- */
+.slide-view .card-content-overlay {
+  position: relative;
+  z-index: 2;
+  background: var(--card-bg);
+  border-radius: 1rem;
+  padding: 1rem 1.2rem;
+  margin: 1rem;
+  width: calc(100% - 2rem);
+  min-height: 120px;
+  backdrop-filter: blur(14px) saturate(180%);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
+  border: 1px solid var(--card-border);
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* --- Top Section Row --- */
+.slide-view .card-top-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin-bottom: 0.8rem;
+}
+
+.slide-view .service-name {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 0;
+  flex: 1;
+}
+
+.slide-view .wishlist-btn {
+  background: rgba(255, 255, 255, 0.65);
+  /* transparent white */
+  border: 1px solid var(--card-border);
+  border-radius: 50%;
+  width: 2.4rem;
+  height: 2.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  color: var(--primary-color);
+}
+
+.slide-view .wishlist-btn:hover {
+  background: rgba(255, 255, 255, 0.9);
+  transform: scale(1.08);
+}
+
+.slide-view .service-price {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  white-space: nowrap;
+}
+
+/* --- Bottom Section: Book Now --- */
+.slide-view .card-bottom-section {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.slide-view .booking-btn {
+  background: var(--primary-color);
+  color: var(--text-light);
   border: none;
+  border-radius: 0.75rem;
+  padding: 0.6rem 1.2rem;
+  font-size: 0.95rem;
+  font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-weight: 500;
-  color: #333;
+  gap: 0.4rem;
+  transition: all 0.25s ease;
+  height: 42px;
+  white-space: nowrap;
 }
 
-/* --- Card View (changed to full-width style) --- */
+.slide-view .booking-btn:hover {
+  background: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+}
+
+
+/* === Card Grid === */
 .favourite-cards-grid {
   display: flex;
   flex-direction: column;
@@ -89,66 +179,123 @@
 }
 
 .fullwidth-card {
+  position: relative;
   width: 100%;
-  border-radius: 12px;
+  border-radius: 1.25rem;
   overflow: hidden;
-  background: #fff;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  background: rgba(255, 255, 255, 0.65);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.fullwidth-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
 }
 
 .fullwidth-image img {
   width: 100%;
-  height: 260px;
+  height: 380px;
   object-fit: cover;
+  display: block;
 }
 
-.fullwidth-content {
+/* === Overlay Box === */
+/* === Overlay Box (Floating Inside Card) === */
+.fullwidth-overlay {
+  position: absolute;
+  bottom: 20px;
+  /* float above bottom */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 92%;
+  /* narrower than full card */
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(12px) saturate(160%);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 1rem;
+  /* rounded corners */
+  padding: 1rem 1.2rem;
+
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 1rem 1.5rem;
-  background: linear-gradient(to right, #fefefe, #f5f5f5);
+  align-items: flex-start;
+
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
-.fullwidth-content h4 {
-  margin: 0;
+
+/* Left: name + price */
+.overlay-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.service-name {
   font-size: 1.2rem;
-  font-weight: 600;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
 }
 
-.fullwidth-content p {
-  margin: 0.3rem 0 0;
+.service-price {
   font-size: 1rem;
+  font-weight: 600;
   color: #333;
+  margin: 0;
 }
 
-.fullwidth-actions {
+/* Right: heart above book now */
+.overlay-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.6rem;
+}
+
+/* Heart button */
+/* Heart button (transparent white circle) */
+.wishlist-btn {
+  background: rgba(255, 255, 255, 0.85);
+  /* translucent white */
+  border-radius: 50%;
+  width: 2.2rem;
+  height: 2.2rem;
   display: flex;
   align-items: center;
-  gap: 1rem;
+  justify-content: center;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.25s ease;
 }
 
-.fullwidth-actions button {
-  background: none;
+.wishlist-btn:hover {
+  background: rgba(255, 255, 255, 1);
+  /* brighter on hover */
+  transform: scale(1.08);
+}
+
+
+/* Book Now button */
+.booking-btn {
+  background-color: #ff671f;
+  color: #fff;
   border: none;
+  border-radius: 0.75rem;
+  padding: 0.5rem 1.2rem;
+  font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 6px;
-  font-weight: 500;
-  color: #333;
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
-.book-now {
-  background-color: #ff671f;
-  color: #fff;
-  padding: 0.6rem 1rem;
-  border-radius: 8px;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-}
-
-.book-now:hover {
+.booking-btn:hover {
   background-color: #e65b18;
+  transform: translateY(-2px);
 }
