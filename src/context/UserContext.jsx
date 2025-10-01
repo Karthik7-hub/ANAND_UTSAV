@@ -8,35 +8,59 @@ export const UserProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [token, setToken] = useState(() => localStorage.getItem('authToken'));
 
-    // This effect now runs ONLY ONCE when the app first loads.
-    // Its job is to re-establish a session from localStorage if a token exists.
+    // ✅ Load user + favourites from localStorage if session exists
     useEffect(() => {
         const storedToken = localStorage.getItem('authToken');
-        if (storedToken) {
-            // In a real app, you would verify this token with your backend or decode it
-            // to get user data. For now, we'll set a placeholder to show someone is logged in.
-            setToken(storedToken);
-            // You can decode the token here to get user info if you have a library like jwt-decode
-            // For now, we'll just set a generic user object.
-            setUser({ loggedIn: true });
-        }
-    }, []); // The empty dependency array [] is the key fix.
+        const storedFavourites = JSON.parse(localStorage.getItem('favourites')) || [];
 
-    // This function handles the logic for a NEW login.
+        if (storedToken) {
+            setToken(storedToken);
+            setUser({
+                loggedIn: true,
+                favourites: storedFavourites,
+            });
+        }
+    }, []);
+
+    // ✅ Function to handle login
     const login = (userData, authToken) => {
         localStorage.setItem('authToken', authToken);
         setToken(authToken);
-        setUser(userData);
+
+        // If no favourites in userData, set empty array
+        const updatedUser = { ...userData, favourites: userData.favourites || [] };
+
+        setUser(updatedUser);
+        localStorage.setItem('favourites', JSON.stringify(updatedUser.favourites));
     };
 
-    // This function handles logging out.
+    // ✅ Function to handle logout
     const logout = () => {
         localStorage.removeItem('authToken');
+        localStorage.removeItem('favourites');
         setToken(null);
         setUser(null);
     };
 
-    const value = { user, token, login, logout };
+    // ✅ Function to toggle favourite section
+    const toggleFavourite = (sectionId) => {
+        if (!user) return;
+
+        let updatedFavourites;
+        if (user.favourites?.includes(sectionId)) {
+            updatedFavourites = user.favourites.filter(id => id !== sectionId);
+        } else {
+            updatedFavourites = [...(user.favourites || []), sectionId];
+        }
+
+        const updatedUser = { ...user, favourites: updatedFavourites };
+        setUser(updatedUser);
+
+        // persist locally
+        localStorage.setItem('favourites', JSON.stringify(updatedFavourites));
+    };
+
+    const value = { user, token, login, logout, toggleFavourite };
 
     return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 };

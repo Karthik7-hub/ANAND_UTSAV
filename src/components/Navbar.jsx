@@ -48,6 +48,9 @@ export default function AnandUtsavNavbar() {
         navigate('/'); // Redirect to home
     };
 
+    // ✅ favourites count
+    const favCount = user?.favourites?.length || 0;
+
     return (
         <>
             <header className={`navbar-container ${isScrolled ? 'scrolled' : ''}`}>
@@ -67,7 +70,13 @@ export default function AnandUtsavNavbar() {
                     {/* Right Section */}
                     <div className="navbar-right">
                         <button className="icon-button" onClick={() => setIsSearchOpen(true)}><Search /></button>
-                        <button className="icon-button"><Heart /></button>
+
+                        {/* ❤️ Favourites with count */}
+                        <Link to="/favourites" className="icon-button favourites-btn">
+                            <Heart />
+                            {favCount > 0 && <span className="badge">{favCount}</span>}
+                        </Link>
+
                         <button className="icon-button"><ShoppingCart /></button>
                         {user ? (
                             <button className="icon-button user-icon-link" onClick={() => setIsProfileOpen(true)}>
