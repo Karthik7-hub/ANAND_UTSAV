@@ -17,7 +17,7 @@ export default function AllCategoriesPage() {
                         className="category-card"
                     >
                         <img src={cat.image} className="card-background-image" alt={cat.name} />
-                        <div className="card-content-overlay">
+                        <div className="category-card-overlay">
                             <p className="card-title">{cat.name}</p>
                         </div>
                     </Link>
