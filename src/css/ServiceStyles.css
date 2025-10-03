@@ -60,7 +60,8 @@
     height: 450px;
     border: 1px solid var(--card-border);
     background: #ccc;
-    padding: 1rem; /* ensures white box stays inside */
+    padding: 1rem;
+    /* ensures white box stays inside */
 }
 
 .service-card:hover {
@@ -121,14 +122,21 @@
 
 /* --- Overlay Content Box for Category Section Cards --- */
 .category-card-overlay {
-    position: absolute; /* position inside card */
-    bottom: 20px; /* fixed distance from bottom */
-    left: 50%; /* horizontal center */
-    transform: translateX(-50%); /* perfect horizontal centering */
+    position: absolute;
+    /* position inside card */
+    bottom: 20px;
+    /* fixed distance from bottom */
+    left: 50%;
+    /* horizontal center */
+    transform: translateX(-50%);
+    /* perfect horizontal centering */
     z-index: 2;
-    padding: 0.5rem 1rem; /* thin padding for thin box */
-    width: 80%; /* consistent width */
-    height: 40px; /* thin height */
+    padding: 0.5rem 1rem;
+    /* thin padding for thin box */
+    width: 80%;
+    /* consistent width */
+    height: 40px;
+    /* thin height */
     display: flex;
     justify-content: center;
     align-items: center;

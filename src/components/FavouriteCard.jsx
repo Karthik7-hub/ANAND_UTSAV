@@ -28,15 +28,15 @@ export default function FavouriteCard({ service }) {
         {/* Right: heart + book now */}
         <div className="overlay-right">
           <button
-  className="wishlist-btn"
-  onClick={() => toggleFavourite(service.id)}
->
-  <Heart
-    fill={isFavourite ? "red" : "none"}
-    color={isFavourite ? "red" : "#ff671f"}
-    size={18}
-  />
-</button>
+            className="wishlist-btn"
+            onClick={() => toggleFavourite(service.id)}
+          >
+            <Heart
+              fill={isFavourite ? "red" : "none"}
+              color={isFavourite ? "red" : "#ff671f"}
+              size={18}
+            />
+          </button>
 
 
           <button className="booking-btn">

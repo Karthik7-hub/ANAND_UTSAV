@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 100 100" fill="none">
+  <!-- White rounded square background -->
+  <rect width="100" height="100" rx="18" fill="white"/>
+
+  <!-- Original logo elements -->
+  <g transform="translate(50 50)">
+    <path d="M-35 10c5 25 65 25 70 0Q0 45-35 10" fill="#138808"/>
+    <path d="M0-40c-40 30-25 60 0 55 25 5 40-25 0-55" fill="#F93"/>
+    <circle cy="8" r="14" fill="#FFF"/>
+    <path d="M0-5C6-2 6 8 0 14-6 8-6-2 0-5" fill="#FFD43B"/>
+  </g>
+</svg>
+

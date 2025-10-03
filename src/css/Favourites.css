@@ -28,7 +28,8 @@
 /* --- Slide / Grid Layout for Favourites --- */
 .slide-view {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* always 3 per row */
+  grid-template-columns: repeat(3, 1fr);
+  /* always 3 per row */
   gap: 2rem;
   max-width: 1400px;
   margin: 0 auto;
@@ -39,7 +40,8 @@
 .slide-view .service-card {
   position: relative;
   width: 100%;
-  max-width: 400px; /* fixed width */
+  max-width: 400px;
+  /* fixed width */
   height: 460px;
   border-radius: 1.25rem;
   overflow: hidden;
@@ -51,7 +53,8 @@
   flex-direction: column;
   justify-content: flex-end;
   background: #ccc;
-  margin: 0 auto; /* centers card in column */
+  margin: 0 auto;
+  /* centers card in column */
 }
 
 .slide-view .service-card:hover {
@@ -112,7 +115,8 @@
 }
 
 .slide-view .wishlist-btn {
-  background: rgba(255, 255, 255, 0.65); /* transparent white */
+  background: rgba(255, 255, 255, 0.65);
+  /* transparent white */
   border: 1px solid var(--card-border);
   border-radius: 50%;
   width: 2.4rem;
@@ -201,15 +205,18 @@
 /* === Overlay Box (Floating Inside Card) === */
 .fullwidth-overlay {
   position: absolute;
-  bottom: 20px;            /* float above bottom */
+  bottom: 20px;
+  /* float above bottom */
   left: 50%;
   transform: translateX(-50%);
-  width: 92%;              /* narrower than full card */
+  width: 92%;
+  /* narrower than full card */
   background: rgba(255, 255, 255, 0.78);
   backdrop-filter: blur(12px) saturate(160%);
   -webkit-backdrop-filter: blur(12px) saturate(160%);
   border: 1px solid rgba(255, 255, 255, 0.4);
-  border-radius: 1rem;     /* rounded corners */
+  border-radius: 1rem;
+  /* rounded corners */
   padding: 1rem 1.2rem;
 
   display: flex;
@@ -252,7 +259,8 @@
 /* Heart button */
 /* Heart button (transparent white circle) */
 .wishlist-btn {
-  background: rgba(255, 255, 255, 0.85);  /* translucent white */
+  background: rgba(255, 255, 255, 0.85);
+  /* translucent white */
   border-radius: 50%;
   width: 2.2rem;
   height: 2.2rem;
@@ -261,12 +269,13 @@
   justify-content: center;
   cursor: pointer;
   border: none;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   transition: all 0.25s ease;
 }
 
 .wishlist-btn:hover {
-  background: rgba(255, 255, 255, 1);   /* brighter on hover */
+  background: rgba(255, 255, 255, 1);
+  /* brighter on hover */
   transform: scale(1.08);
 }
 
