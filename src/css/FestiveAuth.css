@@ -1,20 +1,20 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
 
-/* --- COLORS & THEME (Deep Indigo, Electric Teal & Off-White) --- */
+/* --- COLORS & THEME (Deep Black, Bright Orange & White) --- */
 :root {
-    --primary-gradient: linear-gradient(90deg, #00C0C0, #00E4E4); /* Electric Teal to Aqua */
-    --primary-glow: #00E4E4; /* Center of the glow (Electric Teal) */
-    --background-dark: #1A1A2E; /* Deep Indigo/Black background */
-    --card-dark: #242940; /* Card surface dark indigo */
-    --text-light: #E0E0E0; /* Off-White */
-    --text-subtle: #A0A4B8; /* Muted light purple/grey */
-    --input-line: #454D6B; /* Darker border/line color */
-    --neon-shadow: 0 0 10px var(--primary-glow), 0 0 25px rgba(0, 228, 228, 0.4);
-    --provider-border: #4A4A6B;
+    --primary-gradient: linear-gradient(90deg, #FF6F00, #FF9800); /* Bright Orange to Amber */
+    --primary-glow: #FF9800; /* Center of the glow (Amber/Orange) */
+    --background-dark: #121212; /* Deep Black background */
+    --card-dark: #1F1F1F; /* Card surface dark gray */
+    --text-light: #f0f0f0; /* Near White */
+    --text-subtle: #999; /* Subtle light gray */
+    --input-line: #333; /* Dark gray line */
+    --neon-shadow: 0 0 10px var(--primary-glow), 0 0 20px rgba(255, 152, 0, 0.4);
+    --provider-border: #4A4A4A;
 }
 
 /* ================================== */
-/* 01. CORE LAYOUT & CONTAINER (65/35 Split Panel) */
+/* 01. CORE LAYOUT & CONTAINER (60/40 Split Panel) - KEEPING SIZE IMPROVEMENTS */
 /* ================================== */
 
 .auth-page-wrapper {
@@ -25,49 +25,49 @@
     width: 100%;
     background-color: var(--background-dark); 
     font-family: 'Poppins', sans-serif;
-    padding: 20px; /* Added padding for smaller screens */
+    padding: 20px;
 }
 
 .auth-container {
     width: 100%;
     max-width: 900px; /* SLIGHTLY LARGER max-width */
-    min-height: 580px; /* SLIGHTLY TALLER min-height for better proportion */
+    min-height: 580px; /* SLIGHTLY TALLER min-height */
     display: grid;
-    grid-template-columns: 60% 40%; /* Adjusted split to 60/40 */
-    border-radius: 16px; /* Increased border radius */
+    grid-template-columns: 60% 40%; /* 60/40 split */
+    border-radius: 16px; 
     background: var(--card-dark);
-    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.9), var(--neon-shadow); /* Teal glow */
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.9), 0 0 20px rgba(255, 152, 0, 0.3); /* Orange glow */
     position: relative;
     overflow: hidden; 
-    border: 1px solid rgba(0, 228, 228, 0.2);
+    border: 1px solid rgba(255, 152, 0, 0.2);
 }
 
 /* --- RIGHT PANEL: INFO & ACTION (Vibrant Gradient Side) --- */
 .info-panel {
-    background: var(--primary-gradient); /* Teal Gradient */
+    background: var(--primary-gradient); /* Orange Gradient */
     color: var(--background-dark); /* Dark text on bright background for contrast */
     display: flex;
     flex-direction: column;
     justify-content: center; 
     align-items: center;
     text-align: center;
-    padding: 3rem 1.5rem; /* Increased padding */
+    padding: 3rem 1.5rem; 
     position: relative;
     z-index: 2;
-    clip-path: polygon(20% 0%, 100% 0%, 100% 100%, 0% 100%); /* Adjusted clip-path for 60/40 */
+    clip-path: polygon(20% 0%, 100% 0%, 100% 100%, 0% 100%); 
     margin-left: -20%; 
     padding-left: 20%; 
 }
 
 .welcome-text {
-    color: var(--background-dark); /* Deep Indigo text on Teal background */
-    font-size: 2.5rem; /* Increased font size */
+    color: var(--background-dark); /* Deep Black text on Orange background */
+    font-size: 2.5rem; 
     font-weight: 800;
     text-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
 }
 
 .welcome-subtext {
-    font-size: 1rem; /* Slightly larger subtext */
+    font-size: 1rem; 
     font-weight: 500;
     margin-top: 15px;
     opacity: 0.95;
@@ -76,7 +76,7 @@
 
 /* --- LEFT PANEL: FORM & TABS --- */
 .form-panel {
-    padding: 3.5rem 3rem; /* Increased padding for better spacing */
+    padding: 3.5rem 3rem; 
     position: relative;
     z-index: 3;
     overflow-y: auto; 
@@ -89,8 +89,8 @@
 
 .tabs-container {
     display: flex;
-    gap: 1.5rem; /* Increased gap between tabs */
-    margin-bottom: 2.5rem; /* Increased bottom margin */
+    gap: 1.5rem; 
+    margin-bottom: 2.5rem; 
     border-bottom: 2px solid var(--input-line);
 }
 
@@ -110,13 +110,13 @@
 }
 
 .tab-btn.active {
-    color: var(--primary-glow); /* Active tab color is Teal */
+    color: var(--primary-glow); /* Active tab color is Orange */
 }
 
 .tab-btn::after {
     content: '';
     position: absolute;
-    bottom: -2px; /* Position to cover the border */
+    bottom: -2px; 
     left: 0;
     width: 100%;
     height: 3px;
@@ -131,9 +131,9 @@
 
 .auth-form h2 {
     color: var(--text-light); 
-    font-size: 1.8rem; /* Larger header */
+    font-size: 1.8rem; 
     font-weight: 700;
-    margin-bottom: 2.5rem; /* Increased margin */
+    margin-bottom: 2.5rem; 
 }
 
 .notification {
@@ -145,10 +145,10 @@
 }
 
 .notification.success {
-    background-color: rgba(0, 228, 228, 0.1); /* Teal background */
+    background-color: rgba(255, 152, 0, 0.1); /* Orange background */
     border: 1px solid var(--primary-glow);
     color: var(--primary-glow);
-    box-shadow: 0 0 8px rgba(0, 228, 228, 0.5);
+    box-shadow: 0 0 8px rgba(255, 152, 0, 0.5);
 }
 
 .notification.error {
@@ -157,27 +157,40 @@
     color: #FF3232;
 }
 
-/* --- 03. FORM ELEMENTS ADJUSTMENTS --- */
+/* ================================== */
+/* 03. FORM ELEMENTS (INCLUDING INPUT FOCUS FIX) */
+/* ================================== */
 
-/* Ensure the default input style is dark and transparent */
-.input-group input {
+.input-group {
+    margin-bottom: 25px; 
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-subtle);
+}
+
+.input-group input, 
+.custom-select-trigger {
     width: 100%;
     padding: 10px 0;
-    background: transparent; /* Changed from 'white' or a light color to transparent */
+    background: transparent;
     border: none;
     border-bottom: 2px solid var(--input-line);
-    color: var(--text-light); /* Ensure text is light */
+    color: var(--text-light);
     font-size: 1rem;
     transition: border-bottom-color 0.3s, box-shadow 0.3s;
     outline: none;
 }
 
-/* Add an explicit rule for :focus and :hover to prevent unwanted light backgrounds */
 .input-group input:focus,
 .input-group input:hover,
 .custom-select-trigger:focus,
 .custom-select-trigger.selected {
-    /* Keep the bright border/glow */
+    /* Focus Color is Orange */
     border-bottom-color: var(--primary-glow); 
     box-shadow: 0 1px 0 0 var(--primary-glow);
     
@@ -186,7 +199,7 @@
     color: var(--text-light) !important;
 }
 
-/* FIX for browsers (especially Chrome/Safari) that style auto-filled inputs with a yellow/white background */
+/* FIX for autocompleted inputs */
 .input-group input:-webkit-autofill,
 .input-group input:-webkit-autofill:hover, 
 .input-group input:-webkit-autofill:focus {
@@ -196,76 +209,85 @@
     -webkit-text-fill-color: var(--text-light) !important;
     transition: background-color 5000s ease-in-out 0s;
 }
+
+.custom-select-options {
+    position: absolute;
+    width: 100%;
+    background-color: var(--background-dark);
+    border: 1px solid var(--input-line);
+    border-radius: 8px;
+    margin-top: 5px;
+    z-index: 10;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.custom-select-option:hover {
+    background-color: var(--input-line);
+    color: var(--primary-glow); /* Orange hover text */
+}
+
 /* ================================== */
-/* 04. BUTTON STYLES (Balanced Size) */
+/* 04. BUTTON STYLES (REDUCED LENGTH & CENTERED) */
 /* ================================== */
 
 .submit-btn {
-    /* Kept general button settings, reducing vertical padding and font slightly for a more compact look */
-    width: 100%; /* Keeps it block-level, but we'll control actual content width with padding */
-    padding: 10px; /* Reduced vertical padding from 14px to 10px */
+    width: 100%;
+    padding: 10px; 
     border: none;
-    border-radius: 6px; /* Slightly smaller radius */
-    font-size: 0.95rem; /* Reduced font size from 1rem to 0.95rem */
+    border-radius: 6px; 
+    font-size: 0.95rem; 
     font-weight: 600; 
-    margin-top: 20px; /* Reduced top margin from 25px to 20px */
+    margin-top: 20px; 
     letter-spacing: 0.8px;
     text-transform: uppercase;
     cursor: pointer;
     transition: all 0.3s ease-in-out;
-    /* --- NEW ADDITION --- */
-    max-width: 300px; /* **KEY CHANGE: Limit the maximum width** */
-    margin-left: auto; /* Center the button */
-    margin-right: auto; /* Center the button */
-    display: block; /* Ensure centering works */
+    /* KEEPING REDUCED LENGTH STYLES */
+    max-width: 300px; 
+    margin-left: auto; 
+    margin-right: auto; 
+    display: block;
 }
 
-/* Primary Button (REQUEST OTP / Verify) */
+/* Primary Button (Login/Register/Reset) */
 .primary-btn {
-    background: var(--primary-gradient);
-    color: var(--background-dark); 
-    box-shadow: 0 5px 15px rgba(0, 228, 228, 0.5);
+    background: var(--primary-gradient); /* Orange Gradient */
+    color: var(--background-dark); /* Deep Black text on bright orange button */
+    box-shadow: 0 5px 15px rgba(255, 152, 0, 0.5); /* Orange shadow */
 }
-
 
 .primary-btn:hover:not(:disabled) {
-    box-shadow: var(--neon-shadow);
+    box-shadow: var(--neon-shadow); /* Orange Neon Shadow */
     transform: translateY(-2px);
 }
 
-.primary-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    box-shadow: none;
-}
-
-/* Provider Login Section */
+/* Provider Login Section (for separation) */
 .provider-login-section {
-    margin-top: 1.5rem; /* Reduced margin */
-    padding-top: 1.5rem; /* Reduced padding */
+    margin-top: 1.5rem; 
+    padding-top: 1.5rem;
     border-top: 1px solid var(--input-line); 
-    text-align: center; /* Ensures the button inside the section is centered */
+    text-align: center;
 }
 
-
-/* Provider Button */
+/* Provider Button (Go to User Login) */
 .provider-btn {
     background-color: var(--card-dark); 
-    color: var(--primary-glow); 
+    color: var(--primary-glow); /* Orange text on dark background */
     border: 1px solid var(--provider-border); 
     box-shadow: none; 
-    padding: 8px 15px; /* **KEY CHANGE: Reduced padding for a smaller visual footprint** */
-    font-size: 0.85rem; /* **KEY CHANGE: Further reduced font size** */
+    padding: 8px 15px; 
+    font-size: 0.85rem; 
     font-weight: 500;
-    /* --- NEW ADDITION --- */
-    max-width: 250px; /* **KEY CHANGE: Make it slightly narrower than the primary button** */
     margin-top: 15px;
+    /* Keeping it the shortest button */
+    max-width: 250px; 
 }
 
 .provider-btn:hover {
-    background-color: rgba(0, 228, 228, 0.05); /* Slight teal hover */
+    background-color: rgba(255, 152, 0, 0.05); /* Slight orange hover */
     border-color: var(--primary-glow);
-    box-shadow: 0 0 8px rgba(0, 228, 228, 0.5);
+    box-shadow: 0 0 8px rgba(255, 152, 0, 0.5);
     transform: none;
 }
 
@@ -281,28 +303,138 @@
     transition: color 0.2s;
 }
 .back-btn:hover {
-    color: var(--primary-glow);
+    color: var(--primary-glow); /* Orange hover color */
+}
+/* --- 00. COLOR VARIABLES (ORANGE-BLACK DARK THEME) --- */
+:root {
+    --primary-gradient: linear-gradient(90deg, #FF6F00, #FF9800); 
+    --primary-glow: #FF9800; 
+    --background-dark: #121212; /* Deep Black background */
+    --card-dark: #1F1F1F; /* Card surface dark gray */
+    --text-light: #f0f0f0; 
+    --text-subtle: #999; 
+    --input-line: #333; 
+    /* ... other dark theme variables ... */
 }
 
-.otp-info {
-    margin-bottom: 20px;
-    font-size: 0.95rem;
-    color: var(--text-subtle);
+/* ================================== */
+/* 05. THEME TOGGLE SWITCH STYLES (Bottom Right) */
+/* ================================== */
+
+/* Positioning the container */
+.theme-toggle-container {
+    position: fixed;
+    bottom: 20px; /* 20px from bottom */
+    right: 20px; /* 20px from right */
+    z-index: 1000;
 }
 
-/* --- Responsive Adjustments --- */
-@media (max-width: 768px) {
-    .auth-container {
-        grid-template-columns: 1fr; /* Stack panels on small screens */
-        min-height: auto;
-        max-width: 90%;
-    }
+/* Base style for the hidden checkbox input */
+.theme-toggle-input {
+    display: none;
+}
 
-    .info-panel {
-        display: none; /* Hide the info panel on small screens */
-    }
+/* Style for the visual switch/slider (the label) */
+.theme-toggle-label {
+    /* Toggle Dimensions */
+    display: block;
+    width: 60px; /* Width of the entire switch */
+    height: 30px; /* Height of the entire switch */
+    border-radius: 15px;
+    
+    /* Dark Mode (Default State) */
+    background-color: var(--input-line); /* Dark grey track */
+    border: 1px solid var(--text-subtle);
+    cursor: pointer;
+    position: relative;
+    transition: background-color 0.3s, border-color 0.3s;
+}
 
-    .form-panel {
-        padding: 2.5rem 1.5rem;
-    }
+/* Style for the handle/circle (the knob) */
+.theme-toggle-label::before {
+    content: '🌙'; /* Moon icon for Dark Mode */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    
+    /* Handle Dimensions */
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    
+    /* Appearance */
+    background-color: var(--text-light); /* White/light circle */
+    font-size: 16px;
+    transition: transform 0.3s, background-color 0.3s;
+}
+
+/* State when input is CHECKED (Light Theme) */
+.theme-toggle-input:checked + .theme-toggle-label {
+    /* Active Track Color is Orange */
+    background-color: var(--primary-glow); 
+    border-color: var(--primary-glow);
+}
+
+/* Move the handle/circle when checked */
+.theme-toggle-input:checked + .theme-toggle-label::before {
+    content: '☀️'; /* Sun icon for Light Mode */
+    transform: translateX(30px); /* Move the handle to the right side (60px width - 2px padding - 28px width) */
+    background-color: var(--card-dark); /* Dark circle on orange track (it will be white in light-theme mode) */
+}
+
+/* Light Theme Overrides (For the toggle itself) */
+.light-theme .theme-toggle-label {
+    background-color: var(--input-line); /* Light track */
+    border-color: var(--input-line);
+}
+/* ================================== */
+/* NEW: LIGHT THEME OVERRIDES (Crucial Missing Block) */
+/* ================================== */
+.light-theme {
+    /* Swap Backgrounds */
+    --background-dark: #f0f0f0; /* Light Gray background */
+    --card-dark: #ffffff; /* White Card surface */
+    
+    /* Swap Text Colors */
+    --text-light: #1F1F1F; /* Dark text */
+    --text-subtle: #555; /* Darker subtle text */
+    
+    /* Input Line */
+    --input-line: #ccc; /* Light input line */
+    --provider-border: #ddd; /* Lighter border for buttons on white background */
+    
+    /* Keep Primary Color (Orange) the same for brand consistency */
+    --primary-gradient: linear-gradient(90deg, #FF6F00, #FF9800); 
+    --primary-glow: #FF9800; 
+}
+
+/* Also, update the input focus/autofill fix for light mode */
+.light-theme .input-group input:focus,
+.light-theme .input-group input:hover,
+.light-theme .custom-select-trigger:focus {
+    /* Ensure focused background is still the white card background */
+    background-color: var(--card-dark) !important; 
+    /* Ensure focused text is dark */
+    color: var(--text-light) !important; 
+}
+
+.light-theme .input-group input:-webkit-autofill,
+.light-theme .input-group input:-webkit-autofill:hover, 
+.light-theme .input-group input:-webkit-autofill:focus {
+    /* Set autocompleted background to white */
+    -webkit-box-shadow: 0 0 0 1000px var(--card-dark) inset !important;
+    /* Set autocompleted text to dark */
+    -webkit-text-fill-color: var(--text-light) !important;
+}
+
+/* FIX for the custom select options background in light mode */
+.light-theme .custom-select-options {
+    background-color: var(--card-dark); /* Should use white background */
+    border: 1px solid var(--input-line);
+}
+.light-theme .custom-select-option:hover {
+    background-color: var(--input-line); /* Should use light input line background on hover */
 }

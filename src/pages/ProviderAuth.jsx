@@ -10,6 +10,7 @@ import "../css/FestiveAuth.css";
 import { useUser } from '../context/UserContext'; 
 
 const INITIAL_FORM = {
+// ... (INITIAL_FORM state remains the same)
   name: "",
   gender: "",
   phone: "",
@@ -21,17 +22,25 @@ const INITIAL_FORM = {
 
 export default function ProviderAuth() {
   const [activeTab, setActiveTab] = useState("login");
-  const [loginStep, setLoginStep] = useState("loginform"); // loginform / forgototp
+  const [loginStep, setLoginStep] = useState("loginform"); 
   const [form, setForm] = useState(INITIAL_FORM);
   const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState({ message: "", type: "" });
   const [genderOpen, setGenderOpen] = useState(false);
+  const [isDarkTheme, setIsDarkTheme] = useState(true); // NEW STATE for theme
   const genderRef = useRef(null);
 
   const navigate = useNavigate();
   const { login } = useUser();
 
+  // Function to toggle the theme
+  const toggleTheme = () => {
+      setIsDarkTheme(prev => !prev);
+  };
+  
   // Close gender dropdown when clicked outside
+// ... (rest of the useEffect, notify, handleChange, selectGender, changeTab, handleLogin, handleRegister, handleForgotPassword, handleResetPassword functions remain the same) ...
+
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (genderRef.current && !genderRef.current.contains(e.target)) {
@@ -125,13 +134,16 @@ export default function ProviderAuth() {
     setLoading(false);
   };
 
-  // ---------------- NEW NAVIGATION FUNCTION ----------------
+
+  // ---------------- NAVIGATION FUNCTION ----------------
   const goToUserLogin = () => {
-      navigate("/login"); // Assuming the UserAuth component lives at the root path
+      navigate("/login"); 
   };
 
+
   return (
-    <div className="auth-page-wrapper">
+    // THEME CLASS APPLIED HERE
+    <div className={`auth-page-wrapper ${isDarkTheme ? '' : 'light-theme'}`}>
       <div className="auth-container">
         {/* --- LEFT PANEL: TABS & FORM (FORM PANEL WRAPPER ADDED) --- */}
         <div className="form-panel">
@@ -339,6 +351,21 @@ export default function ProviderAuth() {
             <p className="welcome-subtext">Manage your events, track bookings, and grow your audience here.</p>
         </div>
 
+      
+
+      </div>
+      
+      {/* NEW THEME TOGGLE SWITCH */}
+      <div className="theme-toggle-container">
+          <input 
+              type="checkbox" 
+              id="theme-switch-provider" /* Use a unique ID here if rendered on the same page */
+              className="theme-toggle-input"
+              checked={!isDarkTheme} // Checked means Light Theme is ON
+              onChange={toggleTheme}
+              title="Toggle Dark/Light Theme"
+          />
+          <label htmlFor="theme-switch-provider" className="theme-toggle-label"></label>
       </div>
     </div>
   );
