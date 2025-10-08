@@ -19,7 +19,7 @@ export default function ServicePreview() {
         console.log("Fetched services:", response.data);
 
         const serviceList = Array.isArray(response.data) ? response.data : [];
-        setPreviewServices(serviceList.slice(0, 6)); // first 6
+        setPreviewServices(serviceList); // first 6
       } catch (error) {
         console.error("Failed to fetch services:", error);
       } finally {
@@ -40,14 +40,6 @@ export default function ServicePreview() {
           {previewServices.map((service) => (
             <ServiceCard key={service._id} service={service} />
           ))}
-
-          {/* View All Card */}
-          <Link to="/services" className="service-card more-services-card">
-            <div className="more-card-content">
-              <span className="more-card-icon">→</span>
-              <span className="more-card-text">View All Services</span>
-            </div>
-          </Link>
         </div>
       )}
     </section>

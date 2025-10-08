@@ -42,6 +42,9 @@
     /* Fonts */
     --font-body: 'Poppins', sans-serif;
     --font-heading: 'Poppins', sans-serif;
+
+    --card-highlight: rgba(255, 255, 255, 0.5);
+    --card-bg: rgba(255, 255, 255, 0.5);
 }
 
 [data-theme="dark"] {
@@ -52,8 +55,7 @@
 
     --bg-color: #121212;
     --bg-secondary: #1e1e1e;
-
-    --text-color: #e0e0e0;
+    --text-color: #f8f9fa;
     --text-color-light: #a0a0a0;
 
     --border-color: #343a40;
@@ -76,4 +78,7 @@
     /* Gradient for image fallbacks */
     --fallback-gradient-start: #434343;
     --fallback-gradient-end: #2a2a2a;
+
+    --card-highlight: rgba(255, 255, 255, 0.1);
+    --card-bg: rgba(40, 40, 40, 0.4);
 }
