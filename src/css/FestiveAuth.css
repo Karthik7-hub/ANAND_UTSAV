@@ -1,4 +1,21 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+/* --- COLORS & THEME (Deep Indigo, Electric Teal & Off-White) --- */
+:root {
+    --primary-gradient: linear-gradient(90deg, #00C0C0, #00E4E4); /* Electric Teal to Aqua */
+    --primary-glow: #00E4E4; /* Center of the glow (Electric Teal) */
+    --background-dark: #1A1A2E; /* Deep Indigo/Black background */
+    --card-dark: #242940; /* Card surface dark indigo */
+    --text-light: #E0E0E0; /* Off-White */
+    --text-subtle: #A0A4B8; /* Muted light purple/grey */
+    --input-line: #454D6B; /* Darker border/line color */
+    --neon-shadow: 0 0 10px var(--primary-glow), 0 0 25px rgba(0, 228, 228, 0.4);
+    --provider-border: #4A4A6B;
+}
+
+/* ================================== */
+/* 01. CORE LAYOUT & CONTAINER (65/35 Split Panel) */
+/* ================================== */
 
 .auth-page-wrapper {
     display: flex;
@@ -6,290 +23,286 @@
     align-items: center;
     min-height: 100vh;
     width: 100%;
-    padding: 0 20px;
-    box-sizing: border-box;
+    background-color: var(--background-dark); 
     font-family: 'Poppins', sans-serif;
-    background-color: #f4f7f9;
-    /* --- UPDATED: Simplified background to only the photo --- */
-    background-image: url("/images/festival.png");
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
+    padding: 20px; /* Added padding for smaller screens */
 }
 
 .auth-container {
     width: 100%;
-    max-width: 450px;
-    padding: 3rem;
-    border-radius: 16px;
-    background: rgba(255, 255, 255, 0.6);
-    backdrop-filter: blur(10px) saturate(100%);
-    -webkit-backdrop-filter: blur(10px) saturate(100%);
-    border: 1px solid rgba(255, 255, 255, 0.9);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    animation: fadeIn 0.6s ease-in-out;
+    max-width: 900px; /* SLIGHTLY LARGER max-width */
+    min-height: 580px; /* SLIGHTLY TALLER min-height for better proportion */
+    display: grid;
+    grid-template-columns: 60% 40%; /* Adjusted split to 60/40 */
+    border-radius: 16px; /* Increased border radius */
+    background: var(--card-dark);
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.9), var(--neon-shadow); /* Teal glow */
+    position: relative;
+    overflow: hidden; 
+    border: 1px solid rgba(0, 228, 228, 0.2);
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: scale(0.98) translateY(10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-    }
-}
-
-.auth-container h2 {
-    color: #333;
-    font-weight: 700;
+/* --- RIGHT PANEL: INFO & ACTION (Vibrant Gradient Side) --- */
+.info-panel {
+    background: var(--primary-gradient); /* Teal Gradient */
+    color: var(--background-dark); /* Dark text on bright background for contrast */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; 
+    align-items: center;
     text-align: center;
-    margin-top: 0;
-    margin-bottom: 2rem;
-    font-size: 1.8rem;
+    padding: 3rem 1.5rem; /* Increased padding */
+    position: relative;
+    z-index: 2;
+    clip-path: polygon(20% 0%, 100% 0%, 100% 100%, 0% 100%); /* Adjusted clip-path for 60/40 */
+    margin-left: -20%; 
+    padding-left: 20%; 
 }
+
+.welcome-text {
+    color: var(--background-dark); /* Deep Indigo text on Teal background */
+    font-size: 2.5rem; /* Increased font size */
+    font-weight: 800;
+    text-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+}
+
+.welcome-subtext {
+    font-size: 1rem; /* Slightly larger subtext */
+    font-weight: 500;
+    margin-top: 15px;
+    opacity: 0.95;
+    line-height: 1.5;
+}
+
+/* --- LEFT PANEL: FORM & TABS --- */
+.form-panel {
+    padding: 3.5rem 3rem; /* Increased padding for better spacing */
+    position: relative;
+    z-index: 3;
+    overflow-y: auto; 
+    color: var(--text-light); 
+}
+
+/* ================================== */
+/* 02. TABS, NOTIFICATION & HEADERS */
+/* ================================== */
 
 .tabs-container {
     display: flex;
-    margin-bottom: 2rem;
-    border-bottom: 1px solid #e0e0e0;
+    gap: 1.5rem; /* Increased gap between tabs */
+    margin-bottom: 2.5rem; /* Increased bottom margin */
+    border-bottom: 2px solid var(--input-line);
 }
 
 .tab-btn {
-    flex: 1;
-    padding: 14px;
-    border: none;
-    background: transparent;
+    padding: 12px 0;
+    color: var(--text-subtle); 
+    font-weight: 500;
     cursor: pointer;
-    font-size: 1rem;
-    font-weight: 600;
-    color: #888;
+    background: none;
+    border: none;
     position: relative;
-    transition: color 0.3s ease;
+    transition: color 0.3s;
 }
 
 .tab-btn:hover {
-    color: #333;
+    color: var(--text-light);
+}
+
+.tab-btn.active {
+    color: var(--primary-glow); /* Active tab color is Teal */
 }
 
 .tab-btn::after {
     content: '';
     position: absolute;
-    bottom: -1px;
+    bottom: -2px; /* Position to cover the border */
     left: 0;
     width: 100%;
-    height: 2px;
-    background-color: #FF671F;
-    transform: scaleX(0);
-    transition: transform 0.3s ease;
-}
-
-.tab-btn.active {
-    color: #333;
+    height: 3px;
+    background-color: transparent;
+    transition: background-color 0.3s, box-shadow 0.3s;
 }
 
 .tab-btn.active::after {
-    transform: scaleX(1);
+    background-color: var(--primary-glow);
+    box-shadow: 0 0 8px var(--primary-glow);
 }
 
-.input-group {
-    position: relative;
-    margin-bottom: 1.75rem;
-}
-
-.input-group input {
-    width: 100%;
-    padding: 14px 16px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    background: #fff;
-    color: #333;
-    font-size: 1rem;
-    font-family: 'Poppins', sans-serif;
-    transition: all 0.2s ease;
-    box-sizing: border-box;
-}
-
-.input-group input:focus {
-    outline: none;
-    border-color: #FF671F;
-    box-shadow: 0 0 0 3px rgba(255, 103, 31, 0.15);
-}
-
-.otp-info {
-    font-size: 0.95rem;
-    color: #555;
-    text-align: center;
-    margin-bottom: 1.5rem;
-}
-
-.submit-btn {
-    width: 100%;
-    padding: 15px;
-    border: none;
-    border-radius: 8px;
-    font-size: 1.1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    margin-top: 10px;
-    background-color: #FF671F;
-    color: white;
-}
-
-.submit-btn:hover:not(:disabled) {
-    background-color: #e65c19;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(255, 103, 31, 0.3);
-}
-
-.submit-btn:disabled {
-    background-color: #ffcda7;
-    cursor: not-allowed;
-}
-
-.back-btn {
-    background-color: transparent;
-    color: #555;
-    border: none;
-    text-align: center;
-    margin-top: 1.5rem;
-    width: 100%;
-    cursor: pointer;
-    padding: 10px;
-    font-weight: 500;
-}
-
-.back-btn:hover {
-    color: #000;
+.auth-form h2 {
+    color: var(--text-light); 
+    font-size: 1.8rem; /* Larger header */
+    font-weight: 700;
+    margin-bottom: 2.5rem; /* Increased margin */
 }
 
 .notification {
-    padding: 1rem;
-    margin-bottom: 1.5rem;
+    padding: 15px;
     border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
     font-weight: 500;
-    text-align: center;
-    border: 1px solid;
 }
 
 .notification.success {
-    background-color: #eaf6ec;
-    border-color: #79c68a;
-    color: #2b643a;
+    background-color: rgba(0, 228, 228, 0.1); /* Teal background */
+    border: 1px solid var(--primary-glow);
+    color: var(--primary-glow);
+    box-shadow: 0 0 8px rgba(0, 228, 228, 0.5);
 }
 
 .notification.error {
-    background-color: #fdecea;
-    border-color: #f3c1c2;
-    color: #a5282b;
+    background-color: rgba(255, 50, 50, 0.1);
+    border: 1px solid #FF3232;
+    color: #FF3232;
 }
 
-@media (min-width: 769px) {
-    .auth-form.register-form {
-        max-height: 55vh;
-        overflow-y: auto;
-        padding-right: 10px;
-        /* --- REMOVED: Unnecessary padding that caused extra scroll --- */
-    }
+/* --- 03. FORM ELEMENTS ADJUSTMENTS --- */
 
-    .auth-form.register-form::-webkit-scrollbar {
-        width: 8px;
-    }
-
-    .auth-form.register-form::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 10px;
-    }
-
-    .auth-form.register-form::-webkit-scrollbar-thumb {
-        background: #ccc;
-        border-radius: 10px;
-    }
-
-    .auth-form.register-form::-webkit-scrollbar-thumb:hover {
-        background: #aaa;
-    }
-}
-
-/* --- Custom Dropdown Menu Styles --- */
-.custom-select-container {
-    position: relative;
+/* Ensure the default input style is dark and transparent */
+.input-group input {
     width: 100%;
-}
-
-.custom-select-trigger {
-    width: 100%;
-    padding: 14px 16px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    background: #fff;
-    color: #333;
+    padding: 10px 0;
+    background: transparent; /* Changed from 'white' or a light color to transparent */
+    border: none;
+    border-bottom: 2px solid var(--input-line);
+    color: var(--text-light); /* Ensure text is light */
     font-size: 1rem;
-    font-family: 'Poppins', sans-serif;
-    transition: all 0.2s ease;
-    cursor: pointer;
-    text-align: left;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.custom-select-trigger:focus {
+    transition: border-bottom-color 0.3s, box-shadow 0.3s;
     outline: none;
-    border-color: #FF671F;
-    box-shadow: 0 0 0 3px rgba(255, 103, 31, 0.15);
 }
 
-.custom-select-trigger .arrow {
-    border: solid #555;
-    border-width: 0 2px 2px 0;
-    display: inline-block;
-    padding: 3px;
-    transform: rotate(45deg);
-    transition: transform 0.2s ease;
+/* Add an explicit rule for :focus and :hover to prevent unwanted light backgrounds */
+.input-group input:focus,
+.input-group input:hover,
+.custom-select-trigger:focus,
+.custom-select-trigger.selected {
+    /* Keep the bright border/glow */
+    border-bottom-color: var(--primary-glow); 
+    box-shadow: 0 1px 0 0 var(--primary-glow);
+    
+    /* FIX: Explicitly set dark background and light text when active */
+    background-color: var(--card-dark) !important; 
+    color: var(--text-light) !important;
 }
 
-.custom-select-trigger .arrow.open {
-    transform: rotate(-135deg);
+/* FIX for browsers (especially Chrome/Safari) that style auto-filled inputs with a yellow/white background */
+.input-group input:-webkit-autofill,
+.input-group input:-webkit-autofill:hover, 
+.input-group input:-webkit-autofill:focus {
+    /* Set the autocompleted background to match the theme */
+    -webkit-box-shadow: 0 0 0 1000px var(--card-dark) inset !important;
+    /* Set the autocompleted text to be light */
+    -webkit-text-fill-color: var(--text-light) !important;
+    transition: background-color 5000s ease-in-out 0s;
 }
+/* ================================== */
+/* 04. BUTTON STYLES (Balanced Size) */
+/* ================================== */
 
-.custom-select-options {
-    position: absolute;
-    top: calc(100% + 8px);
-    left: 0;
-    right: 0;
-    z-index: 100;
-    border-radius: 12px;
-    padding: 0.5rem;
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(10px) saturate(100%);
-    -webkit-backdrop-filter: blur(10px) saturate(100%);
-    border: 1px solid rgba(255, 255, 255, 0.9);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-    opacity: 0;
-    transform: translateY(-10px);
-    animation: fadeInMenu 0.2s ease forwards;
-}
-
-@keyframes fadeInMenu {
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.custom-select-option {
-    padding: 12px 16px;
-    color: #333;
+.submit-btn {
+    /* Kept general button settings, reducing vertical padding and font slightly for a more compact look */
+    width: 100%; /* Keeps it block-level, but we'll control actual content width with padding */
+    padding: 10px; /* Reduced vertical padding from 14px to 10px */
+    border: none;
+    border-radius: 6px; /* Slightly smaller radius */
+    font-size: 0.95rem; /* Reduced font size from 1rem to 0.95rem */
+    font-weight: 600; 
+    margin-top: 20px; /* Reduced top margin from 25px to 20px */
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
     cursor: pointer;
-    border-radius: 8px;
-    transition: background-color 0.2s ease, color 0.2s ease;
+    transition: all 0.3s ease-in-out;
+    /* --- NEW ADDITION --- */
+    max-width: 300px; /* **KEY CHANGE: Limit the maximum width** */
+    margin-left: auto; /* Center the button */
+    margin-right: auto; /* Center the button */
+    display: block; /* Ensure centering works */
 }
 
-.custom-select-option:hover {
-    background-color: #FF671F;
-    color: #fff;
+/* Primary Button (REQUEST OTP / Verify) */
+.primary-btn {
+    background: var(--primary-gradient);
+    color: var(--background-dark); 
+    box-shadow: 0 5px 15px rgba(0, 228, 228, 0.5);
+}
+
+
+.primary-btn:hover:not(:disabled) {
+    box-shadow: var(--neon-shadow);
+    transform: translateY(-2px);
+}
+
+.primary-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* Provider Login Section */
+.provider-login-section {
+    margin-top: 1.5rem; /* Reduced margin */
+    padding-top: 1.5rem; /* Reduced padding */
+    border-top: 1px solid var(--input-line); 
+    text-align: center; /* Ensures the button inside the section is centered */
+}
+
+
+/* Provider Button */
+.provider-btn {
+    background-color: var(--card-dark); 
+    color: var(--primary-glow); 
+    border: 1px solid var(--provider-border); 
+    box-shadow: none; 
+    padding: 8px 15px; /* **KEY CHANGE: Reduced padding for a smaller visual footprint** */
+    font-size: 0.85rem; /* **KEY CHANGE: Further reduced font size** */
+    font-weight: 500;
+    /* --- NEW ADDITION --- */
+    max-width: 250px; /* **KEY CHANGE: Make it slightly narrower than the primary button** */
+    margin-top: 15px;
+}
+
+.provider-btn:hover {
+    background-color: rgba(0, 228, 228, 0.05); /* Slight teal hover */
+    border-color: var(--primary-glow);
+    box-shadow: 0 0 8px rgba(0, 228, 228, 0.5);
+    transform: none;
+}
+
+.back-btn {
+    display: block;
+    margin-top: 20px;
+    background: none;
+    border: none;
+    color: var(--text-subtle);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+.back-btn:hover {
+    color: var(--primary-glow);
+}
+
+.otp-info {
+    margin-bottom: 20px;
+    font-size: 0.95rem;
+    color: var(--text-subtle);
+}
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 768px) {
+    .auth-container {
+        grid-template-columns: 1fr; /* Stack panels on small screens */
+        min-height: auto;
+        max-width: 90%;
+    }
+
+    .info-panel {
+        display: none; /* Hide the info panel on small screens */
+    }
+
+    .form-panel {
+        padding: 2.5rem 1.5rem;
+    }
 }
