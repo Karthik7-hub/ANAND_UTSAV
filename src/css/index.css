@@ -1,0 +1,79 @@
+/* --- 1. FONT IMPORT --- */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+/* --- 2. THEME & COLOR VARIABLES --- */
+:root {
+    /* Light Theme (Default) */
+    --primary-color: #FF671F;
+    /* Your primary color */
+    --primary-color-light: rgba(255, 103, 31, 0.1);
+    --primary-color-dark: #E6550D;
+
+    --bg-color: #f4f7f9;
+    /* Main background */
+    --bg-secondary: #FFFFFF;
+    /* For cards, modals, etc. */
+
+    --text-color: #333333;
+    --text-color-light: #555555;
+
+    --border-color: #dee2e6;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+
+    /* Navbar */
+    --navbar-bg: transparent;
+    --navbar-scrolled-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.2));
+    --mobile-menu-bg: rgba(255, 255, 255, 0.8);
+
+    /* Inputs & Misc */
+    --input-bg-color: #e9edf0;
+
+    /* Dropdown (User Menu) */
+    --dropdown-bg: var(--bg-secondary);
+    --dropdown-border: rgba(0, 0, 0, 0.1);
+    --dropdown-text: var(--text-color);
+    --dropdown-text-secondary: var(--text-color-light);
+    --dropdown-item-hover-bg: var(--primary-color-light);
+
+    /* Gradient for image fallbacks */
+    --fallback-gradient-start: #ff9a9e;
+    --fallback-gradient-end: #fad0c4;
+
+    /* Fonts */
+    --font-body: 'Poppins', sans-serif;
+    --font-heading: 'Poppins', sans-serif;
+}
+
+[data-theme="dark"] {
+    /* Dark Theme */
+    --primary-color: #FF8A50;
+    --primary-color-light: rgba(255, 138, 80, 0.1);
+    --primary-color-dark: #FF671F;
+
+    --bg-color: #121212;
+    --bg-secondary: #1e1e1e;
+
+    --text-color: #e0e0e0;
+    --text-color-light: #a0a0a0;
+
+    --border-color: #343a40;
+    --shadow-color: rgba(0, 0, 0, 0.3);
+
+    /* Navbar */
+    --navbar-scrolled-bg: linear-gradient(135deg, rgba(30, 30, 30, 0.5), rgba(18, 18, 18, 0.4));
+    --mobile-menu-bg: rgba(30, 30, 30, 0.8);
+
+    /* Inputs & Misc */
+    --input-bg-color: #2a2a2a;
+
+    /* Dropdown (User Menu) */
+    --dropdown-bg: #1e1e1e;
+    --dropdown-border: rgba(255, 255, 255, 0.15);
+    --dropdown-text: var(--text-color);
+    --dropdown-text-secondary: var(--text-color-light);
+    --dropdown-item-hover-bg: var(--primary-color-light);
+
+    /* Gradient for image fallbacks */
+    --fallback-gradient-start: #434343;
+    --fallback-gradient-end: #2a2a2a;
+}

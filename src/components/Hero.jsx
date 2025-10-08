@@ -1,24 +1,25 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Link } from 'react-router-dom';
-import { Play, Pause, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import "../css/Hero.css";
 import { heroPicks } from "../data/heroPicksData";
 
 export default function Hero() {
+    const navigate = useNavigate();
     const topPicks = heroPicks;
     const numSlides = topPicks.length;
+
     const [activeIndex, setActiveIndex] = useState(0);
     const [isPlaying, setIsPlaying] = useState(true);
     const [isScrubbing, setIsScrubbing] = useState(false);
 
     // Refs
     const heroRef = useRef(null);
-    const trackRef = useRef(null); // Ref for direct DOM manipulation of the track
+    const trackRef = useRef(null);
     const paginationRef = useRef(null);
     const autoPlayTimer = useRef(null);
     const restartTimer = useRef(null);
 
-    // Refs for drag state
     const dragStartX = useRef(0);
     const dragDistance = useRef(0);
     const wasDragged = useRef(false);
@@ -36,13 +37,13 @@ export default function Hero() {
         if (numSlides <= 1) return;
         stopAutoPlay();
         setIsPlaying(true);
-        autoPlayTimer.current = setInterval(handleNext, 4000);
+        autoPlayTimer.current = setInterval(handleNext, 5000);
     }, [handleNext, numSlides, stopAutoPlay]);
 
     const resetAutoPlayTimer = useCallback(() => {
         clearTimeout(restartTimer.current);
         stopAutoPlay();
-        restartTimer.current = setTimeout(startAutoPlay, 6000); // 8-second delay
+        restartTimer.current = setTimeout(startAutoPlay, 8000);
     }, [stopAutoPlay, startAutoPlay]);
 
     useEffect(() => {
@@ -53,13 +54,13 @@ export default function Hero() {
         };
     }, [startAutoPlay]);
 
-    // --- Main Swipe/Drag Logic ---
+    // --- Event Handlers ---
+
     const handleDragMove = useCallback((e) => {
         const currentX = e.touches ? e.touches[0].clientX : e.clientX;
         dragDistance.current = currentX - dragStartX.current;
         if (Math.abs(dragDistance.current) > 10) wasDragged.current = true;
 
-        // Live drag visual update
         if (trackRef.current) {
             const baseOffset = -activeIndex * trackRef.current.offsetWidth;
             trackRef.current.style.transform = `translateX(${baseOffset + dragDistance.current}px)`;
@@ -68,14 +69,19 @@ export default function Hero() {
 
     const handleDragEnd = useCallback(() => {
         if (trackRef.current) {
-            trackRef.current.style.transition = ''; // Restore CSS transition
-            trackRef.current.style.transform = ''; // Clear inline style
+            trackRef.current.style.transition = '';
+            trackRef.current.style.transform = '';
         }
         if (heroRef.current) heroRef.current.classList.remove('is-dragging');
 
         const swipeThreshold = 50;
-        if (dragDistance.current > swipeThreshold) handlePrev();
-        else if (dragDistance.current < -swipeThreshold) handleNext();
+        if (dragDistance.current > swipeThreshold) {
+            handlePrev();
+        } else if (dragDistance.current < -swipeThreshold) {
+            handleNext();
+        }
+
+        wasDragged.current = false; // Reset drag flag
 
         window.removeEventListener('mousemove', handleDragMove);
         window.removeEventListener('mouseup', handleDragEnd);
@@ -90,7 +96,7 @@ export default function Hero() {
         wasDragged.current = false;
 
         if (heroRef.current) heroRef.current.classList.add('is-dragging');
-        if (trackRef.current) trackRef.current.style.transition = 'none'; // Disable transition for snappy drag
+        if (trackRef.current) trackRef.current.style.transition = 'none';
 
         window.addEventListener('mousemove', handleDragMove);
         window.addEventListener('mouseup', handleDragEnd);
@@ -98,7 +104,6 @@ export default function Hero() {
         window.addEventListener('touchend', handleDragEnd);
     }, [resetAutoPlayTimer, handleDragMove, handleDragEnd]);
 
-    // --- Active Dot Scrubbing Logic ---
     const handleScrubMove = useCallback((e) => {
         if (!isScrubbing || numSlides <= 1) return;
         const paginationWidth = paginationRef.current?.offsetWidth || 200;
@@ -138,9 +143,18 @@ export default function Hero() {
         };
     }, [isScrubbing, handleScrubMove, handleScrubEnd]);
 
-    const handleClick = useCallback((e) => {
-        if (wasDragged.current) e.preventDefault();
-    }, []);
+    const handleSlideClick = (pick) => {
+        if (!wasDragged.current) {
+            navigate("/services", { state: { preSelectedServiceIds: pick.packageServiceIds } });
+        }
+    };
+
+    const handleSlideTouchEnd = (e, pick) => {
+        if (!wasDragged.current) {
+            e.preventDefault();
+            navigate("/services", { state: { preSelectedServiceIds: pick.packageServiceIds } });
+        }
+    };
 
     const trackStyles = { transform: `translateX(-${activeIndex * 100}%)` };
     const getSlideBackgroundStyle = (images) => (images?.[0] ? { backgroundImage: `url(${images[0]})` } : {});
@@ -155,9 +169,11 @@ export default function Hero() {
                 onTouchStart={handleDragStart}
             >
                 {topPicks.map((pick, index) => (
-                    <Link
-                        key={pick.id} to="/services" state={{ preSelectedServiceIds: pick.packageServiceIds }}
-                        className="slide-item" draggable="false" onClick={handleClick}
+                    <div
+                        key={pick.id}
+                        className="slide-item"
+                        onClick={() => handleSlideClick(pick)}
+                        onTouchEnd={(e) => handleSlideTouchEnd(e, pick)}
                     >
                         <div className={`slide-background ${activeIndex === index ? 'active' : ''}`} style={getSlideBackgroundStyle(pick.images)} />
                         <div className="hero-content">
@@ -169,14 +185,27 @@ export default function Hero() {
                                 </div>
                             </div>
                         </div>
-                    </Link>
+                    </div>
                 ))}
             </div>
 
             {numSlides > 1 && (
                 <>
-                    <button onClick={() => { resetAutoPlayTimer(); handlePrev(); }} className="nav-arrow prev" aria-label="Previous slide"><ChevronLeft size={28} /></button>
-                    <button onClick={() => { resetAutoPlayTimer(); handleNext(); }} className="nav-arrow next" aria-label="Next slide"><ChevronRight size={28} /></button>
+                    <button
+                        onClick={() => { resetAutoPlayTimer(); handlePrev(); }}
+                        onTouchEnd={(e) => { e.preventDefault(); resetAutoPlayTimer(); handlePrev(); }}
+                        className="nav-arrow prev"
+                        aria-label="Previous slide">
+                        <ChevronLeft size={28} />
+                    </button>
+                    <button
+                        onClick={() => { resetAutoPlayTimer(); handleNext(); }}
+                        onTouchEnd={(e) => { e.preventDefault(); resetAutoPlayTimer(); handleNext(); }}
+                        className="nav-arrow next"
+                        aria-label="Next slide">
+                        <ChevronRight size={28} />
+                    </button>
+
                     <div className="carousel-controls-overlay">
                         <div
                             className="carousel-controls"
@@ -189,6 +218,7 @@ export default function Hero() {
                                         key={index}
                                         className={`dot ${activeIndex === index ? 'active' : ''}`}
                                         onClick={() => { resetAutoPlayTimer(); setActiveIndex(index); }}
+                                        onTouchEnd={(e) => { e.preventDefault(); resetAutoPlayTimer(); setActiveIndex(index); }}
                                         onMouseDown={activeIndex === index ? handleScrubStart : undefined}
                                         onTouchStart={activeIndex === index ? handleScrubStart : undefined}
                                         aria-label={`Go to slide ${index + 1}`}

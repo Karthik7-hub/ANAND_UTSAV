@@ -18,31 +18,33 @@ body.scrubbing {
     display: flex;
     height: 100%;
     cursor: grab;
-    transition: transform 1s cubic-bezier(0.86, 0, 0.07, 1);
+    transition: transform 0.8s cubic-bezier(0.86, 0, 0.07, 1);
 }
 
 .top-picks-hero.is-dragging .carousel-track {
     cursor: grabbing;
-    transition: none;
+    /* transition: none; Let's keep a subtle transition for smoothness */
 }
 
-/* --- Desktop Layout: Text Left --- */
 .slide-item {
     flex: 0 0 100%;
     height: 100%;
     position: relative;
     display: flex;
     align-items: center;
-    /* Aligns content block to the left */
     justify-content: flex-start;
-    /* Adjusted padding for left-aligned text */
     padding: 2rem 8%;
     box-sizing: border-box;
     overflow: hidden;
     color: #fff;
     text-decoration: none;
-    /* Fix for background image visibility */
     isolation: isolate;
+    cursor: pointer;
+    /* Change cursor to indicate it's clickable */
+}
+
+.slide-item:hover {
+    text-decoration: none;
 }
 
 .slide-background {
@@ -53,6 +55,11 @@ body.scrubbing {
     z-index: -1;
     transition: transform 7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     transform: scale(1.15);
+}
+
+/* Fix for animation interruption bug */
+.slide-background:not(.active) {
+    transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .slide-background::after {
@@ -79,7 +86,6 @@ body.scrubbing {
 
 .hero-text-content {
     max-width: 650px;
-    /* Aligns the text itself to the left */
     text-align: left;
 }
 
@@ -107,8 +113,9 @@ body.scrubbing {
     transition-delay: 0.5s;
 }
 
-.hero-tag {
-    background-color: var(--primary-color, #ff6b6b);
+.top-picks-hero .hero-tag {
+    background-color: var(--primary-color);
+    color: #fff;
     padding: 0.3rem 0.8rem;
     border-radius: 2rem;
     font-size: 0.8rem;
@@ -117,19 +124,22 @@ body.scrubbing {
     margin-bottom: 0.75rem;
 }
 
-.hero-title {
+.top-picks-hero .hero-title {
     font-size: clamp(2.2rem, 4vw, 3.2rem);
+    font-weight: 700;
     text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
     line-height: 1.15;
     margin: 0 0 1rem 0;
+    color: #fff;
 }
 
-.hero-description {
+.top-picks-hero .hero-description {
     font-size: 1.1rem;
     line-height: 1.6;
     text-shadow: 0 1px 5px rgba(0, 0, 0, 0.5);
     max-width: 550px;
-    /* No longer centered */
+    margin-bottom: 0;
+    color: rgba(255, 255, 255, 0.9);
 }
 
 /* --- Controls & Arrows --- */
@@ -170,11 +180,9 @@ body.scrubbing {
     right: 1.5rem;
 }
 
-/* --- Desktop Layout: Controls Center --- */
 .carousel-controls-overlay {
     position: absolute;
     bottom: 1.5rem;
-    /* Centered using the transform trick */
     left: 50%;
     transform: translateX(-50%);
     z-index: 5;
@@ -184,13 +192,13 @@ body.scrubbing {
     display: flex;
     align-items: center;
     gap: 1rem;
-    padding: 0.5rem 0.5rem 0.5rem 1.2rem;
+    padding: 0.5rem 1.2rem;
     border-radius: 50px;
-    background: rgba(40, 40, 40, 0.5);
-    backdrop-filter: blur(12px) saturate(180%);
+    background: var(--navbar-scrolled-bg);
     -webkit-backdrop-filter: blur(12px) saturate(180%);
+    backdrop-filter: blur(12px) saturate(180%);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 32px var(--shadow-color);
 }
 
 .pagination-dots {
@@ -211,10 +219,10 @@ body.scrubbing {
 }
 
 .dot.active {
-    background-color: var(--primary-color, #ff6b6b);
+    background-color: var(--primary-color);
     width: 25px;
     border-radius: 10px;
-    box-shadow: 0 0 8px var(--primary-color, #ff6b6b);
+    box-shadow: 0 0 8px var(--primary-color);
     cursor: grab;
 }
 
@@ -233,15 +241,14 @@ body.scrubbing {
 
     .slide-item {
         padding: 1rem 1.5rem;
-        /* justify-content is already flex-start, which is good */
     }
 
-    .hero-title {
+    .top-picks-hero .hero-title {
         font-size: clamp(1.4rem, 5vw, 1.8rem);
         margin-bottom: 0.5rem;
     }
 
-    .hero-description {
+    .top-picks-hero .hero-description {
         display: none;
     }
 
@@ -249,7 +256,6 @@ body.scrubbing {
         display: none;
     }
 
-    /* Mobile controls are centered at the bottom */
     .carousel-controls-overlay {
         left: 0;
         right: 0;
@@ -261,14 +267,11 @@ body.scrubbing {
 
     .carousel-controls {
         background: none;
+        -webkit-backdrop-filter: none;
         backdrop-filter: none;
         border: none;
         box-shadow: none;
         justify-content: center;
         padding: 0;
-    }
-
-    .play-pause-btn {
-        display: none;
     }
 }
