@@ -22,10 +22,16 @@ export default function FestiveAuth() {
   const [notification, setNotification] = useState({ message: "", type: "" });
   const [isLoading, setIsLoading] = useState(false);
   const [isGenderMenuOpen, setIsGenderMenuOpen] = useState(false);
+  const [isDarkTheme, setIsDarkTheme] = useState(true); // NEW STATE for theme
   const genderMenuRef = useRef(null);
 
   const { login } = useUser();
   const navigate = useNavigate();
+
+  // Function to toggle the theme
+  const toggleTheme = () => {
+      setIsDarkTheme(prev => !prev);
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -112,7 +118,8 @@ export default function FestiveAuth() {
 
 
   return (
-    <div className="auth-page-wrapper">
+    // THEME CLASS APPLIED HERE
+    <div className={`auth-page-wrapper ${isDarkTheme ? '' : 'light-theme'}`}>
       <div className="auth-container">
 
         {/* --- LEFT PANEL: TABS & FORM --- */}
@@ -153,7 +160,7 @@ export default function FestiveAuth() {
 
                   {/* Provider Login Button moved here, below the Request OTP button */}
                   <div className="provider-login-section">
-                      <button className="submit-btn provider-btn" onClick={() => navigate("/provider-login")}>
+                      <button type="button" className="submit-btn provider-btn" onClick={() => navigate("/provider-login")}>
                           LOGIN AS Service Provider
                       </button>
                   </div>
@@ -179,7 +186,6 @@ export default function FestiveAuth() {
               registerStep === "details" ? (
                 <form onSubmit={handleSendOtp} className="auth-form register-form">
                   <h2>Create Account</h2>
-                  {/* ... (registration inputs remain the same) ... */}
                   <div className="input-group"><label htmlFor="fullName">Full Name</label><input id="fullName" placeholder="" value={formData.fullName} onChange={handleInputChange} required /></div>
                   <div className="input-group"><label htmlFor="username">Username</label><input id="username" placeholder="" value={formData.username} onChange={handleInputChange} required /></div>
                   <div className="input-group"><label htmlFor="email">Email Address</label><input id="email" type="email" placeholder="" value={formData.email} onChange={handleInputChange} required /></div>
@@ -230,6 +236,21 @@ export default function FestiveAuth() {
             <p className="welcome-subtext">Login in to unlock exclusive AnandUtsav</p>
         </div>
 
+      
+
+      </div>
+      
+      {/* NEW THEME TOGGLE SWITCH */}
+      <div className="theme-toggle-container">
+          <input 
+              type="checkbox" 
+              id="theme-switch" 
+              className="theme-toggle-input"
+              checked={!isDarkTheme} // Checked means Light Theme is ON
+              onChange={toggleTheme}
+              title="Toggle Dark/Light Theme"
+          />
+          <label htmlFor="theme-switch" className="theme-toggle-label"></label>
       </div>
     </div>
   );
