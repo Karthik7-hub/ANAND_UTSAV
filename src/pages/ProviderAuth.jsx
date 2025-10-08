@@ -8,6 +8,7 @@ import {
 } from "../utils/providerAuthApi";
 import { providerLogoutRequest } from "../utils/providerAuthApi";
 import "../css/FestiveAuth.css";
+import { useUser } from '../context/UserContext'; 
 
 const INITIAL_FORM = {
   name: "",
@@ -29,6 +30,8 @@ export default function ProviderAuth() {
   const genderRef = useRef(null);
 
   const navigate = useNavigate();
+
+  const { login } = useUser();
 
   // Close gender dropdown when clicked outside
   useEffect(() => {
@@ -73,6 +76,11 @@ export default function ProviderAuth() {
     console.log("🔑 Login Response:", res);
     if (res.success) {
   notify("🎉 Login successful!", "success");
+
+  if (res.user && res.token) {
+        login(res.user, res.token);
+      }
+      
   setTimeout(() => navigate("/provider/dashboard"), 1500); // go to dashboard
 }
  else {

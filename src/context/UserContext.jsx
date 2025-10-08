@@ -7,30 +7,37 @@ export const useUser = () => useContext(UserContext);
 
 export const UserProvider = ({ children }) => {
     const [user, setUser] = useState(null);
-    const [token, setToken] = useState(() => localStorage.getItem('authToken'));
+    const [token, setToken] = useState(() => localStorage.getItem('token'));
     const [favourites, setFavourites] = useState([]);
 
     // Restore session
+    // MODIFIED: Now restores the full user object, not just a generic one
     useEffect(() => {
-        const storedToken = localStorage.getItem('authToken');
-        if (storedToken) {
+        const storedToken = localStorage.getItem('token');
+        const storedUser = localStorage.getItem('user'); // ADDED: Get the user string
+
+        if (storedToken && storedUser) {
             setToken(storedToken);
-            setUser({ loggedIn: true });
-            fetchFavourites(storedToken); // fetch favourites on load
+            setUser(JSON.parse(storedUser)); // MODIFIED: Parse and set the full user object
+            fetchFavourites(storedToken);
         }
     }, []);
 
     // Login
+    // MODIFIED: Now saves the user object to localStorage
     const login = (userData, authToken) => {
-        localStorage.setItem('authToken', authToken);
+        localStorage.setItem('token', authToken);
+        localStorage.setItem('user', JSON.stringify(userData)); // ADDED: Save user object
         setToken(authToken);
         setUser(userData);
-        fetchFavourites(authToken); // fetch favourites after login
+        fetchFavourites(authToken);
     };
 
     // Logout
+    // MODIFIED: Now clears the user object from localStorage
     const logout = () => {
-        localStorage.removeItem('authToken');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user'); // ADDED: Clear user object
         setToken(null);
         setUser(null);
         setFavourites([]);

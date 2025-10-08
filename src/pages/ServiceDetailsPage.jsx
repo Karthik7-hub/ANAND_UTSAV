@@ -1,6 +1,6 @@
 // src/pages/ServiceDetailsPage.jsx
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import '../css/ServiceDetailsPage.css';
 import { CalendarCheck } from 'lucide-react';
 import { allCategories } from '../data/categoriesData';
@@ -28,6 +28,7 @@ function getCategoryName(id) {
 
 export default function ServiceDetailsPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { user, token } = useUser();
   const [service, setService] = useState(null);
   const [mainImage, setMainImage] = useState('');
@@ -180,6 +181,69 @@ export default function ServiceDetailsPage() {
               <CalendarCheck size={20} />
               <span>Book Service</span>
             </button>
+
+            {/* Added "Message Me" button below Book Service */}
+           {/* <button
+              className="cta-button message-button"
+              onClick={() => {
+                if (!user) {
+                  alert('Please login to message the provider.');
+                  return;
+                }
+                // Use a fictional provider ID for testing chat navigation
+                const providerId = 'fictional-provider-id-123';
+
+                navigate(`/chat/${providerId}`);
+              }}
+            >
+              💬 Message Me
+            </button> */}
+            {/* <button
+              onClick={() => startChatWithProvider(provider._id)}
+              className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
+            >
+              Chat Now 💬
+            </button> */}
+              <button
+                onClick={async () => {
+                  if (!user || !token) {
+                    alert("Please login to start a chat with the provider.");
+                    return;
+                  }
+                   console.log("Service Object:", service); 
+                  // Ensure you have the provider ID from the service object
+                  if (!service?.providers) {
+                      alert("Provider information is not available for this service.");
+                      return;
+                  }
+
+                  try {
+                    const res = await axios.post(
+                      "https://anand-u.vercel.app/convo/",
+                      { providerId: service.providers._id },
+                      {
+                        headers: {
+                          Authorization: `Bearer ${token}`,
+                        },
+                      }
+                    );
+
+                    // The backend returns the full conversation object (new or existing)
+                    if (res.data && res.data._id) {
+                      // Navigate to the chat page, passing the specific conversation ID
+                      navigate(`/chat/${res.data._id}`);
+                    } else {
+                      alert('Could not initiate chat. Please try again.');
+                    }
+                  } catch (err) {
+                    console.error('Failed to start chat:', err.response?.data || err.message);
+                    alert('An error occurred while starting the chat.');
+                  }
+                }}
+                className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
+              >
+                Chat Now 💬
+              </button>
           </div>
 
           {/* ⭐ Review Section */}
@@ -241,4 +305,3 @@ export default function ServiceDetailsPage() {
     </div>
   );
 }
-

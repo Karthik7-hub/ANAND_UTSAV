@@ -90,12 +90,18 @@ export default function FestiveAuth() {
 
   const response = await verifyOtpRequest(activeTab, formData);
 
-  if (response.success && response.token) {
-    if (activeTab === "login") {
-      showNotification(`🎉 Welcome back!`, "success");
-      login({ email: formData.email }, response.token);
-      setTimeout(() => navigate("/"), 2000);
-    } else {
+
+
+ if (response.success && response.token) {
+  if (activeTab === "login") {
+    showNotification(`🎉 Welcome back!`, "success");
+    // ✅ Pass full user object from backend, not just email
+    login(response.u, response.token);
+    setTimeout(() => navigate("/"), 2000);
+  }
+
+
+ else {
       showNotification(`🎉 Registration successful! Please login.`, "success");
       setTimeout(() => handleTabChange("login"), 2000);
     }
