@@ -18,6 +18,7 @@ import ProviderDashboard from "./pages/ProviderDashboard";
 import AddService from "./pages/AddService";
 import MyReviewsPage from './pages/MyReviewsPage';
 import MyAccountPage from './pages/MyAccountPage';
+import DashboardPage from './pages/DashboardPage.jsx';
 function App() {
   return (
     <>
@@ -43,6 +44,7 @@ function App() {
             <Route path="/my-reviews" element={<MyReviewsPage />} />
             <Route path="/services" element={<AllServicesPage />} />
             <Route path="/favourites" element={<Favourites />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
 
             {/* Add ChatPage route */}
             <Route path="/chat/:conversationId" element={<ChatPage />} />

@@ -141,8 +141,8 @@ export default function AnandUtsavNavbar() {
                                         <p>Signed in as</p>
                                         <strong>{user.username || user.email}</strong>
                                     </div>
-                                    <Link to="/my-account" className="dropdown-item" onClick={() => setIsUserMenuOpen(false)}>
-                                        <UserCircle size={20} /> View Profile
+                                    <Link to="/dashboard" className="dropdown-item" onClick={() => setIsUserMenuOpen(false)}>
+                                        <UserCircle size={20} /> Dashboard
                                     </Link>
                                     <Link to="/chat" className="dropdown-item" onClick={() => setIsUserMenuOpen(false)}>
                                         <MessageSquare size={20} /> Chats
@@ -176,7 +176,7 @@ export default function AnandUtsavNavbar() {
                     <hr className="nav-divider" />
                     {user ? (
                         <>
-                            <NavLink to="/my-account" onClick={toggleMobileMenu}>My Account</NavLink>
+                            <NavLink to="/dashboard" onClick={toggleMobileMenu}>My Dashboard</NavLink>
                             <NavLink to="/favourites" onClick={toggleMobileMenu}>Favourites</NavLink>
                             <NavLink to="/bookings" onClick={toggleMobileMenu}>Bookings</NavLink>
                         </>
