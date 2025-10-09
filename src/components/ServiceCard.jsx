@@ -1,60 +1,107 @@
-import React from "react";
-import { Heart, CalendarCheck } from "lucide-react";
+// src/components/ServiceCard.jsx
+
+import React, { useState, useEffect } from "react"; // ✨ Import useState and useEffect
 import { Link } from "react-router-dom";
+import { Heart, Star } from "lucide-react";
 import { useUser } from "../context/UserContext";
+import { allCategories } from "../data/categoriesData";
+import "../css/ServiceCard.css";
+
+const categoryImageMap = allCategories.reduce((map, category) => {
+  map[category.name.toLowerCase()] = category.image;
+  return map;
+}, {});
 
 export default function ServiceCard({ service }) {
   const { favourites, toggleFavourite } = useUser();
-  const isFav = favourites.includes(service._id);
+  const isFavorited = favourites.includes(service._id);
+
+  // --- Image Fallback Logic ---
+  const primaryImage = service.images?.[0];
+  const categoryImage = service.categories?.name ? categoryImageMap[service.categories.name.toLowerCase()] : null;
+
+  // ✨ 1. Create a state to hold the current image source
+  const [currentImageSrc, setCurrentImageSrc] = useState(primaryImage);
+
+  // This effect resets the image when the service prop changes
+  useEffect(() => {
+    setCurrentImageSrc(service.images?.[0]);
+  }, [service.images]);
+
+  // ✨ 2. Create an error handler to switch to the next fallback
+  const handleImageError = () => {
+    // If the primary image failed, try the category image
+    if (currentImageSrc === primaryImage) {
+      setCurrentImageSrc(categoryImage);
+    }
+    // If the category image also failed, set the source to null to trigger the gradient
+    else {
+      setCurrentImageSrc(null);
+    }
+  };
+
+  // --- Other helper variables ---
+  const serviceName = service.name || "Service Name";
+  const serviceCategory = service.categories?.name || "General";
+  const priceAmount = service.priceInfo?.amount;
+  const priceUnit = service.priceInfo?.unit || "package";
+  const MAX_DISPLAY_PRICE = 100000000;
+  const rating = service.avgRating > 0 ? service.avgRating.toFixed(1) : "--";
+
+  const handleFavoriteClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleFavourite(service._id);
+  };
 
   return (
-    <div className="service-card-wrapper">
-      <Link to={`/service/${service._id}`} className="service-card-link">
-        <div className="service-card">
-          <img
-            src={service.images?.[0] || "/fallback.jpg"}
-            className="card-background-image"
-            alt={service.name}
-          />
+    <Link to={`/service/${service._id}`} className="service-card-link">
+      <div className="service-card">
+        <div className="card-image-container">
+          {/* ✨ 3. Render based on the state */}
+          {currentImageSrc ? (
+            <img
+              src={currentImageSrc}
+              className="card-image"
+              alt={serviceName}
+              onError={handleImageError} // This is the crucial part
+            />
+          ) : (
+            <div className="card-image-fallback-gradient"></div>
+          )}
 
-          <span className="service-category-tag">
-            {service.categories?.name || "Unknown"}
-          </span>
+          <div className="service-rating-tag">
+            <Star size={14} fill="currentColor" /> {rating}
+          </div>
 
-          <div className="card-content-overlay">
-            <div className="card-top-section">
-              <h4 className="service-name">{service.name}</h4>
+          <button
+            className={`wishlist-btn ${isFavorited ? "active" : ""}`}
+            onClick={handleFavoriteClick}
+            aria-label="Toggle Favorite"
+          >
+            <Heart size={18} fill={isFavorited ? "currentColor" : "none"} />
+          </button>
+        </div>
 
-              {/* ❤️ Toggle Button */}
-              <button
-                className="wishlist-btn"
-                aria-label="Shortlist Service"
-                onClick={(e) => {
-                  e.preventDefault(); // stop Link navigation
-                  toggleFavourite(service._id);
-                }}
-              >
-                <Heart
-                  size={18}
-                  fill={isFav ? "red" : "none"}
-                  color={isFav ? "red" : "currentColor"}
-                />
-              </button>
-            </div>
+        <div className="card-info-container">
+          <div className="info-header">
+            <span className="service-category-tag">{serviceCategory}</span>
+            <h4 className="service-name">{serviceName}</h4>
+          </div>
 
-            <div className="card-bottom-section">
-              <p className="service-price">
-                ₹{service.priceInfo?.amount} / {service.priceInfo?.unit}
-              </p>
-              <button className="booking-btn">
-                <CalendarCheck size={16} />
-                <span>Book Now</span>
-              </button>
-            </div>
+          <div className="card-footer">
+            <p className="service-price">
+              {typeof priceAmount === "number" && priceAmount < MAX_DISPLAY_PRICE
+                ? `₹${new Intl.NumberFormat("en-IN").format(priceAmount)}`
+                : "Contact for Price"}
+              {typeof priceAmount === "number" && priceAmount < MAX_DISPLAY_PRICE && (
+                <span> / {priceUnit}</span>
+              )}
+            </p>
+            <button className="booking-btn">Book Now</button>
           </div>
         </div>
-      </Link>
-    </div>
+      </div>
+    </Link>
   );
 }
-

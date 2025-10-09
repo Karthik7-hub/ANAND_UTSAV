@@ -1,0 +1,95 @@
+/* src/css/ServicePreview.css */
+
+.services-section {
+    padding: 1.5rem clamp(1rem, 5vw, 4rem);
+    background-color: var(--bg-color);
+    font-family: var(--font-body);
+    position: relative;
+    /* Required for the decorative shapes */
+    overflow: hidden;
+    /* Contain the blurred shapes */
+}
+
+/* ✨ Decorative blurred shape for the background (Light Theme) */
+[data-theme="light"] .services-section::before {
+    content: '';
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    top: -10%;
+    left: -15%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(var(--primary-color-rgb), 0.15), transparent 70%);
+    filter: blur(100px);
+    z-index: 1;
+}
+
+/* ✨ Decorative blurred shape for the background (Dark Theme) */
+[data-theme="dark"] .services-section::before {
+    content: '';
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    bottom: 0%;
+    right: -10%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(var(--primary-color-rgb), 0.2), transparent 70%);
+    filter: blur(120px);
+    z-index: 1;
+}
+
+
+/* Ensure the content is on top of the background shapes */
+.section-header,
+.service-grid {
+    position: relative;
+    z-index: 2;
+}
+
+.section-header {
+    max-width: 1400px;
+    margin: 0 auto 3rem auto;
+    text-align: center;
+}
+
+.section-title {
+    font-family: var(--font-heading);
+    font-size: clamp(2.2rem, 5vw, 3rem);
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 0.75rem;
+}
+
+.section-subtitle {
+    font-size: clamp(1rem, 3vw, 1.15rem);
+    color: var(--text-color-light);
+    max-width: 550px;
+    margin: 0 auto;
+}
+
+.service-grid {
+    display: grid;
+    gap: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    grid-template-columns: 1fr;
+}
+
+/* Responsive grid columns */
+@media (min-width: 600px) {
+    .service-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 900px) {
+    .service-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (min-width: 1200px) {
+    .service-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}

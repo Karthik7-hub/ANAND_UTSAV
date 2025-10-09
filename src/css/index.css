@@ -1,84 +1,102 @@
-/* --- 1. FONT IMPORT --- */
+/* src/index.css */
+
+/* --- 1. FONT IMPORTS --- */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
-/* --- 2. THEME & COLOR VARIABLES --- */
+/* --- 2. GLOBAL STYLES & RESETS --- */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-body);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* --- 3. LIGHT THEME VARIABLES (DEFAULT) --- */
 :root {
-    /* Light Theme (Default) */
+    /* Colors */
     --primary-color: #FF671F;
-    /* Your primary color */
-    --primary-color-light: rgba(255, 103, 31, 0.1);
     --primary-color-dark: #E6550D;
+    --primary-color-light: rgba(255, 103, 31, 0.1);
+    --primary-color-rgb: 255, 103, 31;
 
-    --bg-color: #f4f7f9;
-    /* Main background */
-    --bg-secondary: #FFFFFF;
-    /* For cards, modals, etc. */
-
+    /* Typography */
+    --font-body: 'Poppins', sans-serif;
+    --font-heading: 'Poppins', sans-serif;
     --text-color: #333333;
     --text-color-light: #555555;
 
-    --border-color: #dee2e6;
-    --shadow-color: rgba(0, 0, 0, 0.1);
+    /* Backgrounds */
+    --bg-color: #f4f7f9;
+    --bg-secondary: #FFFFFF;
+    --input-bg-color: #e9edf0;
 
-    /* Navbar */
+    /* Borders & Shadows */
+    --border-color: #dee2e6;
+    --shadow-light: 0 4px 15px rgba(0, 0, 0, 0.05);
+    --shadow-heavy: 0 10px 30px rgba(0, 0, 0, 0.1);
+
+    /* Components */
     --navbar-bg: transparent;
     --navbar-scrolled-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.2));
     --mobile-menu-bg: rgba(255, 255, 255, 0.8);
+    --skeleton-shimmer: rgba(255, 255, 255, 0.3);
 
-    /* Inputs & Misc */
-    --input-bg-color: #e9edf0;
+    /* Glassmorphism Card */
+    --card-bg-glass: rgba(255, 255, 255, 0.6);
+    --card-border-glass: rgba(255, 255, 255, 0.9);
 
-    /* Dropdown (User Menu) */
+    /* Dropdown Menu */
     --dropdown-bg: var(--bg-secondary);
     --dropdown-border: rgba(0, 0, 0, 0.1);
     --dropdown-text: var(--text-color);
     --dropdown-text-secondary: var(--text-color-light);
     --dropdown-item-hover-bg: var(--primary-color-light);
-
-    /* Gradient for image fallbacks */
-    --fallback-gradient-start: #ff9a9e;
-    --fallback-gradient-end: #fad0c4;
-
-    /* Fonts */
-    --font-body: 'Poppins', sans-serif;
-    --font-heading: 'Poppins', sans-serif;
-
-    --card-highlight: rgba(255, 255, 255, 0.5);
-    --card-bg: rgba(255, 255, 255, 0.5);
 }
 
+/* --- 4. DARK THEME VARIABLES --- */
 [data-theme="dark"] {
-    /* Dark Theme */
+    /* Colors */
     --primary-color: #FF8A50;
-    --primary-color-light: rgba(255, 138, 80, 0.1);
     --primary-color-dark: #FF671F;
+    --primary-color-light: rgba(255, 138, 80, 0.1);
+    --primary-color-rgb: 255, 138, 80;
 
-    --bg-color: #121212;
-    --bg-secondary: #1e1e1e;
+    /* Typography */
     --text-color: #f8f9fa;
     --text-color-light: #a0a0a0;
 
-    --border-color: #343a40;
-    --shadow-color: rgba(0, 0, 0, 0.3);
-
-    /* Navbar */
-    --navbar-scrolled-bg: linear-gradient(135deg, rgba(30, 30, 30, 0.5), rgba(18, 18, 18, 0.4));
-    --mobile-menu-bg: rgba(30, 30, 30, 0.8);
-
-    /* Inputs & Misc */
+    /* Backgrounds */
+    --bg-color: #121212;
+    --bg-secondary: #1e1e1e;
     --input-bg-color: #2a2a2a;
 
-    /* Dropdown (User Menu) */
-    --dropdown-bg: #1e1e1e;
+    /* Borders & Shadows */
+    --border-color: #343a40;
+    --shadow-light: 0 4px 15px rgba(0, 0, 0, 0.2);
+    --shadow-heavy: 0 10px 30px rgba(0, 0, 0, 0.3);
+
+    /* Components */
+    --navbar-scrolled-bg: linear-gradient(135deg, rgba(30, 30, 30, 0.5), rgba(18, 18, 18, 0.4));
+    --mobile-menu-bg: rgba(30, 30, 30, 0.8);
+    --skeleton-shimmer: rgba(255, 255, 255, 0.05);
+
+    /* Glassmorphism Card */
+    --card-bg-glass: rgba(30, 30, 30, 0.5);
+    --card-border-glass: rgba(255, 255, 255, 0.1);
+
+    /* Dropdown Menu */
+    --dropdown-bg: var(--bg-secondary);
     --dropdown-border: rgba(255, 255, 255, 0.15);
     --dropdown-text: var(--text-color);
     --dropdown-text-secondary: var(--text-color-light);
     --dropdown-item-hover-bg: var(--primary-color-light);
-
-    /* Gradient for image fallbacks */
-    --fallback-gradient-start: #434343;
-    --fallback-gradient-end: #2a2a2a;
-
-    --card-highlight: rgba(255, 255, 255, 0.1);
-    --card-bg: rgba(40, 40, 40, 0.4);
 }
