@@ -1,29 +1,151 @@
+/* src/css/MyReviewsPage.css */
+
+/* --- 1. Page Layout & Background --- */
 .my-reviews-page {
-  padding: 2rem;
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 0 1rem 4rem 1rem;
+  font-family: var(--font-body);
+  position: relative;
+  z-index: 2;
 }
 
+/* Decorative shape for glassmorphism effect */
+.my-reviews-page::before {
+  content: '';
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  top: 10%;
+  left: -20%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(var(--primary-color-rgb), 0.1), transparent 70%);
+  filter: blur(100px);
+  z-index: -1;
+}
+
+.my-reviews-page h2 {
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 5vw, 2.5rem);
+  color: var(--text-color);
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.reviews-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* --- 2. Review Card Styles --- */
 .review-item {
-  background: #fff;
-  border-radius: 12px;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  background: var(--card-bg-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--card-border-glass);
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-light);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 .review-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.review-service-name {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.review-rating {
+  display: flex;
+  gap: 0.2rem;
+  color: #f59e0b;
+  /* A nice gold/yellow for stars */
+}
+
+.review-text {
+  color: var(--text-color-light);
+  line-height: 1.6;
+}
+
+.review-date {
+  color: var(--text-color-light);
+  opacity: 0.8;
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
 }
 
 .delete-btn {
+  flex-shrink: 0;
   background: transparent;
-  border: none;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  color: #e74c3c;
+  color: #ef4444;
+  /* Red for delete icon */
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.delete-btn:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.2);
 }
 
 .delete-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.no-reviews-placeholder {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+}
+
+/* --- 3. Skeleton Loader Styles --- */
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.skeleton-card {
+  background-color: var(--bg-secondary) !important;
+  backdrop-filter: none !important;
+}
+
+.skeleton-line {
+  border-radius: 6px;
+  background-color: var(--border-color);
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton-line::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, var(--skeleton-shimmer), transparent);
+  transform: translateX(-100%);
+  animation: shimmer 1.5s infinite;
 }

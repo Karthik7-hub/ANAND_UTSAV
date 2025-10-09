@@ -1,7 +1,7 @@
 // src/pages/DashboardPage.jsx
 
 import React from 'react';
-import { User, Heart, CalendarCheck, MessageSquare } from 'lucide-react';
+import { User, Heart, CalendarCheck, MessageSquare, Star } from 'lucide-react';
 import { NavLink } from "react-router-dom";
 import '../css/Dashboard.css';
 
@@ -44,6 +44,13 @@ export default function DashboardPage() {
                 >
                     <MessageSquare />
                     <span>Chats</span>
+                </NavLink>
+                <NavLink
+                    to="/my-reviews"
+                    className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+                >
+                    <Star />
+                    <span>My Reviews</span>
                 </NavLink>
             </div>
 

@@ -1,42 +1,214 @@
+/* src/css/MyAccountPage.css */
+
+/* --- 1. Page Layout & Glassmorphism Background --- */
 .my-account-page {
-  padding: 20px;
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 0 1rem 4rem 1rem;
+  font-family: var(--font-body);
+  position: relative;
+  z-index: 2;
 }
 
+.my-account-page::before {
+  content: '';
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  top: 0%;
+  right: -20%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(var(--primary-color-rgb), 0.15), transparent 70%);
+  filter: blur(100px);
+  z-index: -1;
+}
+
+.my-account-page h2 {
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 5vw, 2.5rem);
+  color: var(--text-color);
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* --- 2. Profile Card (Glass Effect) --- */
 .profile-card {
-  border: 1px solid #ccc;
-  padding: 20px;
+  background: var(--card-bg-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--card-border-glass);
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: var(--shadow-light);
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 600px) {
+  .profile-card {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* --- 3. Form Styles --- */
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-field label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-color-light);
+}
+
+/* ✨ UPDATED STYLE FOR THE VIEW-MODE VALUES */
+.field-value {
+  font-size: 1.1rem;
+  /* Increased size */
+  font-weight: 600;
+  /* Made bolder */
+  color: var(--text-color);
+  padding: 0.75rem 0;
+  min-height: 45px;
+  display: flex;
+  align-items: center;
+}
+
+.form-field input {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  padding: 0.75rem 1rem;
   border-radius: 8px;
-  max-width: 500px;
-}
-
-.profile-card label {
-  display: block;
-  margin-bottom: 10px;
-}
-
-.profile-card input {
+  border: 1px solid var(--border-color);
+  background-color: var(--input-bg-color);
+  color: var(--text-color);
+  transition: border-color 0.2s, box-shadow 0.2s;
   width: 100%;
-  padding: 8px;
-  margin-top: 4px;
+  min-height: 45px;
 }
 
+.form-field input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px var(--primary-color-light);
+}
+
+/* --- 4. Button Styles --- */
 .profile-buttons {
-  margin-top: 20px;
+  margin-top: 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  grid-column: 1 / -1;
 }
 
 .profile-buttons button {
-  margin-right: 10px;
-}
-.my-reviews-btn {
-    background: #f0c040;
-    color: black;
-    padding: 8px 12px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 10px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  padding: 0.6rem 1.25rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
 }
 
-.my-reviews-btn:hover {
-    background: #d4a500;
+.edit-btn,
+.save-btn {
+  background: var(--primary-color);
+  color: #fff;
+}
+
+.edit-btn:hover,
+.save-btn:hover {
+  background: var(--primary-color-dark);
+}
+
+.cancel-btn {
+  background: var(--bg-secondary);
+  color: var(--text-color-light);
+  border-color: var(--border-color);
+}
+
+.cancel-btn:hover {
+  border-color: var(--text-color-light);
+  color: var(--text-color);
+}
+
+.delete-btn {
+  background: transparent;
+  color: #ef4444;
+  margin-left: auto;
+}
+
+.delete-btn:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+/* --- 5. Skeleton Loader Styles --- */
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.skeleton-card {
+  background-color: var(--bg-secondary) !important;
+  backdrop-filter: none !important;
+}
+
+.skeleton-line {
+  border-radius: 6px;
+  background-color: var(--border-color);
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton-line::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, var(--skeleton-shimmer), transparent);
+  transform: translateX(-100%);
+  animation: shimmer 1.5s infinite;
+}
+
+.title-skeleton {
+  width: 40%;
+  height: 2.5rem;
+  margin-bottom: 2rem;
+}
+
+.skeleton-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.label-skeleton {
+  width: 30%;
+  height: 0.9rem;
+}
+
+.input-skeleton {
+  width: 100%;
+  height: 45px;
+}
+
+.skeleton-buttons {
+  grid-column: 1 / -1;
+}
+
+.button-skeleton {
+  width: 120px;
+  height: 40px;
 }
