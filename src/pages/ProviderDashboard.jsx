@@ -12,7 +12,7 @@ import { Plus, LayoutDashboard, Calendar, MessageSquare, Settings, LogOut, Chevr
 import ServiceProviderCard from "../components/ServiceProviderCard";
 
 // NEW: Import the ChatPage component. Adjust the path if it's located elsewhere.
-import ChatPage from './ChatPage';
+import ProviderChatPage from "./ProviderChatPage";
 
 
 export default function ProviderDashboard() {
@@ -286,13 +286,13 @@ export default function ProviderDashboard() {
               {/* MODIFIED: Sidebar links now use onClick handlers to switch views */}
               <li className="nav-item">
                 <a onClick={() => setActiveView('dashboard')} className={activeView === 'dashboard' ? 'active' : ''}>
-                    <LayoutDashboard size={20} /> Dashboard
+                  <LayoutDashboard size={20} /> Dashboard
                 </a>
               </li>
               <li className="nav-item"><a href="#" onClick={handleDummyLink}><Calendar size={20} /> Bookings</a></li>
               <li className="nav-item">
                 <a onClick={() => setActiveView('messages')} className={activeView === 'messages' ? 'active' : ''}>
-                    <MessageSquare size={20} /> Messages
+                  <MessageSquare size={20} /> Messages
                 </a>
               </li>
               <li className="nav-item"><a href="#" onClick={handleDummyLink}><Settings size={20} /> Settings</a></li>
@@ -321,7 +321,7 @@ export default function ProviderDashboard() {
             // We conditionally render the correct component based on the 'activeView' state.
           */}
           {activeView === 'dashboard' && <ServicesView />}
-          {activeView === 'messages' && <ChatPage />}
+          {activeView === 'messages' && <ProviderChatPage />}
         </main>
       </div>
     </>

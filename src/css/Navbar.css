@@ -2,14 +2,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Titillium+Web:wght@700&display=swap');
 
-/* --- Body Base --- */
-body {
-    font-family: 'Poppins', sans-serif;
-    margin: 0;
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    min-height: 200vh;
-}
 
 /* --- 2. Navbar Container --- */
 .navbar-container {

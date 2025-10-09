@@ -12,32 +12,33 @@ import MainLayout from './components/MainLayout';
 import { UserProvider } from './context/UserContext';
 import Favourites from "./pages/Favourites";
 import ChatPage from './pages/ChatPage.jsx';
-
-
 import ProviderDashboard from "./pages/ProviderDashboard";
 import AddService from "./pages/AddService";
 import MyReviewsPage from './pages/MyReviewsPage';
 import MyAccountPage from './pages/MyAccountPage';
 import DashboardPage from './pages/DashboardPage.jsx';
+import ProviderChatPage from './pages/ProviderChatPage.jsx';
 function App() {
   return (
     <>
       <ScrollToTop />
       <UserProvider>
         <Routes>
-          {/* Authentication Routes */}
+          {/* Authentication Routes (No Layout) */}
           <Route path="/login" element={<FestiveAuth />} />
           <Route path="/provider-login" element={<ProviderAuth />} />
 
-          {/* Provider Dashboard Routes */}
+          {/* Provider Dashboard Routes (No Layout) */}
           <Route path="/provider/dashboard" element={<ProviderDashboard />} />
           <Route path="/provider/add-service" element={<AddService />} />
+          <Route path="/provider/chat" element={<ProviderChatPage />} />
+          <Route path="/provider/chat/:conversationId" element={<ProviderChatPage />} />
 
-          {/* Routes with MainLayout / Navbar */}
+
+          {/* --- Main Site Routes (These use the Navbar/Footer from MainLayout) --- */}
           <Route element={<MainLayout />}>
             <Route path="/" element={<HomePage />} />
             <Route path="/my-account" element={<MyAccountPage />} />
-
             <Route path="/categories" element={<AllCategoriesPage />} />
             <Route path="/category/:id" element={<CategoryServicesPage />} />
             <Route path="/service/:id" element={<ServiceDetailsPage />} />
@@ -46,10 +47,13 @@ function App() {
             <Route path="/favourites" element={<Favourites />} />
             <Route path="/dashboard" element={<DashboardPage />} />
 
-            {/* Add ChatPage route */}
-            <Route path="/chat/:conversationId" element={<ChatPage />} />
-            <Route path="/chat" element={<ChatPage />} />
+            {/* The chat routes have been MOVED out of here */}
           </Route>
+
+          {/* --- Fullscreen App Routes (These DO NOT use MainLayout) --- */}
+          <Route path="/chat/:conversationId" element={<ChatPage />} />
+          <Route path="/chat" element={<ChatPage />} />
+
         </Routes>
       </UserProvider>
     </>

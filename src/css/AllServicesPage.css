@@ -1,5 +1,25 @@
-/* src/css/AllServicesPage.css */
-@import url('./SharedTheme.css');
+/* src/css/SharedTheme.css */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Tiro+Devanagari+Hindi:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Titillium+Web:wght@700&display=swap');
+
+:root {
+    /* ✨ Colors */
+    --primary-color: #FF671F;
+    --primary-hover: #e65c19;
+    --secondary-color: #000080;
+    --accent-color: #138808;
+    --highlight-color: #FFD700;
+    --wishlist-hover-color: #EC1D67;
+
+    /* ✨ Typography */
+    --font-brand: "Titillium Web", sans-serif;
+    --font-heading: 'Tiro Devanagari Hindi', serif;
+    --font-body: 'Poppins', sans-serif;
+    --text-dark: #1F2937;
+    --text-light: #ffffff;
+    --text-muted: #d1d5db;
+}
 
 /* --- Page Background & Layout --- */
 .services-page-background {
@@ -582,13 +602,14 @@
 .clear-package-btn:hover {
     background: var(--primary-hover);
 }
+
 .category-checkboxes {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .category-label {
-  font-size: 14px;
-  cursor: pointer;
+    font-size: 14px;
+    cursor: pointer;
 }
