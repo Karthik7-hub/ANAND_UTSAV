@@ -7,10 +7,9 @@ import {
   providerResetPasswordRequest,
 } from "../utils/providerAuthApi";
 import "../css/FestiveAuth.css";
-import { useUser } from '../context/UserContext'; 
+import { useProvider } from '../context/ProviderContext'; // ✅ CHANGED: Import useProvider
 
 const INITIAL_FORM = {
-// ... (INITIAL_FORM state remains the same)
   name: "",
   gender: "",
   phone: "",
@@ -22,24 +21,21 @@ const INITIAL_FORM = {
 
 export default function ProviderAuth() {
   const [activeTab, setActiveTab] = useState("login");
-  const [loginStep, setLoginStep] = useState("loginform"); 
+  const [loginStep, setLoginStep] = useState("loginform");
   const [form, setForm] = useState(INITIAL_FORM);
   const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState({ message: "", type: "" });
   const [genderOpen, setGenderOpen] = useState(false);
-  const [isDarkTheme, setIsDarkTheme] = useState(true); // NEW STATE for theme
+  const [isDarkTheme, setIsDarkTheme] = useState(true);
   const genderRef = useRef(null);
 
   const navigate = useNavigate();
-  const { login } = useUser();
+  const { login } = useProvider(); // ✅ CHANGED: Use the provider's login function
 
-  // Function to toggle the theme
+  // ... (All other functions like toggleTheme, useEffect, notify, handleChange, etc., remain exactly the same) ...
   const toggleTheme = () => {
-      setIsDarkTheme(prev => !prev);
+    setIsDarkTheme(prev => !prev);
   };
-  
-  // Close gender dropdown when clicked outside
-// ... (rest of the useEffect, notify, handleChange, selectGender, changeTab, handleLogin, handleRegister, handleForgotPassword, handleResetPassword functions remain the same) ...
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -75,23 +71,27 @@ export default function ProviderAuth() {
   };
 
   // ---------------- LOGIN ----------------
+  // No changes needed here. It correctly receives 'res.user' (which is the provider object)
+  // and 'res.token', and passes them to the 'login' function from our new context.
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     const res = await providerLoginRequest(form);
     if (res.success) {
       notify("🎉 Login successful!", "success");
+      // The backend sends 'user' and 'token' keys for the provider
       if (res.user && res.token) {
-        login(res.user, res.token);
+        login(res.user, res.token); // This now calls the login from ProviderContext
       }
-      setTimeout(() => navigate("/provider/dashboard"), 1500); // go to dashboard
+      setTimeout(() => navigate("/provider/dashboard"), 1500);
     } else {
       notify(res.msg || "Login failed", "error");
     }
     setLoading(false);
   };
 
-  // ---------------- REGISTER ----------------
+  // ... (handleRegister, handleForgotPassword, handleResetPassword functions remain the same) ...
+
   const handleRegister = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -105,7 +105,6 @@ export default function ProviderAuth() {
     setLoading(false);
   };
 
-  // ---------------- FORGOT PASSWORD ----------------
   const handleForgotPassword = async () => {
     if (!form.email?.trim())
       return notify("Enter your email", "error");
@@ -120,7 +119,6 @@ export default function ProviderAuth() {
     setLoading(false);
   };
 
-  // ---------------- RESET PASSWORD ----------------
   const handleResetPassword = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -134,16 +132,15 @@ export default function ProviderAuth() {
     setLoading(false);
   };
 
-
-  // ---------------- NAVIGATION FUNCTION ----------------
   const goToUserLogin = () => {
-      navigate("/login"); 
+    navigate("/login");
   };
 
-
+  // ---------------- JSX / RENDER ----------------
+  // No changes are needed in the JSX part of the component.
   return (
-    // THEME CLASS APPLIED HERE
     <div className={`auth-page-wrapper ${isDarkTheme ? '' : 'light-theme'}`}>
+      {/* ... The entire JSX structure remains identical ... */}
       <div className="auth-container">
         {/* --- LEFT PANEL: TABS & FORM (FORM PANEL WRAPPER ADDED) --- */}
         <div className="form-panel">
@@ -167,7 +164,6 @@ export default function ProviderAuth() {
               {notification.message}
             </div>
           )}
-
           <div className="form-content">
             {/* --- LOGIN FORM --- */}
             {activeTab === "login" &&
@@ -208,16 +204,16 @@ export default function ProviderAuth() {
                   </button>
 
                   {/* --- NEW BUTTON: Go to User Login --- */}
-                  <div className="provider-login-section" style={{textAlign: 'center'}}>
+                  <div className="provider-login-section" style={{ textAlign: 'center' }}>
                     <button
-                        type="button"
-                        className="submit-btn provider-btn"
-                        onClick={goToUserLogin}
+                      type="button"
+                      className="submit-btn provider-btn"
+                      onClick={goToUserLogin}
                     >
-                        GO TO USER LOGIN
+                      GO TO USER LOGIN
                     </button>
                   </div>
-                  
+
                 </form>
               ) : (
                 <form onSubmit={handleResetPassword} className="auth-form">
@@ -265,77 +261,77 @@ export default function ProviderAuth() {
               <form onSubmit={handleRegister} className="auth-form register-form">
                 <h2>Event Provider Registration</h2>
                 <div className="input-group">
-                    <label htmlFor="name">Full Name / Company Rep</label>
-                    <input
-                        id="name"
-                        placeholder=""
-                        value={form.name}
-                        onChange={handleChange}
-                        required
-                    />
+                  <label htmlFor="name">Full Name / Company Rep</label>
+                  <input
+                    id="name"
+                    placeholder=""
+                    value={form.name}
+                    onChange={handleChange}
+                    required
+                  />
                 </div>
                 <div className="input-group" ref={genderRef}>
-                    <label>Gender (of representative)</label>
-                    <div className="custom-select-container">
-                        <button
-                            type="button"
-                            className={`custom-select-trigger ${form.gender ? 'selected' : ''}`}
-                            onClick={() => setGenderOpen(!genderOpen)}
-                        >
-                            {form.gender || "Select Gender"}
-                            <span className={`arrow ${genderOpen ? 'open' : ''}`}></span>
-                        </button>
-                        {genderOpen && (
-                            <div className="custom-select-options">
-                                <div className="custom-select-option" onClick={() => selectGender("Male")}>Male</div>
-                                <div className="custom-select-option" onClick={() => selectGender("Female")}>Female</div>
-                                <div className="custom-select-option" onClick={() => selectGender("Other")}>Other</div>
-                            </div>
-                        )}
-                    </div>
+                  <label>Gender (of representative)</label>
+                  <div className="custom-select-container">
+                    <button
+                      type="button"
+                      className={`custom-select-trigger ${form.gender ? 'selected' : ''}`}
+                      onClick={() => setGenderOpen(!genderOpen)}
+                    >
+                      {form.gender || "Select Gender"}
+                      <span className={`arrow ${genderOpen ? 'open' : ''}`}></span>
+                    </button>
+                    {genderOpen && (
+                      <div className="custom-select-options">
+                        <div className="custom-select-option" onClick={() => selectGender("Male")}>Male</div>
+                        <div className="custom-select-option" onClick={() => selectGender("Female")}>Female</div>
+                        <div className="custom-select-option" onClick={() => selectGender("Other")}>Other</div>
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <div className="input-group">
-                    <label htmlFor="phone">Phone Number</label>
-                    <input
-                        id="phone"
-                        type="tel"
-                        placeholder=""
-                        value={form.phone}
-                        onChange={handleChange}
-                        required
-                    />
+                  <label htmlFor="phone">Phone Number</label>
+                  <input
+                    id="phone"
+                    type="tel"
+                    placeholder=""
+                    value={form.phone}
+                    onChange={handleChange}
+                    required
+                  />
                 </div>
                 <div className="input-group">
-                    <label htmlFor="location">Base Location / City</label>
-                    <input
-                        id="location"
-                        placeholder=""
-                        value={form.location}
-                        onChange={handleChange}
-                        required
-                    />
+                  <label htmlFor="location">Base Location / City</label>
+                  <input
+                    id="location"
+                    placeholder=""
+                    value={form.location}
+                    onChange={handleChange}
+                    required
+                  />
                 </div>
                 <div className="input-group">
-                    <label htmlFor="email">Email Address</label>
-                    <input
-                        id="email"
-                        type="email"
-                        placeholder=""
-                        value={form.email}
-                        onChange={handleChange}
-                        required
-                    />
+                  <label htmlFor="email">Email Address</label>
+                  <input
+                    id="email"
+                    type="email"
+                    placeholder=""
+                    value={form.email}
+                    onChange={handleChange}
+                    required
+                  />
                 </div>
                 <div className="input-group">
-                    <label htmlFor="password">Create Password</label>
-                    <input
-                        id="password"
-                        type="password"
-                        placeholder=""
-                        value={form.password}
-                        onChange={handleChange}
-                        required
-                    />
+                  <label htmlFor="password">Create Password</label>
+                  <input
+                    id="password"
+                    type="password"
+                    placeholder=""
+                    value={form.password}
+                    onChange={handleChange}
+                    required
+                  />
                 </div>
                 <button type="submit" className="submit-btn primary-btn" disabled={loading}>
                   {loading ? "Registering..." : "Complete Registration"}
@@ -344,28 +340,28 @@ export default function ProviderAuth() {
             )}
           </div>
         </div>
-        
+
         {/* --- RIGHT PANEL: WELCOME & INFO --- */}
         <div className="info-panel">
-            <h1 className="welcome-text">WELCOME, PROVIDER</h1>
-            <p className="welcome-subtext">Manage your events, track bookings, and grow your audience here.</p>
+          <h1 className="welcome-text">WELCOME, PROVIDER</h1>
+          <p className="welcome-subtext">Manage your events, track bookings, and grow your audience here.</p>
         </div>
 
-      
+
 
       </div>
-      
+
       {/* NEW THEME TOGGLE SWITCH */}
       <div className="theme-toggle-container">
-          <input 
-              type="checkbox" 
-              id="theme-switch-provider" /* Use a unique ID here if rendered on the same page */
-              className="theme-toggle-input"
-              checked={!isDarkTheme} // Checked means Light Theme is ON
-              onChange={toggleTheme}
-              title="Toggle Dark/Light Theme"
-          />
-          <label htmlFor="theme-switch-provider" className="theme-toggle-label"></label>
+        <input
+          type="checkbox"
+          id="theme-switch-provider" /* Use a unique ID here if rendered on the same page */
+          className="theme-toggle-input"
+          checked={!isDarkTheme} // Checked means Light Theme is ON
+          onChange={toggleTheme}
+          title="Toggle Dark/Light Theme"
+        />
+        <label htmlFor="theme-switch-provider" className="theme-toggle-label"></label>
       </div>
     </div>
   );

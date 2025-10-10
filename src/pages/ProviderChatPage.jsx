@@ -1,23 +1,21 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useUser } from '../context/UserContext';
+import { useProvider } from '../context/ProviderContext'; // ✅ CHANGED: Using ProviderContext now
 import { io } from 'socket.io-client';
 import axios from 'axios';
-import { Send, Menu, Sun, Moon, LogOut, ArrowLeft, Home, LayoutDashboard } from 'lucide-react';
+import { Send, Menu, Sun, Moon, ArrowLeft, LayoutDashboard } from 'lucide-react';
 import '../css/ChatPage.css';
 
 // --- Configuration ---
 const API_BASE_URL = 'https://anandnihal.onrender.com';
 const SOCKET_URL = 'https://anandnihal.onrender.com/';
 
-// --- Helper Functions & Components ---
-
+// --- Helper Functions & Components (No changes needed here) ---
 const formatTimestamp = (dateString) => {
     if (!dateString) return '';
     const date = new Date(dateString);
     const now = new Date();
     const isToday = date.toDateString() === now.toDateString();
-
     if (isToday) {
         return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     }
@@ -43,7 +41,6 @@ const Avatar = ({ name }) => {
     return <div className="avatar">{getInitials(name)}</div>;
 };
 
-// ✅ NEW: CSS-based typing indicator. No extra dependencies needed.
 const TypingIndicator = () => (
     <div className="message-bubble-wrapper received">
         <div className="message-bubble">
@@ -65,12 +62,13 @@ const MessageSkeleton = () => (
     </>
 );
 
-export default function ChatPage() {
-    const { user, token } = useUser();
+
+export default function ProviderChatPage() { // Renamed for clarity
+    const { provider, token } = useProvider(); // ✅ CHANGED: Destructuring 'provider' from useProvider
     const { conversationId: conversationIdFromUrl } = useParams();
     const navigate = useNavigate();
 
-    // --- State ---
+    // --- State (No changes) ---
     const [conversations, setConversations] = useState([]);
     const [selectedConversation, setSelectedConversation] = useState(null);
     const [messages, setMessages] = useState([]);
@@ -81,12 +79,11 @@ export default function ChatPage() {
     const [theme, setTheme] = useState(localStorage.getItem('chat-theme') || 'light');
     const [isLoadingMessages, setIsLoadingMessages] = useState(false);
 
-    // --- Refs ---
+    // --- Refs (No changes) ---
     const socketRef = useRef(null);
     const messagesAreaRef = useRef(null);
     const selectedConversationRef = useRef(selectedConversation);
     selectedConversationRef.current = selectedConversation;
-
     useChatScroll(messagesAreaRef, messages.length);
 
     // --- Axios Instance ---
@@ -103,12 +100,12 @@ export default function ChatPage() {
     }, [theme]);
 
     useEffect(() => {
-        if (!user || !token) return;
+        if (!provider || !token) return; // ✅ CHANGED: Check for provider
         const socket = io(SOCKET_URL);
         socketRef.current = socket;
 
-        socket.emit('setup', user);
-        socket.on('connected', () => console.log('Socket connected ✅'));
+        socket.emit('setup', provider); // ✅ CHANGED: Setup socket with provider object
+        socket.on('connected', () => console.log('Socket connected for Provider ✅'));
         socket.on('message received', (newMessage) => {
             const messageWithParticipants = {
                 ...newMessage,
@@ -141,7 +138,9 @@ export default function ChatPage() {
             socket.disconnect();
             socket.off();
         };
-    }, [user, token]);
+    }, [provider, token]); // ✅ CHANGED: Dependency is now provider
+
+    // --- (The rest of the useEffect hooks and handlers are correct, but I'll update the variable names for consistency) ---
 
     useEffect(() => {
         if (!token) return;
@@ -173,12 +172,15 @@ export default function ChatPage() {
         if (!selectedConversation || !token) return;
 
         const fetchMessages = async () => {
+            setIsLoadingMessages(true);
             try {
                 const { data } = await api.get(`/message/${selectedConversation._id}`);
                 setMessages((data || []).sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)));
                 socketRef.current.emit('join conversation', selectedConversation._id);
             } catch (error) {
                 console.error('Failed to fetch messages', error);
+            } finally {
+                setIsLoadingMessages(false);
             }
         };
 
@@ -200,6 +202,7 @@ export default function ChatPage() {
         fetchMessages();
         markAsRead();
     }, [selectedConversation, token]);
+
     // --- Handlers ---
     const handleSendMessage = async (e) => {
         e.preventDefault();
@@ -209,7 +212,6 @@ export default function ChatPage() {
             const payload = { content: newMessage, conversationId: selectedConversation._id };
             const { data: sentMessage } = await api.post('/message/', payload);
 
-            // Wrap message with participants for frontend
             const messageWithParticipants = {
                 ...sentMessage,
                 conversation: {
@@ -229,24 +231,21 @@ export default function ChatPage() {
 
     const handleTyping = (e) => {
         setNewMessage(e.target.value);
-
         if (!socketRef.current || !selectedConversation) return;
-
         socketRef.current.emit('typing', selectedConversation._id);
-
         if (typingTimeout) clearTimeout(typingTimeout);
-
         const timeout = setTimeout(() => {
             socketRef.current.emit('stop typing', selectedConversation._id);
         }, 3000);
-
         setTypingTimeout(timeout);
     };
+
     const toggleTheme = () => setTheme(theme === 'light' ? 'dark' : 'light');
 
     const getOtherParticipant = (convo) => {
-        if (!convo || !user) return { name: 'Unknown' };
-        return convo.provider?._id === user._id ? convo.user : convo.provider;
+        if (!convo || !provider) return { name: 'Unknown' }; // ✅ CHANGED: Check for provider
+        // ✅ Logic updated to correctly identify the other participant when logged in as a provider
+        return convo.provider?._id === provider._id ? convo.user : convo.provider;
     };
 
     const otherUser = selectedConversation ? getOtherParticipant(selectedConversation) : null;
@@ -263,7 +262,7 @@ export default function ChatPage() {
                     <h3 className="chatNav-title">Chats</h3>
                     <div className={`chatNav-sideMenu ${isDropdownOpen ? "open" : ""}`}>
                         <div className="chatNav-menuContent">
-                            <button onClick={() => { navigate('/provider/dashboard'); setIsDropdownOpen(false); }}><LayoutDashboard size={18} />My DashBoard</button>
+                            <button onClick={() => { navigate('/provider/dashboard'); setIsDropdownOpen(false); }}><LayoutDashboard size={18} />My Dashboard</button>
                         </div>
                     </div>
                     {isDropdownOpen && <div className="chatNav-overlay" onClick={() => setIsDropdownOpen(false)} />}
@@ -312,7 +311,8 @@ export default function ChatPage() {
                         <div className="messages-area" ref={messagesAreaRef}>
                             {isLoadingMessages ? <MessageSkeleton />
                                 : messages.map((msg) => (
-                                    <div key={msg._id} className={`message-bubble-wrapper ${msg.sender?._id === user?._id ? 'sent' : 'received'}`}>
+                                    // ✅ CHANGED: Check against provider._id to determine if the message was "sent"
+                                    <div key={msg._id} className={`message-bubble-wrapper ${msg.sender?._id === provider?._id ? 'sent' : 'received'}`}>
                                         <div className="message-bubble">
                                             <span className="message-content">{msg.content}</span>
                                             <span className="timestamp">{new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>

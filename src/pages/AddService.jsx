@@ -188,7 +188,7 @@ export default function AddService() {
               <div style={{ display: 'flex', gap: '0.5rem' }}>
                 <input type="number" placeholder="Amount" value={form.priceAmount} onChange={(e) => setForm({ ...form, priceAmount: e.target.value })} required className="asf-form-input" style={{ flex: 2 }} />
                 <select value={form.priceUnit} onChange={(e) => setForm({ ...form, priceUnit: e.target.value })} required className="asf-form-select" style={{ flex: 1 }}>
-                  <option value="full">Full Package</option>
+                  <option value="full-package">Full Package</option>
                   <option value="per-hour">Per Hour</option>
                   <option value="per-day">Per Day</option>
                   <option value="per-person">Per Person</option>
