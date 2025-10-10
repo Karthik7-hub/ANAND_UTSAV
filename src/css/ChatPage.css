@@ -508,3 +508,44 @@
   backdrop-filter: blur(2px);
   z-index: 1150;
 }
+
+/* === CSS for Typing Indicator === */
+.typing-indicator {
+  display: flex;
+  align-items: center;
+  padding: 8px 0px;
+  /* Adjust padding as needed */
+}
+
+.typing-indicator span {
+  height: 8px;
+  width: 8px;
+  background-color: var(--text-color-secondary);
+  /* Uses your theme color */
+  border-radius: 50%;
+  display: inline-block;
+  margin: 0 2px;
+  animation: bounce 1.2s infinite ease-in-out;
+}
+
+/* Animation delay for each dot */
+.typing-indicator span:nth-of-type(1) {
+  animation-delay: -0.32s;
+}
+
+.typing-indicator span:nth-of-type(2) {
+  animation-delay: -0.16s;
+}
+
+@keyframes bounce {
+
+  0%,
+  80%,
+  100% {
+    transform: scale(0);
+  }
+
+  40% {
+    transform: scale(1.0);
+  }
+}
