@@ -1,25 +1,47 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
-import axios from 'axios';
 import { io } from 'socket.io-client';
 import { Send, Menu, Sun, Moon, LogOut, ArrowLeft, Home, LayoutDashboard } from 'lucide-react';
+import Lottie from 'lottie-react';
+import typingAnimationData from '../animations/typing-animation.json';
 import '../css/ChatPage.css';
 
-// Configuration
-const API_BASE_URL = 'https://anandnihal.onrender.com';
+import {
+    fetchConversations,
+    fetchMessages,
+    sendMessage,
+    markConversationAsRead,
+} from '../utils/chatApi';
+
+// --- Configuration ---
 const SOCKET_URL = 'https://anandnihal.onrender.com/';
+
+// ✨ NEW: Helper function to format timestamps for the conversation list
+const formatTimestamp = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    const now = new Date();
+
+    const isToday = date.toDateString() === now.toDateString();
+    const isYesterday = new Date(now.setDate(now.getDate() - 1)).toDateString() === date.toDateString();
+
+    if (isToday) {
+        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+    if (isYesterday) {
+        return 'Yesterday';
+    }
+    return date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' });
+};
+
 
 // --- Helper Components & Hooks ---
 
 const useChatScroll = (chatRef, messageCount) => {
     useEffect(() => {
-        const node = chatRef.current;
-        if (node) {
-            const isScrolledToBottom = node.scrollHeight - node.clientHeight <= node.scrollTop + 150;
-            if (isScrolledToBottom) {
-                node.scrollTop = node.scrollHeight;
-            }
+        if (chatRef.current) {
+            chatRef.current.scrollTop = chatRef.current.scrollHeight;
         }
     }, [chatRef, messageCount]);
 };
@@ -36,19 +58,27 @@ const Avatar = ({ name }) => {
 };
 
 const TypingIndicator = () => (
-    <div className="typing-indicator">
-        <span></span>
-        <span></span>
-        <span></span>
+    <div className="typing-indicator-bubble">
+        <Lottie animationData={typingAnimationData} loop={true} style={{ width: 60, height: 60 }} />
     </div>
 );
 
-export default function ProviderChatPage() {
+const MessageSkeleton = () => (
+    <>
+        <div className="skeleton-bubble received" />
+        <div className="skeleton-bubble sent" />
+        <div className="skeleton-bubble sent small" />
+        <div className="skeleton-bubble received" />
+    </>
+);
+
+
+export default function ChatPage() {
     const { user, token, logout } = useUser();
     const { conversationId } = useParams();
     const navigate = useNavigate();
 
-    // State
+    // --- State ---
     const [conversations, setConversations] = useState([]);
     const [selectedConversation, setSelectedConversation] = useState(null);
     const [messages, setMessages] = useState([]);
@@ -57,8 +87,9 @@ export default function ProviderChatPage() {
     const [typingTimeout, setTypingTimeout] = useState(null);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [theme, setTheme] = useState(localStorage.getItem('chat-theme') || 'light');
+    const [isLoadingMessages, setIsLoadingMessages] = useState(false);
 
-    // Refs
+    // --- Refs ---
     const socketRef = useRef(null);
     const messagesAreaRef = useRef(null);
     const selectedConversationRef = useRef(selectedConversation);
@@ -66,18 +97,12 @@ export default function ProviderChatPage() {
 
     useChatScroll(messagesAreaRef, messages.length);
 
-    const api = axios.create({
-        baseURL: API_BASE_URL,
-        headers: { Authorization: `Bearer ${token}` },
-    });
-
-    // --- Effects ---
-
     useEffect(() => {
         document.documentElement.setAttribute('data-theme', theme);
         localStorage.setItem('chat-theme', theme);
     }, [theme]);
 
+    // Socket.IO and other effects remain the same...
     useEffect(() => {
         if (!user || !token) return;
         const socket = io(SOCKET_URL);
@@ -107,13 +132,13 @@ export default function ProviderChatPage() {
 
     useEffect(() => {
         if (!token) return;
-        const fetchConversations = async () => {
+        const loadConversations = async () => {
             try {
-                const { data } = await api.get('/convo/');
-                setConversations(data || []);
+                const data = await fetchConversations(token);
+                setConversations(data);
             } catch (error) { console.error('Failed to fetch conversations:', error); }
         };
-        fetchConversations();
+        loadConversations();
     }, [token]);
 
     useEffect(() => {
@@ -123,7 +148,7 @@ export default function ProviderChatPage() {
                 setSelectedConversation(convo);
                 setIsTyping(false);
             } else {
-                navigate('/chat');
+                navigate('/provider/chat');
             }
         } else {
             setSelectedConversation(null);
@@ -132,17 +157,25 @@ export default function ProviderChatPage() {
 
     useEffect(() => {
         if (!selectedConversation || !token) return;
-        const fetchMessages = async () => {
+
+        const loadMessages = async () => {
+            setIsLoadingMessages(true);
+            setMessages([]);
             try {
-                const { data } = await api.get(`/message/${selectedConversation._id}`);
-                setMessages((data || []).sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)));
+                const data = await fetchMessages(selectedConversation._id, token);
+                setMessages(data.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)));
                 socketRef.current.emit('join conversation', selectedConversation._id);
-            } catch (error) { console.error('Failed to fetch messages', error); }
+            } catch (error) {
+                console.error('Failed to fetch messages', error);
+            } finally {
+                setIsLoadingMessages(false);
+            }
         };
-        const markAsRead = async () => {
+
+        const readConversation = async () => {
             if (selectedConversation.unreadCount > 0) {
                 try {
-                    await api.put(`/convo/read/${selectedConversation._id}`);
+                    await markConversationAsRead(selectedConversation._id, token);
                     setConversations((prev) =>
                         prev.map((c) =>
                             c._id === selectedConversation._id ? { ...c, unreadCount: 0 } : c
@@ -151,18 +184,19 @@ export default function ProviderChatPage() {
                 } catch (error) { console.error('Failed to mark as read', error); }
             }
         };
-        fetchMessages();
-        markAsRead();
+
+        loadMessages();
+        readConversation();
     }, [selectedConversation, token]);
 
-    // --- Handlers ---
+    // Handlers remain the same...
     const handleSendMessage = async (e) => {
         e.preventDefault();
         if (!newMessage.trim() || !selectedConversation) return;
         socketRef.current.emit('stop typing', selectedConversation._id);
         try {
             const payload = { content: newMessage, conversationId: selectedConversation._id };
-            const { data: sentMessage } = await api.post('/message/', payload);
+            const sentMessage = await sendMessage(payload, token);
             socketRef.current.emit('new message', sentMessage);
             setMessages((prev) => [...prev, sentMessage]);
             setNewMessage('');
@@ -180,6 +214,11 @@ export default function ProviderChatPage() {
         setTypingTimeout(timeout);
     };
 
+    const handleLogout = () => {
+        logout();
+        navigate('/login');
+    };
+
     const toggleTheme = () => setTheme(theme === 'light' ? 'dark' : 'light');
 
     const getOtherParticipant = useCallback((convo) => {
@@ -192,30 +231,28 @@ export default function ProviderChatPage() {
 
     return (
         <div className={`chat-page-container ${isChatVisibleMobile ? 'show-chat' : ''}`}>
-            {/* Left Panel: Conversation List */}
             <div className="conversation-list-panel">
                 <div className="chatNav-header">
-                    {/* --- Left Hamburger Icon --- */}
                     <button
                         className="chatNav-menuButton"
                         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                     >
                         <Menu size={22} />
                     </button>
-
-                    {/* --- Center Title --- */}
                     <h3 className="chatNav-title">Chats</h3>
-
-                    {/* --- Side Drawer Menu --- */}
                     <div className={`chatNav-sideMenu ${isDropdownOpen ? "open" : ""}`}>
                         <div className="chatNav-menuContent">
-                            <button onClick={() => { navigate('/provider/dashboard'); setIsDropdownOpen(false); }}>
-                                <LayoutDashboard size={18} /> DashBoard
+                            <button onClick={() => { navigate('/'); setIsDropdownOpen(false); }}>
+                                <Home size={18} /> Home
+                            </button>
+                            <button onClick={() => { navigate('/dashboard'); setIsDropdownOpen(false); }}>
+                                <LayoutDashboard size={18} /> My Account
+                            </button>
+                            <button onClick={() => { handleLogout(); setIsDropdownOpen(false); }}>
+                                <LogOut size={18} /> Logout
                             </button>
                         </div>
                     </div>
-
-                    {/* --- Overlay --- */}
                     {isDropdownOpen && (
                         <div
                             className="chatNav-overlay"
@@ -223,7 +260,6 @@ export default function ProviderChatPage() {
                         />
                     )}
                 </div>
-
                 <div className="conversations">
                     {conversations.map((convo) => {
                         const other = getOtherParticipant(convo);
@@ -237,18 +273,26 @@ export default function ProviderChatPage() {
                                 <div className="convo-details">
                                     <p className="convo-name">{other?.fullName || other?.name}</p>
                                     <p className="convo-preview">
-                                        {convo.latestMessage ? convo.latestMessage.content.substring(0, 25) + '...' : 'No messages yet'}
+                                        {convo.latestMessage ? convo.latestMessage.content : 'No messages yet'}
                                     </p>
                                 </div>
-                                {convo.unreadCount > 0 && <span className="unread-badge">{convo.unreadCount}</span>}
+                                {/* ✨ NEW: Timestamp and Unread Badge section */}
+                                <div className="convo-meta">
+                                    <span className="convo-timestamp">
+                                        {formatTimestamp(convo.latestMessage?.createdAt)}
+                                    </span>
+                                    {convo.unreadCount > 0 && (
+                                        <span className="unread-badge">{convo.unreadCount}</span>
+                                    )}
+                                </div>
                             </div>
                         );
                     })}
                 </div>
             </div>
 
-            {/* Right Panel: Chat Box */}
             <div className="chat-box-panel">
+                {/* The rest of the JSX for the chat panel remains unchanged */}
                 {selectedConversation ? (
                     <>
                         <div className="chat-header">
@@ -265,17 +309,21 @@ export default function ProviderChatPage() {
                         </div>
 
                         <div className="messages-area" ref={messagesAreaRef}>
-                            {messages.map((msg) => (
-                                <div key={msg._id} className={`message-bubble-wrapper ${msg.sender?._id === user?._id ? 'sent' : 'received'}`}>
-                                    <div className="message-bubble">
-                                        <span className="message-content">{msg.content}</span>
-                                        <span className="timestamp">
-                                            {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                        </span>
+                            {isLoadingMessages ? (
+                                <MessageSkeleton />
+                            ) : (
+                                messages.map((msg) => (
+                                    <div key={msg._id} className={`message-bubble-wrapper ${msg.sender?._id === user?._id ? 'sent' : 'received'}`}>
+                                        <div className="message-bubble">
+                                            <span className="message-content">{msg.content}</span>
+                                            <span className="timestamp">
+                                                {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            </span>
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
-                            {isTyping && <TypingIndicator />}
+                                ))
+                            )}
+                            {isTyping && !isLoadingMessages && <TypingIndicator />}
                         </div>
 
                         <form className="message-input-form" onSubmit={handleSendMessage}>

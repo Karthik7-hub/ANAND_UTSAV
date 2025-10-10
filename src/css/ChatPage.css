@@ -1,42 +1,46 @@
 /* --- 1. MAIN LAYOUT & RESPONSIVENESS --- */
 .chat-page-container {
   display: flex;
-  height: 100vh;
-  max-height: 100vh;
+  height: 100svh;
   width: 100vw;
   overflow: hidden;
-  background-color: var(--bg-secondary);
+  background-color: var(--bg-color);
   position: relative;
 }
 
-.conversation-list-panel {
+.chat-page-container .conversation-list-panel {
   flex: 0 0 350px;
-  border-right: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
-  background-color: var(--bg-secondary);
+  background-color: var(--card-bg-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-right: 1px solid var(--card-border-glass);
   transition: transform 0.3s ease-in-out;
+  z-index: 5;
 }
 
-.chat-box-panel {
+/* ... other main layout styles remain the same ... */
+.chat-page-container .chat-box-panel {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
   background-color: var(--bg-color);
   transition: transform 0.3s ease-in-out;
+  height: 100%;
 }
 
-/* Mobile responsive layout */
 @media (max-width: 768px) {
-  .conversation-list-panel {
+  .chat-page-container .conversation-list-panel {
     width: 100%;
     position: absolute;
     height: 100%;
     z-index: 10;
     transform: translateX(0);
+    border-right: none;
   }
 
-  .chat-box-panel {
+  .chat-page-container .chat-box-panel {
     width: 100%;
     position: absolute;
     height: 100%;
@@ -53,11 +57,10 @@
   }
 }
 
-
-/* --- 2. AVATAR COMPONENT --- */
-.avatar {
-  width: 40px;
-  height: 40px;
+/* --- 2. SHARED COMPONENTS (Avatar, Buttons) --- */
+.chat-page-container .avatar {
+  width: 45px;
+  height: 45px;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--primary-color), var(--primary-color-dark));
   color: var(--bg-secondary);
@@ -65,47 +68,13 @@
   align-items: center;
   justify-content: center;
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 1rem;
   flex-shrink: 0;
+  border: 2px solid var(--bg-secondary);
+  box-shadow: var(--shadow-light);
 }
 
-
-/* --- 3. LEFT PANEL: CONVERSATION LIST --- */
-.list-header,
-.chat-header {
-  display: flex;
-  align-items: center;
-  padding: 10px 16px;
-  border-bottom: 1px solid var(--border-color);
-  background-color: var(--bg-secondary);
-  height: 60px;
-  flex-shrink: 0;
-}
-
-.list-header h3,
-.chat-header h3 {
-  margin: 0;
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin-left: 15px;
-  /* Kept for chat header, removed for list header below */
-  flex-grow: 1;
-  color: var(--text-color);
-}
-
-.list-header h3 {
-  margin-left: 0;
-  /* Remove margin now that avatar is gone */
-}
-
-/* ... Other header styles from before ... */
-.header-actions {
-  position: relative;
-  display: flex;
-  gap: 10px;
-}
-
-.icon-button {
+.chat-page-container .icon-button {
   background: none;
   border: none;
   cursor: pointer;
@@ -118,123 +87,124 @@
   transition: background-color 0.2s;
 }
 
-.icon-button:hover {
+.chat-page-container .icon-button:hover {
   background-color: var(--input-bg-color);
 }
 
-.dropdown-menu {
-  position: absolute;
-  top: 120%;
-  right: 0;
-  background-color: var(--bg-secondary);
-  border-radius: 8px;
-  box-shadow: var(--shadow-heavy);
-  border: 1px solid var(--border-color);
-  padding: 8px;
-  z-index: 100;
-  width: 180px;
-}
-
-.dropdown-menu button {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: none;
-  border: none;
-  color: var(--text-color);
-  width: 100%;
-  text-align: left;
-  padding: 10px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.9rem;
-}
-
-.dropdown-menu button:hover {
-  background-color: var(--primary-color-light);
-}
-
-.conversations {
+/* --- ✨ 3. IMPROVED CONVERSATION LIST --- */
+.chat-page-container .conversations {
   overflow-y: auto;
   flex-grow: 1;
 }
 
-.conversation-item {
+.chat-page-container .conversation-item {
   display: flex;
   align-items: center;
+  gap: 12px;
   padding: 12px 16px;
   cursor: pointer;
   border-bottom: 1px solid var(--border-color);
   transition: background-color 0.2s ease;
 }
 
-.conversation-item:hover {
+.chat-page-container .conversation-item:hover {
   background-color: var(--input-bg-color);
 }
 
-.conversation-item.active {
+.chat-page-container .conversation-item.active {
   background-color: var(--primary-color-light);
 }
 
-.convo-details {
+.chat-page-container .convo-details {
   flex-grow: 1;
-  margin-left: 15px;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
-.convo-name {
+.chat-page-container .convo-name {
   font-weight: 600;
   color: var(--text-color);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.convo-preview {
-  font-size: 0.9rem;
-  color: var(--text-color-light);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.convo-name,
-.convo-preview {
   margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.unread-badge {
+.chat-page-container .convo-preview {
+  font-size: 0.85rem;
+  color: var(--text-color-light);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chat-page-container .convo-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.chat-page-container .convo-timestamp {
+  font-size: 0.75rem;
+  color: var(--text-color-light);
+}
+
+.chat-page-container .unread-badge {
   background-color: var(--primary-color);
-  color: white;
+  color: var(--unread-badge-text);
   border-radius: 50%;
   font-size: 0.75rem;
-  font-weight: bold;
-  min-width: 20px;
-  height: 20px;
+  font-weight: 700;
+  min-width: 22px;
+  height: 22px;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 2px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.no-convos {
-  text-align: center;
-  padding: 30px;
-  color: var(--text-color-light);
+/* --- 4. RIGHT PANEL: CHAT BOX (styles remain mostly the same) --- */
+.chat-page-container .chat-header {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  background-color: transparent;
+  height: 60px;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--card-border-glass);
+  position: relative;
+  z-index: 5;
 }
 
+.chat-page-container .chat-header h3 {
+  margin: 0 0 0 15px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  flex-grow: 1;
+  color: var(--text-color);
+}
 
-/* --- 4. RIGHT PANEL: CHAT BOX --- */
-.chat-header .back-button {
+.chat-page-container .header-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.chat-page-container .chat-header .back-button {
   display: none;
 }
 
 @media (max-width: 768px) {
-  .chat-header .back-button {
+  .chat-page-container .chat-header .back-button {
     display: flex;
     margin-right: 10px;
   }
 
-  .chat-header h3 {
+  .chat-page-container .chat-header h3 {
     margin-left: 10px;
   }
 }
@@ -253,131 +223,149 @@
   }
 }
 
-.messages-area {
+.chat-page-container .messages-area {
   flex-grow: 1;
   overflow-y: auto;
-  padding: 20px;
+  padding: 20px 25px;
   display: flex;
   flex-direction: column;
   background: linear-gradient(135deg, var(--bg-color), var(--input-bg-color), var(--bg-color));
   background-size: 200% 200%;
   animation: animated-gradient 15s ease infinite;
+  gap: 10px;
 }
 
-/* NEW: Message Bubble Styling for Timestamp */
-.message-bubble-wrapper {
+/* Message Bubbles, Typing Indicator, Skeletons, and Input Form styles remain the same as the previous correct version */
+.chat-page-container .message-bubble-wrapper {
   display: flex;
-  max-width: 75%;
-  width: fit-content;
+  max-width: 70%;
+  position: relative;
 }
 
-.message-bubble-wrapper.sent {
+.chat-page-container .message-bubble-wrapper.sent {
   align-self: flex-end;
 }
 
-.message-bubble-wrapper.received {
+.chat-page-container .message-bubble-wrapper.received {
   align-self: flex-start;
 }
 
-.message-bubble {
-  padding: 8px 12px;
-  border-radius: 12px;
+.chat-page-container .message-bubble {
+  display: inline-flex;
+  align-items: flex-end;
+  padding: 10px 14px;
+  border-radius: 16px;
   line-height: 1.4;
-  word-wrap: break-word;
   box-shadow: var(--shadow-light);
-  position: relative;
-  /* For the float mechanism to work cleanly */
+  font-size: 0.95rem;
+  max-width: 100%;
 }
 
-.message-bubble-wrapper.sent .message-bubble {
+.chat-page-container .message-bubble-wrapper.sent .message-bubble {
   background-color: var(--primary-color);
   color: white;
-  border-bottom-right-radius: 4px;
+  border-bottom-right-radius: 6px;
 }
 
-.message-bubble-wrapper.received .message-bubble {
+.chat-page-container .message-bubble-wrapper.received .message-bubble {
   background-color: var(--bg-secondary);
   color: var(--text-color);
-  border-bottom-left-radius: 4px;
+  border-bottom-left-radius: 6px;
 }
 
-.message-content {
-  /* Add padding to the right to make space for the timestamp so it doesn't overlap text */
-  padding-right: 55px;
+.chat-page-container .message-content {
+  word-break: break-word;
+  white-space: pre-wrap;
 }
 
-.timestamp {
-  float: right;
-  clear: both;
-  /* Prevents it from interfering with subsequent elements */
+.chat-page-container .timestamp {
+  margin-left: 8px;
   font-size: 0.7rem;
+  align-self: flex-end;
+  white-space: nowrap;
+  flex-shrink: 0;
   position: relative;
-  top: 8px;
-  /* Nudge down to align with bottom of text */
-  margin-left: 10px;
-  /* Space between text and time if on same line */
+  bottom: -2px;
 }
 
-.message-bubble-wrapper.sent .timestamp {
+.chat-page-container .message-bubble-wrapper.sent .timestamp {
   color: rgba(255, 255, 255, 0.8);
 }
 
-.message-bubble-wrapper.received .timestamp {
+.chat-page-container .message-bubble-wrapper.received .timestamp {
   color: var(--text-color-light);
 }
 
-/* ... Other styles from before ... */
-@keyframes bounce {
-
-  0%,
-  60%,
-  100% {
-    transform: translateY(0);
-  }
-
-  30% {
-    transform: translateY(-5px);
-  }
-}
-
-.typing-indicator {
+.chat-page-container .typing-indicator-bubble {
   display: flex;
   align-items: center;
-  gap: 5px;
-  padding: 10px 15px;
+  justify-content: center;
+  padding: 0;
   background-color: var(--bg-secondary);
   border-radius: 18px;
   border-bottom-left-radius: 4px;
   align-self: flex-start;
   box-shadow: var(--shadow-light);
+  width: 70px;
+  height: 45px;
 }
 
-.typing-indicator span {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color: var(--text-color-light);
-  animation: bounce 1.2s infinite ease-in-out;
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%) skewX(-20deg);
+  }
+
+  100% {
+    transform: translateX(200%) skewX(-20deg);
+  }
 }
 
-.typing-indicator span:nth-child(2) {
-  animation-delay: 0.2s;
+.chat-page-container .skeleton-bubble {
+  height: 45px;
+  border-radius: 16px;
+  background-color: var(--input-bg-color);
+  position: relative;
+  overflow: hidden;
 }
 
-.typing-indicator span:nth-child(3) {
-  animation-delay: 0.4s;
+.chat-page-container .skeleton-bubble::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, var(--skeleton-shimmer), transparent);
+  animation: shimmer 1.5s infinite linear;
 }
 
-.message-input-form {
+.chat-page-container .skeleton-bubble.sent {
+  align-self: flex-end;
+  width: 60%;
+  border-bottom-right-radius: 6px;
+}
+
+.chat-page-container .skeleton-bubble.received {
+  align-self: flex-start;
+  width: 55%;
+  border-bottom-left-radius: 6px;
+}
+
+.chat-page-container .skeleton-bubble.small {
+  width: 35%;
+}
+
+.chat-page-container .message-input-form {
   display: flex;
   padding: 10px 16px;
   border-top: 1px solid var(--border-color);
   background-color: var(--bg-secondary);
   align-items: flex-end;
   gap: 10px;
+  flex-shrink: 0;
 }
 
-.message-input-form textarea {
+.chat-page-container .message-input-form textarea {
   flex-grow: 1;
   border: none;
   background-color: var(--input-bg-color);
@@ -391,11 +379,11 @@
   color: var(--text-color);
 }
 
-.message-input-form textarea:focus {
+.chat-page-container .message-input-form textarea:focus {
   box-shadow: 0 0 0 2px var(--primary-color-light);
 }
 
-.message-input-form button {
+.chat-page-container .message-input-form button {
   background-color: var(--primary-color);
   color: white;
   border: none;
@@ -410,276 +398,113 @@
   flex-shrink: 0;
 }
 
-.message-input-form button:hover {
+.chat-page-container .message-input-form button:hover {
   background-color: var(--primary-color-dark);
 }
 
-.no-chat-selected {
+.chat-page-container .no-chat-selected {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100%;
   color: var(--text-color-light);
   text-align: center;
-  flex-direction: column;
 }
 
-.no-chat-selected h2 {
-  color: var(--text-color);
-  font-weight: 600;
-}
 
-/* --- 💬 Improved Message Layout --- */
-.messages-area {
-  flex-grow: 1;
-  overflow-y: auto;
-  padding: 20px 25px;
-  display: flex;
-  flex-direction: column;
-  background: linear-gradient(135deg, var(--bg-color), var(--input-bg-color), var(--bg-color));
-  background-size: 200% 200%;
-  animation: animated-gradient 15s ease infinite;
-  gap: 10px;
-  /* Add spacing between message bubbles */
-}
-
-.message-bubble-wrapper {
-  display: flex;
-  max-width: 70%;
-  position: relative;
-}
-
-.message-bubble-wrapper.sent {
-  align-self: flex-end;
-  justify-content: flex-end;
-}
-
-.message-bubble-wrapper.received {
-  align-self: flex-start;
-  justify-content: flex-start;
-}
-
-.message-bubble {
-  display: inline-flex;
-  align-items: flex-end;
-  justify-content: flex-start;
-  padding: 10px 14px;
-  border-radius: 16px;
-  line-height: 1.4;
-  word-wrap: break-word;
-  box-shadow: var(--shadow-light);
-  position: relative;
-  font-size: 0.95rem;
-  max-width: 100%;
-}
-
-.message-bubble-wrapper.sent .message-bubble {
-  background-color: var(--primary-color);
-  color: white;
-  border-bottom-right-radius: 6px;
-}
-
-.message-bubble-wrapper.received .message-bubble {
-  background-color: var(--bg-secondary);
-  color: var(--text-color);
-  border-bottom-left-radius: 6px;
-}
-
-.message-content {
-  display: inline-block;
-  word-break: break-word;
-  white-space: pre-wrap;
-}
-
-.timestamp {
-  margin-left: 8px;
-  font-size: 0.7rem;
-  opacity: 0.8;
-  align-self: flex-end;
-  white-space: nowrap;
-  flex-shrink: 0;
-  position: relative;
-  bottom: -2px;
-  /* Align time vertically with message end */
-}
-
-.message-bubble-wrapper.sent .timestamp {
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.message-bubble-wrapper.received .timestamp {
-  color: var(--text-color-light);
-}
-
-/* --- 🧭 Dropdown Menu Style Cleanup --- */
-.dropdown-menu {
-  position: absolute;
-  top: 120%;
-  right: 0;
-  background-color: var(--bg-secondary);
-  border-radius: 10px;
-  box-shadow: var(--shadow-heavy);
-  border: 1px solid var(--border-color);
-  padding: 6px 0;
-  z-index: 100;
-  width: 180px;
-  animation: fadeIn 0.2s ease;
-}
-
-.dropdown-menu button {
+/* --- ✨ 5. FULLY THEME-ADAPTIVE SIDE MENU --- */
+.chat-page-container .chatNav-header {
   display: flex;
   align-items: center;
-  gap: 10px;
-  background: none;
-  border: none;
-  color: var(--text-color);
-  width: 100%;
-  text-align: left;
-  padding: 10px 15px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: background 0.2s, color 0.2s;
+  justify-content: center;
+  padding: 10px 16px;
+  background-color: transparent;
+  height: 60px;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--card-border-glass);
 }
 
-.dropdown-menu button:hover {
+.chat-page-container .chatNav-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin: 0;
+}
+
+.chat-page-container .chatNav-menuButton {
+  position: absolute;
+  left: 16px;
+  color: var(--text-color);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.chat-page-container .chatNav-menuButton:hover {
+  background-color: var(--input-bg-color);
+}
+
+.chat-page-container .chatNav-sideMenu {
+  position: fixed;
+  top: 0;
+  left: -280px;
+  width: 260px;
+  height: 100vh;
+  /* FIX: Using theme variables for background and border */
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border-color);
+  box-shadow: var(--shadow-heavy);
+  transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1200;
+  padding-top: 80px;
+}
+
+.chat-page-container .chatNav-sideMenu.open {
+  left: 0;
+}
+
+.chat-page-container .chatNav-menuContent {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 16px;
+}
+
+.chat-page-container .chatNav-menuContent button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: none;
+  border: none;
+  /* FIX: Using theme variables for text color */
+  color: var(--text-color);
+  font-size: 1rem;
+  font-family: var(--font-body);
+  font-weight: 500;
+  padding: 12px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.chat-page-container .chatNav-menuContent button:hover {
+  /* FIX: Using theme variables for hover state */
   background-color: var(--primary-color-light);
   color: var(--primary-color-dark);
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-5px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.icon-button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: #333;
-  position: relative;
-}
-
-.dropdown-menu {
-  position: absolute;
-  right: 0;
-  top: 40px;
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-direction: column;
-  z-index: 100;
-}
-
-.dropdown-menu button {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  border: none;
-  background: none;
-  color: #333;
-  width: 100%;
-  text-align: left;
-  cursor: pointer;
-}
-
-.dropdown-menu button:hover {
-  background-color: #f2f2f2;
-}
-
-/* --- Header Layout --- */
-.chatNav-header {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px 16px;
-  background-color: var(--chatNav-header-bg, #fff);
-  border-bottom: 1px solid #ddd;
-  z-index: 1100;
-}
-
-.chatNav-title {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: var(--chatNav-text-color, #222);
-  margin: 0;
-}
-
-/* --- Hamburger Button --- */
-.chatNav-menuButton {
-  position: absolute;
-  left: 16px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--chatNav-icon-color, #333);
-  display: flex;
-  align-items: center;
-  transition: transform 0.2s;
-}
-
-.chatNav-menuButton:hover {
-  transform: scale(1.1);
-}
-
-/* --- Side Drawer Menu --- */
-.chatNav-sideMenu {
-  position: fixed;
-  top: 0;
-  left: -260px;
-  width: 250px;
-  height: 100vh;
-  background: var(--chatNav-side-bg, #fff);
-  box-shadow: 3px 0 10px rgba(0, 0, 0, 0.1);
-  transition: left 0.3s ease;
-  z-index: 1200;
-  padding-top: 60px;
-}
-
-.chatNav-sideMenu.open {
-  left: 0;
-}
-
-/* --- Menu Content --- */
-.chatNav-menuContent {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 0 20px;
-}
-
-.chatNav-menuContent button {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: none;
-  border: none;
-  color: var(--chatNav-btn-color, #333);
-  font-size: 16px;
-  padding: 10px 0;
-  cursor: pointer;
-  transition: color 0.2s ease;
-}
-
-.chatNav-menuContent button:hover {
-  color: #ff671f;
-}
-
-/* --- Overlay --- */
-.chatNav-overlay {
+.chat-page-container .chatNav-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(2px);
   z-index: 1150;
 }

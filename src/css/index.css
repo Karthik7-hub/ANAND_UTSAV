@@ -60,6 +60,8 @@ body {
     --dropdown-text: var(--text-color);
     --dropdown-text-secondary: var(--text-color-light);
     --dropdown-item-hover-bg: var(--primary-color-light);
+
+    --unread-badge-text: #ffffff;
 }
 
 /* --- 4. DARK THEME VARIABLES --- */
@@ -99,4 +101,6 @@ body {
     --dropdown-text: var(--text-color);
     --dropdown-text-secondary: var(--text-color-light);
     --dropdown-item-hover-bg: var(--primary-color-light);
+
+    --unread-badge-text: #1e1e1e;
 }
