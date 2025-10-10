@@ -34,7 +34,7 @@ const ProfileSkeleton = () => (
 );
 
 export default function MyAccountPage() {
-  const { token, logout } = useUser();
+  const { token } = useUser();
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
@@ -88,22 +88,6 @@ export default function MyAccountPage() {
     }
   };
 
-  const handleDelete = async () => {
-    if (!window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) return;
-    try {
-      const res = await axios.delete("https://anand-u.vercel.app/user/deleteAccount", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.data.success) {
-        alert("Account deleted successfully");
-        logout();
-        navigate("/");
-      }
-    } catch (err) {
-      console.error("Error deleting account:", err);
-      alert("Failed to delete account");
-    }
-  };
 
   if (loading) return <ProfileSkeleton />;
 
@@ -163,8 +147,6 @@ export default function MyAccountPage() {
           ) : (
             <button onClick={() => setEditing(true)} className="edit-btn">Edit Profile</button>
           )}
-          {/* ✨ "My Reviews" button has been removed from here */}
-          <button onClick={handleDelete} className="delete-btn">Delete Account</button>
         </div>
       </div>
     </div>

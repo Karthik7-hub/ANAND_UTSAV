@@ -8,6 +8,8 @@
   font-family: var(--font-body);
   position: relative;
   z-index: 2;
+  /* Prevents horizontal scrolling caused by decorative elements */
+  overflow-x: hidden;
 }
 
 .my-account-page::before {
@@ -65,12 +67,9 @@
   color: var(--text-color-light);
 }
 
-/* ✨ UPDATED STYLE FOR THE VIEW-MODE VALUES */
 .field-value {
   font-size: 1.1rem;
-  /* Increased size */
   font-weight: 600;
-  /* Made bolder */
   color: var(--text-color);
   padding: 0.75rem 0;
   min-height: 45px;
@@ -140,17 +139,6 @@
   color: var(--text-color);
 }
 
-.delete-btn {
-  background: transparent;
-  color: #ef4444;
-  margin-left: auto;
-}
-
-.delete-btn:hover {
-  background: rgba(239, 68, 68, 0.1);
-  border-color: rgba(239, 68, 68, 0.2);
-}
-
 /* --- 5. Skeleton Loader Styles --- */
 @keyframes shimmer {
   100% {
@@ -211,4 +199,54 @@
 .button-skeleton {
   width: 120px;
   height: 40px;
+}
+
+/*
+======================================================
+--- 6. FULL PAGE RESPONSIVENESS (Mobile Devices) ---
+======================================================
+*/
+@media (max-width: 600px) {
+
+  /* --- 1. General Page Layout & Background --- */
+  .my-account-page {
+    margin: 1.5rem auto;
+    padding-bottom: 3rem;
+  }
+
+  .my-account-page::before {
+    width: 300px;
+    height: 300px;
+    right: -45%;
+    top: -5%;
+  }
+
+  .my-account-page h2 {
+    margin-bottom: 1.5rem;
+  }
+
+
+  /* --- 2. Profile Card --- */
+  .profile-card {
+    padding: 1.5rem 1rem;
+    gap: 1.25rem;
+  }
+
+
+  /* --- 4. Button Layout --- */
+  .profile-buttons {
+    display: grid;
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+
+  /* --- 5. Skeleton Loader --- */
+  .title-skeleton {
+    width: 60%;
+    height: 2.25rem;
+  }
+
+  .label-skeleton {
+    width: 50%;
+  }
 }

@@ -1,440 +1,412 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
 
-/* --- COLORS & THEME (Deep Black, Bright Orange & White) --- */
+/* 🌈 Root Variables */
 :root {
-    --primary-gradient: linear-gradient(90deg, #FF6F00, #FF9800); /* Bright Orange to Amber */
-    --primary-glow: #FF9800; /* Center of the glow (Amber/Orange) */
-    --background-dark: #121212; /* Deep Black background */
-    --card-dark: #1F1F1F; /* Card surface dark gray */
-    --text-light: #f0f0f0; /* Near White */
-    --text-subtle: #999; /* Subtle light gray */
-    --input-line: #333; /* Dark gray line */
-    --neon-shadow: 0 0 10px var(--primary-glow), 0 0 20px rgba(255, 152, 0, 0.4);
-    --provider-border: #4A4A4A;
+    --primary-color: #f97316;
+    /* Orange */
+    --primary-hover: #ea580c;
+    /* Darker Orange */
+    --text-dark: #1f2937;
+    /* Black for text in light mode */
+    --text-light: #f9fafb;
+    /* White for text in dark mode */
+    --border-color: rgba(255, 255, 255, 0.15);
+    --border-color-light: rgba(0, 0, 0, 0.1);
+    --transition-speed: 0.3s;
+    --radius: 12px;
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
+    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.18);
 }
 
-/* ================================== */
-/* 01. CORE LAYOUT & CONTAINER (60/40 Split Panel) - KEEPING SIZE IMPROVEMENTS */
-/* ================================== */
-
-.auth-page-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    width: 100%;
-    background-color: var(--background-dark); 
+/* 🌤 Global Styles */
+body {
     font-family: 'Poppins', sans-serif;
-    padding: 20px;
+    transition: background var(--transition-speed);
 }
 
+/* 🌙 DARK THEME (default) */
+.auth-page-wrapper {
+    background: linear-gradient(135deg, #111111 0%, #222222 100%);
+    color: var(--text-light);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    position: relative;
+    transition: background 0.5s ease;
+    overflow: hidden;
+}
+
+/* ☀ LIGHT THEME */
+.auth-page-wrapper.light-theme {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e0f2fe 100%);
+    color: var(--text-dark);
+}
+
+/* 🌟 FORM CONTAINER - "Glassmorphism" effect */
 .auth-container {
     width: 100%;
-    max-width: 900px; /* SLIGHTLY LARGER max-width */
-    min-height: 580px; /* SLIGHTLY TALLER min-height */
-    display: grid;
-    grid-template-columns: 60% 40%; /* 60/40 split */
-    border-radius: 16px; 
-    background: var(--card-dark);
-    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.9), 0 0 20px rgba(255, 152, 0, 0.3); /* Orange glow */
-    position: relative;
-    overflow: hidden; 
-    border: 1px solid rgba(255, 152, 0, 0.2);
+    max-width: 450px;
+    background: rgba(255, 255, 255, 0.07);
+    backdrop-filter: blur(20px);
+    border-radius: 24px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    transition: all var(--transition-speed);
+    animation: slideUp 0.6s ease-out;
 }
 
-/* --- RIGHT PANEL: INFO & ACTION (Vibrant Gradient Side) --- */
-.info-panel {
-    background: var(--primary-gradient); /* Orange Gradient */
-    color: var(--background-dark); /* Dark text on bright background for contrast */
-    display: flex;
-    flex-direction: column;
-    justify-content: center; 
-    align-items: center;
-    text-align: center;
-    padding: 3rem 1.5rem; 
-    position: relative;
-    z-index: 2;
-    clip-path: polygon(20% 0%, 100% 0%, 100% 100%, 0% 100%); 
-    margin-left: -20%; 
-    padding-left: 20%; 
+.auth-page-wrapper.light-theme .auth-container {
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid transparent;
+    box-shadow: var(--shadow-lg), 0 0 0 1px rgba(0, 0, 0, 0.05);
 }
 
-.welcome-text {
-    color: var(--background-dark); /* Deep Black text on Orange background */
-    font-size: 2.5rem; 
-    font-weight: 800;
-    text-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
-}
-
-.welcome-subtext {
-    font-size: 1rem; 
-    font-weight: 500;
-    margin-top: 15px;
-    opacity: 0.95;
-    line-height: 1.5;
-}
-
-/* --- LEFT PANEL: FORM & TABS --- */
 .form-panel {
-    padding: 3.5rem 3rem; 
-    position: relative;
-    z-index: 3;
-    overflow-y: auto; 
-    color: var(--text-light); 
+    padding: 2.5rem 2rem;
 }
 
-/* ================================== */
-/* 02. TABS, NOTIFICATION & HEADERS */
-/* ================================== */
+.info-panel {
+    display: none;
+}
 
+/* 🧭 TABS */
 .tabs-container {
     display: flex;
-    gap: 1.5rem; 
-    margin-bottom: 2.5rem; 
-    border-bottom: 2px solid var(--input-line);
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.75rem;
+}
+
+.auth-page-wrapper.light-theme .tabs-container {
+    border-bottom-color: var(--border-color-light);
 }
 
 .tab-btn {
-    padding: 12px 0;
-    color: var(--text-subtle); 
-    font-weight: 500;
-    cursor: pointer;
-    background: none;
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    font-weight: 600;
     border: none;
-    position: relative;
-    transition: color 0.3s;
-}
-
-.tab-btn:hover {
-    color: var(--text-light);
+    border-radius: 8px;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    transition: all var(--transition-speed);
+    font-size: 0.9rem;
 }
 
 .tab-btn.active {
-    color: var(--primary-glow); /* Active tab color is Orange */
+    background: var(--primary-color);
+    color: white;
+    box-shadow: 0 0 12px rgba(249, 115, 22, 0.4);
 }
 
-.tab-btn::after {
-    content: '';
-    position: absolute;
-    bottom: -2px; 
-    left: 0;
-    width: 100%;
-    height: 3px;
-    background-color: transparent;
-    transition: background-color 0.3s, box-shadow 0.3s;
+.tab-btn:not(.active):hover {
+    background: rgba(255, 255, 255, 0.05);
 }
 
-.tab-btn.active::after {
-    background-color: var(--primary-glow);
-    box-shadow: 0 0 8px var(--primary-glow);
+.auth-page-wrapper.light-theme .tab-btn:not(.active):hover {
+    background: #f1f5f9;
 }
 
-.auth-form h2 {
-    color: var(--text-light); 
-    font-size: 1.8rem; 
-    font-weight: 700;
-    margin-bottom: 2.5rem; 
-}
-
+/* 🔔 NOTIFICATIONS */
 .notification {
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    font-size: 0.9rem;
+    text-align: center;
     font-weight: 500;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.25rem;
+    font-size: 0.9rem;
+    animation: fadeIn 0.3s ease-in-out;
 }
 
 .notification.success {
-    background-color: rgba(255, 152, 0, 0.1); /* Orange background */
-    border: 1px solid var(--primary-glow);
-    color: var(--primary-glow);
-    box-shadow: 0 0 8px rgba(255, 152, 0, 0.5);
+    background: rgba(34, 197, 94, 0.15);
+    color: #22c55e;
+    border: 1px solid rgba(34, 197, 94, 0.3);
 }
 
 .notification.error {
-    background-color: rgba(255, 50, 50, 0.1);
-    border: 1px solid #FF3232;
-    color: #FF3232;
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
-/* ================================== */
-/* 03. FORM ELEMENTS (INCLUDING INPUT FOCUS FIX) */
-/* ================================== */
+/* 📋 FORM STYLES */
+.auth-form h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    text-align: center;
+    color: var(--primary-color);
+    margin-bottom: 1.25rem;
+}
 
 .input-group {
-    margin-bottom: 25px; 
+    margin-bottom: 1rem;
 }
 
 .input-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     font-weight: 500;
-    color: var(--text-subtle);
+    display: block;
+    margin-bottom: 0.25rem;
+    opacity: 0.9;
 }
 
-.input-group input, 
+.input-group input {
+    width: 100%;
+    padding: 0.6rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-light);
+    outline: none;
+    transition: all var(--transition-speed);
+    font-size: 0.9rem;
+}
+
+.auth-page-wrapper.light-theme .input-group input {
+    background: #f1f5f9;
+    border-color: var(--border-color-light);
+    color: var(--text-dark);
+}
+
+.input-group input:hover:not(:focus) {
+    border-color: rgba(249, 115, 22, 0.5);
+}
+
+.input-group input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
+}
+
+/* 🧍 GENDER SELECT */
 .custom-select-trigger {
     width: 100%;
-    padding: 10px 0;
-    background: transparent;
-    border: none;
-    border-bottom: 2px solid var(--input-line);
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: rgba(255, 255, 255, 0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all var(--transition-speed);
     color: var(--text-light);
-    font-size: 1rem;
-    transition: border-bottom-color 0.3s, box-shadow 0.3s;
-    outline: none;
 }
 
-.input-group input:focus,
-.input-group input:hover,
-.custom-select-trigger:focus,
-.custom-select-trigger.selected {
-    /* Focus Color is Orange */
-    border-bottom-color: var(--primary-glow); 
-    box-shadow: 0 1px 0 0 var(--primary-glow);
-    
-    /* FIX: Explicitly set dark background and light text when active */
-    background-color: var(--card-dark) !important; 
-    color: var(--text-light) !important;
+.auth-page-wrapper.light-theme .custom-select-trigger {
+    background: #f1f5f9;
+    border-color: var(--border-color-light);
+    color: var(--text-dark);
 }
 
-/* FIX for autocompleted inputs */
-.input-group input:-webkit-autofill,
-.input-group input:-webkit-autofill:hover, 
-.input-group input:-webkit-autofill:focus {
-    /* Set the autocompleted background to match the theme */
-    -webkit-box-shadow: 0 0 0 1000px var(--card-dark) inset !important;
-    /* Set the autocompleted text to be light */
-    -webkit-text-fill-color: var(--text-light) !important;
-    transition: background-color 5000s ease-in-out 0s;
+.custom-select-trigger:hover {
+    border-color: var(--primary-color);
 }
 
 .custom-select-options {
     position: absolute;
     width: 100%;
-    background-color: var(--background-dark);
-    border: 1px solid var(--input-line);
+    margin-top: 0.25rem;
+    background: #333333;
+    color: var(--text-light);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 8px;
-    margin-top: 5px;
     z-index: 10;
     overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+}
+
+.auth-page-wrapper.light-theme .custom-select-options {
+    background: white;
+    color: var(--text-dark);
+    border-color: var(--border-color-light);
+    box-shadow: var(--shadow-md);
+}
+
+.custom-select-option {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: all var(--transition-speed);
 }
 
 .custom-select-option:hover {
-    background-color: var(--input-line);
-    color: var(--primary-glow); /* Orange hover text */
+    background: var(--primary-color);
+    color: white;
+    transform: translateX(5px);
 }
 
-/* ================================== */
-/* 04. BUTTON STYLES (REDUCED LENGTH & CENTERED) */
-/* ================================== */
-
+/* 🔘 BUTTONS */
 .submit-btn {
     width: 100%;
-    padding: 10px; 
-    border: none;
-    border-radius: 6px; 
-    font-size: 0.95rem; 
-    font-weight: 600; 
-    margin-top: 20px; 
-    letter-spacing: 0.8px;
-    text-transform: uppercase;
+    padding: 0.75rem 1rem;
+    margin-top: 0.5rem;
+    border-radius: 8px;
+    border: 1.5px solid transparent;
+    font-weight: 600;
+    font-size: 0.95rem;
     cursor: pointer;
-    transition: all 0.3s ease-in-out;
-    /* KEEPING REDUCED LENGTH STYLES */
-    max-width: 300px; 
-    margin-left: auto; 
-    margin-right: auto; 
-    display: block;
+    transition: all var(--transition-speed);
 }
 
-/* Primary Button (Login/Register/Reset) */
-.primary-btn {
-    background: var(--primary-gradient); /* Orange Gradient */
-    color: var(--background-dark); /* Deep Black text on bright orange button */
-    box-shadow: 0 5px 15px rgba(255, 152, 0, 0.5); /* Orange shadow */
-}
-
-.primary-btn:hover:not(:disabled) {
-    box-shadow: var(--neon-shadow); /* Orange Neon Shadow */
+.submit-btn:hover {
     transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
 }
 
-/* Provider Login Section (for separation) */
+.primary-btn {
+    background: var(--primary-color);
+    color: white;
+}
+
+.primary-btn:hover {
+    background: var(--primary-hover);
+}
+
+/* ✨ Provider Login Section */
 .provider-login-section {
-    margin-top: 1.5rem; 
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--input-line); 
     text-align: center;
+    margin-top: 1.5rem;
 }
 
-/* Provider Button (Go to User Login) */
 .provider-btn {
-    background-color: var(--card-dark); 
-    color: var(--primary-glow); /* Orange text on dark background */
-    border: 1px solid var(--provider-border); 
-    box-shadow: none; 
-    padding: 8px 15px; 
-    font-size: 0.85rem; 
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    width: auto;
+    box-shadow: none;
+    color: var(--primary-color);
     font-weight: 500;
-    margin-top: 15px;
-    /* Keeping it the shortest button */
-    max-width: 250px; 
+    font-size: 1rem;
+    text-decoration: none;
 }
 
 .provider-btn:hover {
-    background-color: rgba(255, 152, 0, 0.05); /* Slight orange hover */
-    border-color: var(--primary-glow);
-    box-shadow: 0 0 8px rgba(255, 152, 0, 0.5);
-    transform: none;
+    color: var(--primary-hover);
+    text-decoration: underline;
 }
 
 .back-btn {
-    display: block;
-    margin-top: 20px;
-    background: none;
+    background: transparent;
     border: none;
-    color: var(--text-subtle);
-    font-size: 0.9rem;
-    font-weight: 500;
+    color: var(--primary-color);
+    font-weight: 600;
     cursor: pointer;
-    transition: color 0.2s;
-}
-.back-btn:hover {
-    color: var(--primary-glow); /* Orange hover color */
-}
-/* --- 00. COLOR VARIABLES (ORANGE-BLACK DARK THEME) --- */
-:root {
-    --primary-gradient: linear-gradient(90deg, #FF6F00, #FF9800); 
-    --primary-glow: #FF9800; 
-    --background-dark: #121212; /* Deep Black background */
-    --card-dark: #1F1F1F; /* Card surface dark gray */
-    --text-light: #f0f0f0; 
-    --text-subtle: #999; 
-    --input-line: #333; 
-    /* ... other dark theme variables ... */
+    margin-top: 1rem;
+    padding: 0.4rem;
+    display: block;
+    width: 100%;
+    text-align: center;
 }
 
-/* ================================== */
-/* 05. THEME TOGGLE SWITCH STYLES (Bottom Right) */
-/* ================================== */
-
-/* Positioning the container */
+/* 🌗 THEME TOGGLE */
 .theme-toggle-container {
     position: fixed;
-    bottom: 20px; /* 20px from bottom */
-    right: 20px; /* 20px from right */
-    z-index: 1000;
+    bottom: 25px;
+    right: 25px;
+    z-index: 100;
 }
 
-/* Base style for the hidden checkbox input */
 .theme-toggle-input {
     display: none;
 }
 
-/* Style for the visual switch/slider (the label) */
 .theme-toggle-label {
-    /* Toggle Dimensions */
-    display: block;
-    width: 60px; /* Width of the entire switch */
-    height: 30px; /* Height of the entire switch */
-    border-radius: 15px;
-    
-    /* Dark Mode (Default State) */
-    background-color: var(--input-line); /* Dark grey track */
-    border: 1px solid var(--text-subtle);
-    cursor: pointer;
-    position: relative;
-    transition: background-color 0.3s, border-color 0.3s;
-}
-
-/* Style for the handle/circle (the knob) */
-.theme-toggle-label::before {
-    content: '🌙'; /* Moon icon for Dark Mode */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: absolute;
-    top: 2px;
-    left: 2px;
-    
-    /* Handle Dimensions */
-    width: 24px;
-    height: 24px;
+    width: 56px;
+    height: 56px;
     border-radius: 50%;
-    
-    /* Appearance */
-    background-color: var(--text-light); /* White/light circle */
-    font-size: 16px;
-    transition: transform 0.3s, background-color 0.3s;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
 }
 
-/* State when input is CHECKED (Light Theme) */
-.theme-toggle-input:checked + .theme-toggle-label {
-    /* Active Track Color is Orange */
-    background-color: var(--primary-glow); 
-    border-color: var(--primary-glow);
+.theme-toggle-label:hover {
+    transform: translateY(-3px) scale(1.05);
 }
 
-/* Move the handle/circle when checked */
-.theme-toggle-input:checked + .theme-toggle-label::before {
-    content: '☀️'; /* Sun icon for Light Mode */
-    transform: translateX(30px); /* Move the handle to the right side (60px width - 2px padding - 28px width) */
-    background-color: var(--card-dark); /* Dark circle on orange track (it will be white in light-theme mode) */
+.auth-page-wrapper.light-theme .theme-toggle-label {
+    background: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* Light Theme Overrides (For the toggle itself) */
-.light-theme .theme-toggle-label {
-    background-color: var(--input-line); /* Light track */
-    border-color: var(--input-line);
-}
-/* ================================== */
-/* NEW: LIGHT THEME OVERRIDES (Crucial Missing Block) */
-/* ================================== */
-.light-theme {
-    /* Swap Backgrounds */
-    --background-dark: #f0f0f0; /* Light Gray background */
-    --card-dark: #ffffff; /* White Card surface */
-    
-    /* Swap Text Colors */
-    --text-light: #1F1F1F; /* Dark text */
-    --text-subtle: #555; /* Darker subtle text */
-    
-    /* Input Line */
-    --input-line: #ccc; /* Light input line */
-    --provider-border: #ddd; /* Lighter border for buttons on white background */
-    
-    /* Keep Primary Color (Orange) the same for brand consistency */
-    --primary-gradient: linear-gradient(90deg, #FF6F00, #FF9800); 
-    --primary-glow: #FF9800; 
+/* 🌗 ICON FIX — show opposite icon */
+.theme-toggle-label::before,
+.theme-toggle-label::after {
+    position: absolute;
+    font-size: 24px;
+    transition: transform 0.4s ease, opacity 0.4s ease;
 }
 
-/* Also, update the input focus/autofill fix for light mode */
-.light-theme .input-group input:focus,
-.light-theme .input-group input:hover,
-.light-theme .custom-select-trigger:focus {
-    /* Ensure focused background is still the white card background */
-    background-color: var(--card-dark) !important; 
-    /* Ensure focused text is dark */
-    color: var(--text-light) !important; 
+/* Show ☀️ in dark mode (default) */
+.theme-toggle-label::before {
+    content: '☀️';
+    transform: translateY(0);
+    opacity: 1;
 }
 
-.light-theme .input-group input:-webkit-autofill,
-.light-theme .input-group input:-webkit-autofill:hover, 
-.light-theme .input-group input:-webkit-autofill:focus {
-    /* Set autocompleted background to white */
-    -webkit-box-shadow: 0 0 0 1000px var(--card-dark) inset !important;
-    /* Set autocompleted text to dark */
-    -webkit-text-fill-color: var(--text-light) !important;
+/* Show 🌙 when toggled (light theme) */
+.theme-toggle-label::after {
+    content: '🌙';
+    transform: translateY(20px);
+    opacity: 0;
 }
 
-/* FIX for the custom select options background in light mode */
-.light-theme .custom-select-options {
-    background-color: var(--card-dark); /* Should use white background */
-    border: 1px solid var(--input-line);
+.theme-toggle-input:checked+.theme-toggle-label::before {
+    transform: translateY(-20px);
+    opacity: 0;
 }
-.light-theme .custom-select-option:hover {
-    background-color: var(--input-line); /* Should use light input line background on hover */
+
+.theme-toggle-input:checked+.theme-toggle-label::after {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+/* ✨ ANIMATIONS */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.96);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* 📱 RESPONSIVE DESIGN */
+@media (max-width: 480px) {
+    .form-panel {
+        padding: 2rem 1.5rem;
+    }
+
+    .auth-form h2 {
+        font-size: 1.5rem;
+    }
 }

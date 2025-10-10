@@ -1,0 +1,218 @@
+/*
+========================================
+--- DIALOG COMPONENT (BEM Naming) ---
+========================================
+*/
+
+/* --- Trigger Button Style --- */
+/* This style is for the button that opens the dialog */
+.delete-account-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.8rem 1.25rem;
+    border-radius: 8px;
+    background-color: transparent;
+    border: 1px solid var(--border-color);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    font-family: var(--font-body);
+    color: var(--text-color-light);
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.delete-account-trigger:hover {
+    background-color: var(--primary-color-light);
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.delete-account-trigger svg {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2px;
+}
+
+
+/* --- Block: dialog-overlay --- */
+.dialog-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: grid;
+    place-items: center;
+    padding: 1rem;
+    background-color: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+/* Modifier for visibility */
+.dialog-overlay--visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.dialog-overlay--visible .dialog-card {
+    animation: dialog-pop-in 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes dialog-pop-in {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+
+/* --- Block: dialog-card --- */
+.dialog-card {
+    background-color: var(--card-bg-glass);
+    border: 1px solid var(--card-border-glass);
+    border-radius: 16px;
+    padding: 2rem;
+    max-width: 450px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    box-shadow: var(--shadow-heavy);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+}
+
+/* Elements of dialog-card */
+.dialog-card__icon {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 1rem;
+}
+
+.dialog-card__title {
+    font-family: var(--font-heading);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin: 0 0 0.5rem 0;
+}
+
+.dialog-card__message {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--text-color-light);
+}
+
+.dialog-card__actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 2rem;
+    width: 100%;
+}
+
+.dialog-card__btn {
+    flex-grow: 1;
+    padding: 0.75rem 1rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    font-family: var(--font-body);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+/* Modifiers for dialog-card */
+.dialog-card--warning .dialog-card__icon,
+.dialog-card--error .dialog-card__icon {
+    color: var(--primary-color);
+}
+
+.dialog-card--success .dialog-card__icon {
+    color: var(--success-color);
+}
+
+/* Modifiers for dialog-card__btn */
+.dialog-card__btn--danger {
+    background-color: var(--primary-color);
+    color: var(--unread-badge-text);
+}
+
+.dialog-card__btn--danger:hover {
+    background-color: var(--primary-color-dark);
+}
+
+.dialog-card__btn--success {
+    background-color: var(--success-color);
+    color: #fff;
+}
+
+.dialog-card__btn--success:hover {
+    background-color: var(--success-color-dark);
+}
+
+.dialog-card__btn--secondary {
+    background-color: var(--input-bg-color);
+    color: var(--text-color-light);
+}
+
+.dialog-card__btn--secondary:hover {
+    filter: brightness(0.95);
+}
+
+[data-theme="dark"] .dialog-card__btn--secondary:hover {
+    filter: brightness(1.1);
+}
+
+/* Add these styles to your existing Dialog.css file */
+
+.dialog-card__confirmation {
+    width: 100%;
+    margin-top: 1.5rem;
+    text-align: left;
+}
+
+.dialog-card__confirmation label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: var(--text-color-light);
+}
+
+.dialog-card__confirmation input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: var(--font-body);
+
+    /* Theming using your global variables from index.css */
+    background-color: var(--input-bg-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.dialog-card__confirmation input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px var(--primary-color-light);
+}
+
+/* Style for the disabled button state */
+.dialog-card__btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}

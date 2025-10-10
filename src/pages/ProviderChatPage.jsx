@@ -242,14 +242,8 @@ export default function ChatPage() {
                     <h3 className="chatNav-title">Chats</h3>
                     <div className={`chatNav-sideMenu ${isDropdownOpen ? "open" : ""}`}>
                         <div className="chatNav-menuContent">
-                            <button onClick={() => { navigate('/'); setIsDropdownOpen(false); }}>
-                                <Home size={18} /> Home
-                            </button>
                             <button onClick={() => { navigate('/dashboard'); setIsDropdownOpen(false); }}>
                                 <LayoutDashboard size={18} /> My Account
-                            </button>
-                            <button onClick={() => { handleLogout(); setIsDropdownOpen(false); }}>
-                                <LogOut size={18} /> Logout
                             </button>
                         </div>
                     </div>
