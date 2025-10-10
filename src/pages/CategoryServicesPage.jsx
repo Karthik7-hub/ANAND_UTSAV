@@ -1,18 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { allServices } from '../data/servicesData';
-import { allCategories } from '../data/categoriesData';
+import axios from 'axios';
 import ServiceCard from '../components/ServiceCard';
 import { LayoutGrid, List, Search, ChevronDown } from 'lucide-react';
-import "../css/AllServicesPage.css"; // Reuse same CSS for filters & grid/list view
+import "../css/AllServicesPage.css"; // same styling
 
 export default function CategoryServicesPage() {
-    const { id } = useParams(); // category id from URL
-    const categoryId = Number(id); // convert string to number
-    const category = allCategories.find(cat => cat.id === categoryId);
+    const { slug } = useParams(); // slug from URL
+    const [category, setCategory] = useState(null);
+    const [services, setServices] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     const [viewMode, setViewMode] = useState('grid');
-    const [price, setPrice] = useState(100000);
+    const [price, setPrice] = useState(0);
+const [maxPrice, setMaxPrice] = useState(0);
+
     const [selectedRating, setSelectedRating] = useState(null);
     const [searchQuery, setSearchQuery] = useState("");
     const [sortOpen, setSortOpen] = useState(false);
@@ -20,27 +23,64 @@ export default function CategoryServicesPage() {
 
     const sortOptions = ['Popularity', 'Rating', 'Price: Low to High', 'Price: High to Low'];
 
-    const clearFilters = () => {
-        setPrice(100000);
-        setSelectedRating(null);
-        setSearchQuery("");
+    useEffect(() => {
+    const fetchServices = async () => {
+        try {
+            setLoading(true);
+            const res = await axios.get(`https://anand-u.vercel.app/category/services/${slug}`);
+            console.log("Fetched services:", res.data); // debug
+
+            setServices(res.data);
+
+            // Set max price dynamically
+            if (res.data.length > 0) {
+                const highest = Math.max(...res.data.map(s => s.priceInfo?.amount || 0));
+                setMaxPrice(highest);
+                setPrice(highest); // initially show all services
+            }
+
+            setCategory({ name: slug.replace(/-/g, ' ') });
+        } catch (err) {
+            console.error(err);
+            setError("Failed to load category services.");
+        } finally {
+            setLoading(false);
+        }
     };
 
-    // Filter services for this category
-    let filteredServices = allServices
-        .filter(s => s.categoryId === categoryId) // only this category
-        .filter(s => s.price <= price)
-        .filter(s => (selectedRating ? s.rating >= selectedRating : true))
-        .filter(s => s.name.toLowerCase().includes(searchQuery.toLowerCase()));
+    fetchServices();
+}, [slug]);
 
-    // Sorting
-    if (sortOption === 'Rating') {
-        filteredServices = filteredServices.sort((a, b) => b.rating - a.rating);
-    } else if (sortOption === 'Price: Low to High') {
-        filteredServices = filteredServices.sort((a, b) => a.price - b.price);
-    } else if (sortOption === 'Price: High to Low') {
-        filteredServices = filteredServices.sort((a, b) => b.price - a.price);
-    }
+    const clearFilters = () => {
+        setPrice(maxPrice);
+    setSelectedRating(null);
+    setSearchQuery("");
+};
+
+
+    let filteredServices = [...services];
+
+if (services.length > 0) {
+    filteredServices = filteredServices
+        .filter(s => !price || (s.priceInfo?.amount <= price))
+        .filter(s => !selectedRating || (s.avgRating >= selectedRating))
+        .filter(s => !searchQuery || s.name.toLowerCase().includes(searchQuery.toLowerCase()));
+}
+
+
+
+
+if (sortOption === 'Rating') {
+    filteredServices.sort((a, b) => (b.avgRating || 0) - (a.avgRating || 0));
+} else if (sortOption === 'Price: Low to High') {
+    filteredServices.sort((a, b) => (a.priceInfo?.amount || 0) - (b.priceInfo?.amount || 0));
+} else if (sortOption === 'Price: High to Low') {
+    filteredServices.sort((a, b) => (b.priceInfo?.amount || 0) - (a.priceInfo?.amount || 0));
+}
+
+
+    if (loading) return <p className="loading">Loading services...</p>;
+    if (error) return <p className="error">{error}</p>;
 
     return (
         <div className="services-page-container">
@@ -53,7 +93,7 @@ export default function CategoryServicesPage() {
                     <div className="price-slider-container">
                         <div className="price-value">Up to ₹{Number(price).toLocaleString('en-IN')}</div>
                         <input
-                            type="range" min="10000" max="100000" step="5000"
+                            type="range" min="0" max={maxPrice || 100000} step={Math.max(Math.round(maxPrice / 20), 1)}
                             value={price} onChange={(e) => setPrice(Number(e.target.value))}
                             className="price-slider"
                         />
@@ -125,7 +165,7 @@ export default function CategoryServicesPage() {
                 {/* Services Display */}
                 <div className={viewMode === 'grid' ? 'service-grid-view' : 'service-list-view'}>
                     {filteredServices.length > 0 ? (
-                        filteredServices.map(service => <ServiceCard key={service.id} service={service} />)
+                        filteredServices.map(service => <ServiceCard key={service._id} service={service} />)
                     ) : (
                         <p className="no-results">No services match your filters.</p>
                     )}
