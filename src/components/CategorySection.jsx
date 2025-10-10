@@ -18,7 +18,7 @@ export default function CategorySection() {
             <div className="carousel-wrapper">
                 <div className="category-carousel">
                     {allCategories.map(cat => (
-                        <Link to={`/category/${cat.id}`} key={cat.id} className="category-card">
+                        <Link to={`/category/${cat.slug}`} key={cat.id} className="category-card">
                             <div className="category-image-wrapper">
                                 <img
                                     src={cat.image}

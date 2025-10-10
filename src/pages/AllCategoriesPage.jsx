@@ -1,4 +1,5 @@
-// src/pages/AllCategoriesPage.js
+
+// src/pages/AllCategoriesPage.jsx
 
 import { Link } from 'react-router-dom';
 import { allCategories } from '../data/categoriesData';
@@ -11,8 +12,7 @@ export default function AllCategoriesPage() {
             <div className="category-grid">
                 {allCategories.map(cat => (
                     <Link
-                        to="/services"
-                        state={{ preSelectedCategoryId: cat.id }}
+                        to={`/category/${cat.slug}`}   // ✅ FIXED: use slug instead of /services
                         key={cat.id}
                         className="category-card"
                     >
