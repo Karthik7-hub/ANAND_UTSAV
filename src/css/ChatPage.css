@@ -377,6 +377,7 @@
   resize: none;
   max-height: 120px;
   color: var(--text-color);
+  overflow-y: auto;
 }
 
 .chat-page-container .message-input-form textarea:focus {
@@ -509,43 +510,152 @@
   z-index: 1150;
 }
 
-/* === CSS for Typing Indicator === */
+/* In your Chat Page CSS file */
+
+/* --- Improved Typing Indicator --- */
+.chat-page-container .typing-indicator-bubble {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background-color: var(--bg-secondary);
+  border-radius: 18px;
+  border-bottom-left-radius: 4px;
+  align-self: flex-start;
+  box-shadow: var(--shadow-light);
+  width: 80px;
+  /* <-- Increased from 70px */
+  height: 48px;
+}
+
 .typing-indicator {
   display: flex;
   align-items: center;
-  padding: 8px 0px;
-  /* Adjust padding as needed */
+  /* Center vertically */
+  justify-content: center;
+  gap: 8px;
+  /* Increase gap for better separation */
+  height: 100%;
 }
 
 .typing-indicator span {
-  height: 8px;
-  width: 8px;
-  background-color: var(--text-color-secondary);
-  /* Uses your theme color */
+  width: 7px;
+  /* Slightly larger dots */
+  height: 7px;
+  background-color: var(--text-color-light);
+  /* FIX: Use a defined theme variable */
   border-radius: 50%;
   display: inline-block;
-  margin: 0 2px;
-  animation: bounce 1.2s infinite ease-in-out;
+  animation: typing-bounce 1.4s infinite ease-in-out;
+  /* Slower, smoother animation */
 }
 
-/* Animation delay for each dot */
-.typing-indicator span:nth-of-type(1) {
-  animation-delay: -0.32s;
+/* Stagger the animation delay for each dot */
+.typing-indicator span:nth-child(1) {
+  animation-delay: 0s;
 }
 
-.typing-indicator span:nth-of-type(2) {
-  animation-delay: -0.16s;
+.typing-indicator span:nth-child(2) {
+  animation-delay: 0.2s;
 }
 
-@keyframes bounce {
+.typing-indicator span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+/* A more fluid and subtle bounce animation */
+@keyframes typing-bounce {
 
   0%,
-  80%,
+  60%,
   100% {
-    transform: scale(0);
+    transform: translateY(0) scale(0.8);
+    opacity: 0.7;
   }
 
-  40% {
-    transform: scale(1.0);
+  30% {
+    transform: translateY(-5px) scale(1);
+    /* Less jump, more scale */
+    opacity: 1;
+  }
+}
+
+/* Add this to ChatPage.css */
+.date-separator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 16px 0;
+}
+
+.date-separator span {
+  background-color: var(--input-bg-color);
+  color: var(--text-color-light);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 12px;
+}
+
+/* Add this to your ChatPage.css file */
+
+.messages-area {
+  /* This is required for positioning the button inside */
+  position: relative;
+}
+
+.scroll-to-bottom-button {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  z-index: 50;
+
+  background-color: var(--bg-secondary);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  box-shadow: var(--shadow-heavy);
+  opacity: 0;
+  transform: translateY(10px);
+  animation: fadeInUp 0.3s ease forwards;
+  transition: background-color 0.2s;
+}
+
+.scroll-to-bottom-button:hover {
+  background-color: var(--input-bg-color);
+}
+
+.new-message-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+
+  background-color: var(--primary-color);
+  color: var(--unread-badge-text);
+  border-radius: 50%;
+
+  width: 22px;
+  height: 22px;
+  font-size: 0.75rem;
+  font-weight: 700;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--bg-secondary);
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

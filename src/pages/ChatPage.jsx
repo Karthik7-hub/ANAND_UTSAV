@@ -3,33 +3,30 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
 import { io } from 'socket.io-client';
 import axios from 'axios';
-import { Send, Menu, Sun, Moon, LogOut, ArrowLeft, Home, LayoutDashboard } from 'lucide-react';
+import { Send, Menu, Sun, Moon, LogOut, ArrowLeft, Home, LayoutDashboard, Clock, AlertCircle, } from 'lucide-react';
 import '../css/ChatPage.css';
+import { useTheme } from '../context/ThemeContext';
+import { format, isToday, isYesterday, isThisWeek, differenceInCalendarDays } from 'date-fns';
 
 // --- Configuration ---
 const API_BASE_URL = 'https://anandnihal.onrender.com';
 const SOCKET_URL = 'https://anandnihal.onrender.com/';
 
 // --- Helper Functions & Components ---
-
-const formatTimestamp = (dateString) => {
-  if (!dateString) return '';
-  const date = new Date(dateString);
-  const now = new Date();
-  const isToday = date.toDateString() === now.toDateString();
-
-  if (isToday) {
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  }
-  return date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' });
-};
-
-const useChatScroll = (chatRef, dependency) => {
+const useChatScroll = (chatRef, dependency, isLoadingMessages, isTyping, messages) => {
   useEffect(() => {
     if (chatRef.current) {
       chatRef.current.scrollTop = chatRef.current.scrollHeight;
     }
   }, [chatRef, dependency]);
+  useEffect(() => {
+    if (!isLoadingMessages && chatRef.current) {
+      setTimeout(() => {
+        chatRef.current.scrollTop = chatRef.current.scrollHeight;
+      }, 100);
+    }
+  }, [isLoadingMessages, isTyping, messages]);
+
 };
 
 const Avatar = ({ name }) => {
@@ -41,6 +38,23 @@ const Avatar = ({ name }) => {
     return name.substring(0, 2).toUpperCase();
   };
   return <div className="avatar">{getInitials(name)}</div>;
+};
+
+// New helper function for the date separators
+const formatDateSeparator = (dateString) => {
+  const date = new Date(dateString);
+  if (isToday(date)) {
+    return 'Today';
+  }
+  if (isYesterday(date)) {
+    return 'Yesterday';
+  }
+  // For dates within the last week (but not today or yesterday)
+  if (isThisWeek(date, { weekStartsOn: 1 /* Monday */ })) {
+    return format(date, 'EEEE'); // e.g., "Tuesday"
+  }
+  // For older dates
+  return format(date, 'dd/MM/yyyy'); // e.g., "11/10/2025"
 };
 
 // ✅ NEW: CSS-based typing indicator. No extra dependencies needed.
@@ -78,7 +92,7 @@ export default function ChatPage() {
   const [isTyping, setIsTyping] = useState(false);
   const [typingTimeout, setTypingTimeout] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [theme, setTheme] = useState(localStorage.getItem('chat-theme') || 'light');
+  const { theme, toggleTheme } = useTheme();
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
 
   // --- Refs ---
@@ -87,20 +101,12 @@ export default function ChatPage() {
   const selectedConversationRef = useRef(selectedConversation);
   selectedConversationRef.current = selectedConversation;
 
-  useChatScroll(messagesAreaRef, messages.length);
-
+  useChatScroll(messagesAreaRef, messages.length, isLoadingMessages, isTyping, messages);
   // --- Axios Instance ---
   const api = axios.create({
     baseURL: API_BASE_URL,
     headers: { Authorization: `Bearer ${token}` },
   });
-
-  // --- Effects ---
-
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('chat-theme', theme);
-  }, [theme]);
 
   useEffect(() => {
     if (!user || !token) return;
@@ -110,6 +116,9 @@ export default function ChatPage() {
     socket.emit('setup', user);
     socket.on('connected', () => console.log('Socket connected ✅'));
     socket.on('message received', (newMessage) => {
+      if (newMessage.sender._id === user._id) {
+        return;
+      }
       const messageWithParticipants = {
         ...newMessage,
         conversation: {
@@ -170,8 +179,12 @@ export default function ChatPage() {
   }, [conversationIdFromUrl, conversations, navigate]);
 
   useEffect(() => {
-    if (!selectedConversation || !token) return;
-
+    if (!selectedConversation || !token) {
+      setMessages([]);
+      return;
+    }
+    // ✅ ADD THIS LINE: Immediately clear old messages
+    setMessages([]);
     const fetchMessages = async () => {
       try {
         const { data } = await api.get(`/message/${selectedConversation._id}`);
@@ -204,11 +217,25 @@ export default function ChatPage() {
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!newMessage.trim() || !selectedConversation) return;
+    const tempId = `temp_${Date.now()}`;
+    const optimisticMessage = {
+      _id: tempId,
+      content: newMessage,
+      sender: user, // Use the full user object
+      createdAt: new Date().toISOString(),
+      status: 'sending', // Our new status property
+    };
 
+    // Add to UI instantly and clear the input
+    setMessages((prev) => [...prev, optimisticMessage]);
+    setNewMessage('');
+    socketRef.current.emit('stop typing', selectedConversation._id);
     try {
       const payload = { content: newMessage, conversationId: selectedConversation._id };
       const { data: sentMessage } = await api.post('/message/', payload);
-
+      setMessages((prev) =>
+        prev.map((msg) => (msg._id === tempId ? { ...sentMessage, status: 'sent' } : msg))
+      );
       // Wrap message with participants for frontend
       const messageWithParticipants = {
         ...sentMessage,
@@ -219,11 +246,11 @@ export default function ChatPage() {
       };
 
       socketRef.current.emit('new message', messageWithParticipants);
-      setMessages((prev) => [...prev, sentMessage]);
-      setNewMessage('');
-      socketRef.current.emit('stop typing', selectedConversation._id);
     } catch (error) {
       console.error('Failed to send message:', error);
+      setMessages((prev) =>
+        prev.map((msg) => (msg._id === tempId ? { ...optimisticMessage, status: 'error' } : msg))
+      );
     }
   };
 
@@ -249,8 +276,6 @@ export default function ChatPage() {
     navigate('/login');
   };
 
-  const toggleTheme = () => setTheme(theme === 'light' ? 'dark' : 'light');
-
   const getOtherParticipant = (convo) => {
     if (!convo || !user) return { name: 'Unknown' };
     return convo.provider?._id === user._id ? convo.user : convo.provider;
@@ -258,6 +283,31 @@ export default function ChatPage() {
 
   const otherUser = selectedConversation ? getOtherParticipant(selectedConversation) : null;
   const isChatVisibleMobile = !!conversationIdFromUrl;
+
+  // You can place this component inside ChatPage.js, before the main return statement.
+  const MessageStatus = ({ status }) => {
+    if (status === 'sending') {
+      return <Clock size={12} className="timestamp" style={{ marginLeft: '4px', marginRight: '0' }} />;
+    }
+    if (status === 'error') {
+      return <AlertCircle size={12} className="timestamp" style={{ color: '#ff4d4d', marginLeft: '4px', marginRight: '0' }} />;
+    }
+    return null; // Don't show anything for 'sent' status
+  };
+
+  // Inside ChatPage.jsx, before the return statement
+
+  // ✅ ADDED: Helper component for date separator
+  const DateSeparator = ({ date }) => (
+    <div className="date-separator">
+      <span>{date}</span>
+    </div>
+  );
+
+  const formatTimestamp = (dateString) => {
+    if (!dateString) return '';
+    return new Date(dateString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
 
   // --- Render ---
   return (
@@ -320,14 +370,39 @@ export default function ChatPage() {
 
             <div className="messages-area" ref={messagesAreaRef}>
               {isLoadingMessages ? <MessageSkeleton />
-                : messages.map((msg) => (
-                  <div key={msg._id} className={`message-bubble-wrapper ${msg.sender?._id === user?._id ? 'sent' : 'received'}`}>
-                    <div className="message-bubble">
-                      <span className="message-content">{msg.content}</span>
-                      <span className="timestamp">{new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                    </div>
-                  </div>
-                ))
+                : messages.map((msg, index) => {
+                  const isSentByUser = msg.sender?._id === user?._id;
+
+                  // --- Date Separator Logic ---
+                  let showDateSeparator = false;
+                  if (index === 0) {
+                    // Always show the date for the very first message
+                    showDateSeparator = true;
+                  } else {
+                    const prevMsg = messages[index - 1];
+                    // Check if the current message was sent on a different day than the previous one
+                    const prevMsgDate = new Date(prevMsg.createdAt);
+                    const currentMsgDate = new Date(msg.createdAt);
+                    if (differenceInCalendarDays(currentMsgDate, prevMsgDate) > 0) {
+                      showDateSeparator = true;
+                    }
+                  }
+
+                  return (
+                    <React.Fragment key={msg._id}>
+                      {/* Conditionally render the separator */}
+                      {showDateSeparator && <DateSeparator date={formatDateSeparator(msg.createdAt)} />}
+
+                      <div className={`message-bubble-wrapper ${isSentByUser ? 'sent' : 'received'}`}>
+                        <div className="message-bubble">
+                          <span className="message-content">{msg.content}</span>
+                          <span className="timestamp">{formatTimestamp(msg.createdAt)}</span>
+                          {isSentByUser && <MessageStatus status={msg.status} />}
+                        </div>
+                      </div>
+                    </React.Fragment>
+                  );
+                })
               }
               {isTyping && !isLoadingMessages && <TypingIndicator />}
             </div>
@@ -338,9 +413,18 @@ export default function ChatPage() {
                 value={newMessage}
                 onChange={handleTyping}
                 rows="1"
+                // ✅ ADD THIS onInput HANDLER
+                onInput={(e) => {
+                  e.target.style.height = 'auto'; // Reset height
+                  e.target.style.height = `${e.target.scrollHeight}px`; // Set to content height
+                }}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
+
+                    // ✅ ADD THIS to reset the height on send
+                    e.target.style.height = 'auto';
+
                     handleSendMessage(e);
                   }
                 }}

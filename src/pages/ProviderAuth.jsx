@@ -7,7 +7,8 @@ import {
   providerResetPasswordRequest,
 } from "../utils/providerAuthApi";
 import "../css/FestiveAuth.css";
-import { useProvider } from '../context/ProviderContext'; // ✅ CHANGED: Import useProvider
+import { useProvider } from "../context/ProviderContext";
+import { useTheme } from "../context/ThemeContext"; // ✅ Use same theme context as FestiveAuth
 
 const INITIAL_FORM = {
   name: "",
@@ -26,16 +27,11 @@ export default function ProviderAuth() {
   const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState({ message: "", type: "" });
   const [genderOpen, setGenderOpen] = useState(false);
-  const [isDarkTheme, setIsDarkTheme] = useState(true);
   const genderRef = useRef(null);
 
   const navigate = useNavigate();
-  const { login } = useProvider(); // ✅ CHANGED: Use the provider's login function
-
-  // ... (All other functions like toggleTheme, useEffect, notify, handleChange, etc., remain exactly the same) ...
-  const toggleTheme = () => {
-    setIsDarkTheme(prev => !prev);
-  };
+  const { login } = useProvider();
+  const { theme, toggleTheme } = useTheme(); // ✅ Shared theme
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -44,8 +40,7 @@ export default function ProviderAuth() {
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
-    return () =>
-      document.removeEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const notify = (msg, type) => {
@@ -71,17 +66,14 @@ export default function ProviderAuth() {
   };
 
   // ---------------- LOGIN ----------------
-  // No changes needed here. It correctly receives 'res.user' (which is the provider object)
-  // and 'res.token', and passes them to the 'login' function from our new context.
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     const res = await providerLoginRequest(form);
     if (res.success) {
       notify("🎉 Login successful!", "success");
-      // The backend sends 'user' and 'token' keys for the provider
       if (res.user && res.token) {
-        login(res.user, res.token); // This now calls the login from ProviderContext
+        login(res.user, res.token);
       }
       setTimeout(() => navigate("/provider/dashboard"), 1500);
     } else {
@@ -89,8 +81,6 @@ export default function ProviderAuth() {
     }
     setLoading(false);
   };
-
-  // ... (handleRegister, handleForgotPassword, handleResetPassword functions remain the same) ...
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -106,8 +96,7 @@ export default function ProviderAuth() {
   };
 
   const handleForgotPassword = async () => {
-    if (!form.email?.trim())
-      return notify("Enter your email", "error");
+    if (!form.email?.trim()) return notify("Enter your email", "error");
     setLoading(true);
     const res = await providerForgotPasswordRequest(form.email);
     if (res.success) {
@@ -136,13 +125,10 @@ export default function ProviderAuth() {
     navigate("/login");
   };
 
-  // ---------------- JSX / RENDER ----------------
-  // No changes are needed in the JSX part of the component.
   return (
-    <div className={`auth-page-wrapper ${isDarkTheme ? '' : 'light-theme'}`}>
-      {/* ... The entire JSX structure remains identical ... */}
+    <div className={`auth-page-wrapper ${theme === "light" ? "light-theme" : ""}`}>
       <div className="auth-container">
-        {/* --- LEFT PANEL: TABS & FORM (FORM PANEL WRAPPER ADDED) --- */}
+        {/* --- LEFT PANEL --- */}
         <div className="form-panel">
           <div className="tabs-container">
             <button
@@ -164,37 +150,40 @@ export default function ProviderAuth() {
               {notification.message}
             </div>
           )}
+
           <div className="form-content">
-            {/* --- LOGIN FORM --- */}
+            {/* --- LOGIN --- */}
             {activeTab === "login" &&
               (loginStep === "loginform" ? (
                 <form onSubmit={handleLogin} className="auth-form">
                   <h2>Event Provider Sign In</h2>
+
                   <div className="input-group">
                     <label htmlFor="email">Email</label>
                     <input
                       id="email"
                       type="email"
-                      placeholder=""
                       value={form.email}
                       onChange={handleChange}
                       required
                     />
                   </div>
+
                   <div className="input-group">
                     <label htmlFor="password">Password</label>
                     <input
                       id="password"
                       type="password"
-                      placeholder=""
                       value={form.password}
                       onChange={handleChange}
                       required
                     />
                   </div>
+
                   <button type="submit" className="submit-btn primary-btn" disabled={loading}>
                     {loading ? "Logging in..." : "Login to Dashboard"}
                   </button>
+
                   <button
                     type="button"
                     className="back-btn"
@@ -203,8 +192,7 @@ export default function ProviderAuth() {
                     Forgot Password?
                   </button>
 
-                  {/* --- NEW BUTTON: Go to User Login --- */}
-                  <div className="provider-login-section" style={{ textAlign: 'center' }}>
+                  <div className="provider-login-section" style={{ textAlign: "center" }}>
                     <button
                       type="button"
                       className="submit-btn provider-btn"
@@ -213,7 +201,6 @@ export default function ProviderAuth() {
                       GO TO USER LOGIN
                     </button>
                   </div>
-
                 </form>
               ) : (
                 <form onSubmit={handleResetPassword} className="auth-form">
@@ -221,31 +208,33 @@ export default function ProviderAuth() {
                   <p className="otp-info">
                     OTP sent to <strong>{form.email}</strong>
                   </p>
+
                   <div className="input-group">
                     <label htmlFor="otp">Enter OTP</label>
                     <input
                       id="otp"
-                      placeholder=""
                       value={form.otp}
                       onChange={handleChange}
                       required
                       maxLength="6"
                     />
                   </div>
+
                   <div className="input-group">
                     <label htmlFor="password">New Password</label>
                     <input
                       id="password"
                       type="password"
-                      placeholder=""
                       value={form.password}
                       onChange={handleChange}
                       required
                     />
                   </div>
+
                   <button type="submit" className="submit-btn primary-btn" disabled={loading}>
                     {loading ? "Resetting..." : "Reset Password"}
                   </button>
+
                   <button
                     type="button"
                     className="back-btn"
@@ -256,30 +245,31 @@ export default function ProviderAuth() {
                 </form>
               ))}
 
-            {/* --- REGISTER FORM --- */}
+            {/* --- REGISTER --- */}
             {activeTab === "register" && (
               <form onSubmit={handleRegister} className="auth-form register-form">
                 <h2>Event Provider Registration</h2>
+
                 <div className="input-group">
                   <label htmlFor="name">Full Name / Company Rep</label>
                   <input
                     id="name"
-                    placeholder=""
                     value={form.name}
                     onChange={handleChange}
                     required
                   />
                 </div>
+
                 <div className="input-group" ref={genderRef}>
                   <label>Gender (of representative)</label>
                   <div className="custom-select-container">
                     <button
                       type="button"
-                      className={`custom-select-trigger ${form.gender ? 'selected' : ''}`}
+                      className={`custom-select-trigger ${form.gender ? "selected" : ""}`}
                       onClick={() => setGenderOpen(!genderOpen)}
                     >
                       {form.gender || "Select Gender"}
-                      <span className={`arrow ${genderOpen ? 'open' : ''}`}></span>
+                      <span className={`arrow ${genderOpen ? "open" : ""}`}></span>
                     </button>
                     {genderOpen && (
                       <div className="custom-select-options">
@@ -290,49 +280,50 @@ export default function ProviderAuth() {
                     )}
                   </div>
                 </div>
+
                 <div className="input-group">
                   <label htmlFor="phone">Phone Number</label>
                   <input
                     id="phone"
                     type="tel"
-                    placeholder=""
                     value={form.phone}
                     onChange={handleChange}
                     required
                   />
                 </div>
+
                 <div className="input-group">
                   <label htmlFor="location">Base Location / City</label>
                   <input
                     id="location"
-                    placeholder=""
                     value={form.location}
                     onChange={handleChange}
                     required
                   />
                 </div>
+
                 <div className="input-group">
                   <label htmlFor="email">Email Address</label>
                   <input
                     id="email"
                     type="email"
-                    placeholder=""
                     value={form.email}
                     onChange={handleChange}
                     required
                   />
                 </div>
+
                 <div className="input-group">
                   <label htmlFor="password">Create Password</label>
                   <input
                     id="password"
                     type="password"
-                    placeholder=""
                     value={form.password}
                     onChange={handleChange}
                     required
                   />
                 </div>
+
                 <button type="submit" className="submit-btn primary-btn" disabled={loading}>
                   {loading ? "Registering..." : "Complete Registration"}
                 </button>
@@ -341,23 +332,22 @@ export default function ProviderAuth() {
           </div>
         </div>
 
-        {/* --- RIGHT PANEL: WELCOME & INFO --- */}
+        {/* --- RIGHT PANEL --- */}
         <div className="info-panel">
           <h1 className="welcome-text">WELCOME, PROVIDER</h1>
-          <p className="welcome-subtext">Manage your events, track bookings, and grow your audience here.</p>
+          <p className="welcome-subtext">
+            Manage your events, track bookings, and grow your audience here.
+          </p>
         </div>
-
-
-
       </div>
 
-      {/* NEW THEME TOGGLE SWITCH */}
+      {/* ✅ Unified Theme Toggle */}
       <div className="theme-toggle-container">
         <input
           type="checkbox"
-          id="theme-switch-provider" /* Use a unique ID here if rendered on the same page */
+          id="theme-switch-provider"
           className="theme-toggle-input"
-          checked={!isDarkTheme} // Checked means Light Theme is ON
+          checked={theme === "light"}
           onChange={toggleTheme}
           title="Toggle Dark/Light Theme"
         />

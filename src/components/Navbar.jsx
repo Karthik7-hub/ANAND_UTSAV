@@ -3,6 +3,7 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import { User, Menu, Search, Heart, X, LogOut, UserCircle, CalendarCheck, MessageSquare, Sun, Moon } from 'lucide-react';
 import { useUser } from '../context/UserContext';
 import "../css/Navbar.css";
+import { useTheme } from '../context/ThemeContext';
 
 // --- Custom Hook for detecting outside clicks ---
 const useOutsideAlerter = (ref, callback) => {
@@ -23,8 +24,8 @@ export default function AnandUtsavNavbar() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-    const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
 
+    const { theme, toggleTheme } = useTheme();
     const { user, logout, favourites } = useUser();
     const navigate = useNavigate();
 
@@ -43,17 +44,8 @@ export default function AnandUtsavNavbar() {
     }, []);
 
     useEffect(() => {
-        document.documentElement.setAttribute('data-theme', theme);
-        localStorage.setItem('theme', theme);
-    }, [theme]);
-
-    useEffect(() => {
         document.body.style.overflow = isMobileMenuOpen ? 'hidden' : 'auto';
     }, [isMobileMenuOpen]);
-
-    const toggleTheme = () => {
-        setTheme(prevTheme => (prevTheme === 'light' ? 'dark' : 'light'));
-    };
 
     const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
 

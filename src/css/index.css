@@ -20,6 +20,11 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
+body {
+    font-family: var(--font-body);
+    /* ... rest of your body styles */
+}
+
 /* --- 3. LIGHT THEME VARIABLES (DEFAULT) --- */
 :root {
     /* Colors */

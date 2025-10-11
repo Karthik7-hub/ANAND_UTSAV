@@ -1,35 +1,18 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react'; // ✅ ADDED useMemo
 import { useParams, useNavigate } from 'react-router-dom';
-import { useProvider } from '../context/ProviderContext'; // ✅ CHANGED: Using ProviderContext now
+import { useProvider } from '../context/ProviderContext';
+import { useTheme } from '../context/ThemeContext'; // ✅ ADDED ThemeContext
 import { io } from 'socket.io-client';
 import axios from 'axios';
-import { Send, Menu, Sun, Moon, ArrowLeft, LayoutDashboard } from 'lucide-react';
+import { Send, Menu, Sun, Moon, ArrowLeft, LayoutDashboard, Clock, AlertCircle } from 'lucide-react'; // ✅ ADDED icons
 import '../css/ChatPage.css';
+import { format, isToday, isYesterday, isThisWeek, differenceInCalendarDays } from 'date-fns'; // ✅ ADDED date-fns
 
 // --- Configuration ---
 const API_BASE_URL = 'https://anandnihal.onrender.com';
 const SOCKET_URL = 'https://anandnihal.onrender.com/';
 
-// --- Helper Functions & Components (No changes needed here) ---
-const formatTimestamp = (dateString) => {
-    if (!dateString) return '';
-    const date = new Date(dateString);
-    const now = new Date();
-    const isToday = date.toDateString() === now.toDateString();
-    if (isToday) {
-        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    }
-    return date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' });
-};
-
-const useChatScroll = (chatRef, dependency) => {
-    useEffect(() => {
-        if (chatRef.current) {
-            chatRef.current.scrollTop = chatRef.current.scrollHeight;
-        }
-    }, [chatRef, dependency]);
-};
-
+// --- Helper Components (Copied from ChatPage) ---
 const Avatar = ({ name }) => {
     const getInitials = (name = '') => {
         const names = name.split(' ');
@@ -62,13 +45,23 @@ const MessageSkeleton = () => (
     </>
 );
 
+// ✅ ADDED: New helper function for the date separators
+const formatDateSeparator = (dateString) => {
+    const date = new Date(dateString);
+    if (isToday(date)) return 'Today';
+    if (isYesterday(date)) return 'Yesterday';
+    if (isThisWeek(date, { weekStartsOn: 1 })) return format(date, 'EEEE');
+    return format(date, 'dd/MM/yyyy');
+};
 
-export default function ProviderChatPage() { // Renamed for clarity
-    const { provider, token } = useProvider(); // ✅ CHANGED: Destructuring 'provider' from useProvider
+
+export default function ProviderChatPage() {
+    const { provider, token } = useProvider();
     const { conversationId: conversationIdFromUrl } = useParams();
     const navigate = useNavigate();
+    const { theme, toggleTheme } = useTheme();
 
-    // --- State (No changes) ---
+    // --- State ---
     const [conversations, setConversations] = useState([]);
     const [selectedConversation, setSelectedConversation] = useState(null);
     const [messages, setMessages] = useState([]);
@@ -76,55 +69,50 @@ export default function ProviderChatPage() { // Renamed for clarity
     const [isTyping, setIsTyping] = useState(false);
     const [typingTimeout, setTypingTimeout] = useState(null);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const [theme, setTheme] = useState(localStorage.getItem('chat-theme') || 'light');
     const [isLoadingMessages, setIsLoadingMessages] = useState(false);
 
-    // --- Refs (No changes) ---
+    // --- Refs ---
     const socketRef = useRef(null);
     const messagesAreaRef = useRef(null);
     const selectedConversationRef = useRef(selectedConversation);
     selectedConversationRef.current = selectedConversation;
-    useChatScroll(messagesAreaRef, messages.length);
 
-    // --- Axios Instance ---
-    const api = axios.create({
-        baseURL: API_BASE_URL,
-        headers: { Authorization: `Bearer ${token}` },
-    });
+    // ✅ FIX: Memoize the api object to prevent infinite re-renders
+    const api = useMemo(() => {
+        return axios.create({
+            baseURL: API_BASE_URL,
+            headers: { Authorization: `Bearer ${token}` },
+        });
+    }, [token]);
+
+    useEffect(() => {
+        if (messagesAreaRef.current) {
+            messagesAreaRef.current.scrollTop = messagesAreaRef.current.scrollHeight;
+        }
+    }, [messages, isTyping]);
 
     // --- Effects ---
-
     useEffect(() => {
-        document.documentElement.setAttribute('data-theme', theme);
-        localStorage.setItem('chat-theme', theme);
-    }, [theme]);
-
-    useEffect(() => {
-        if (!provider || !token) return; // ✅ CHANGED: Check for provider
+        if (!provider || !token) return;
         const socket = io(SOCKET_URL);
         socketRef.current = socket;
 
-        socket.emit('setup', provider); // ✅ CHANGED: Setup socket with provider object
+        socket.emit('setup', provider);
         socket.on('connected', () => console.log('Socket connected for Provider ✅'));
+
         socket.on('message received', (newMessage) => {
-            const messageWithParticipants = {
-                ...newMessage,
-                conversation: {
-                    ...newMessage.conversation,
-                    participants: [
-                        newMessage.conversation.user,
-                        newMessage.conversation.provider,
-                    ],
-                },
-            };
+            // Ignore messages broadcasted by yourself
+            if (newMessage.sender._id === provider._id) {
+                return;
+            }
             const currentConvId = selectedConversationRef.current?._id;
-            if (currentConvId === messageWithParticipants.conversation._id) {
-                setMessages((prev) => [...prev, messageWithParticipants]);
+            if (currentConvId === newMessage.conversation._id) {
+                setMessages((prev) => [...prev, newMessage]);
             } else {
                 setConversations((prev) =>
                     prev.map((convo) =>
-                        convo._id === messageWithParticipants.conversation._id
-                            ? { ...convo, latestMessage: messageWithParticipants, unreadCount: (convo.unreadCount || 0) + 1 }
+                        convo._id === newMessage.conversation._id
+                            ? { ...convo, latestMessage: newMessage, unreadCount: (convo.unreadCount || 0) + 1 }
                             : convo
                     )
                 );
@@ -138,9 +126,7 @@ export default function ProviderChatPage() { // Renamed for clarity
             socket.disconnect();
             socket.off();
         };
-    }, [provider, token]); // ✅ CHANGED: Dependency is now provider
-
-    // --- (The rest of the useEffect hooks and handlers are correct, but I'll update the variable names for consistency) ---
+    }, [provider, token]);
 
     useEffect(() => {
         if (!token) return;
@@ -153,23 +139,24 @@ export default function ProviderChatPage() { // Renamed for clarity
             }
         };
         fetchConversations();
-    }, [token]);
+    }, [token, api]);
 
     useEffect(() => {
         if (conversationIdFromUrl && conversations.length > 0) {
             const convo = conversations.find((c) => c._id === conversationIdFromUrl);
-            if (convo) {
-                setSelectedConversation(convo);
-            } else {
-                navigate('/provider/chat');
-            }
+            if (convo) setSelectedConversation(convo);
+            else navigate('/provider/chat');
         } else {
             setSelectedConversation(null);
         }
     }, [conversationIdFromUrl, conversations, navigate]);
 
     useEffect(() => {
-        if (!selectedConversation || !token) return;
+        if (!selectedConversation || !token) {
+            setMessages([]);
+            return;
+        };
+        setMessages([]);
 
         const fetchMessages = async () => {
             setIsLoadingMessages(true);
@@ -201,31 +188,50 @@ export default function ProviderChatPage() { // Renamed for clarity
 
         fetchMessages();
         markAsRead();
-    }, [selectedConversation, token]);
+    }, [selectedConversation, token, api]);
 
     // --- Handlers ---
+    // ✅ CHANGED: Replaced with the new optimistic version
     const handleSendMessage = async (e) => {
         e.preventDefault();
         if (!newMessage.trim() || !selectedConversation) return;
 
+        const tempId = `temp_${Date.now()}`;
+        const optimisticMessage = {
+            _id: tempId,
+            content: newMessage,
+            sender: provider, // Use provider object
+            createdAt: new Date().toISOString(),
+            status: 'sending',
+        };
+
+        setMessages((prev) => [...prev, optimisticMessage]);
+        setNewMessage('');
+        socketRef.current.emit('stop typing', selectedConversation._id);
+
         try {
-            const payload = { content: newMessage, conversationId: selectedConversation._id };
+            const payload = { content: optimisticMessage.content, conversationId: selectedConversation._id };
             const { data: sentMessage } = await api.post('/message/', payload);
 
-            const messageWithParticipants = {
+            setMessages((prev) =>
+                prev.map((msg) => (msg._id === tempId ? { ...sentMessage, status: 'sent' } : msg))
+            );
+
+            socketRef.current.emit('new message', {
                 ...sentMessage,
                 conversation: {
                     _id: selectedConversation._id,
                     participants: [selectedConversation.user, selectedConversation.provider],
                 },
-            };
+            });
 
-            socketRef.current.emit('new message', messageWithParticipants);
-            setMessages((prev) => [...prev, sentMessage]);
-            setNewMessage('');
-            socketRef.current.emit('stop typing', selectedConversation._id);
         } catch (error) {
             console.error('Failed to send message:', error);
+            setMessages((prev) =>
+                prev.map((msg) =>
+                    msg._id === tempId ? { ...optimisticMessage, status: 'error' } : msg
+                )
+            );
         }
     };
 
@@ -240,23 +246,43 @@ export default function ProviderChatPage() { // Renamed for clarity
         setTypingTimeout(timeout);
     };
 
-    const toggleTheme = () => setTheme(theme === 'light' ? 'dark' : 'light');
-
     const getOtherParticipant = (convo) => {
-        if (!convo || !provider) return { name: 'Unknown' }; // ✅ CHANGED: Check for provider
-        // ✅ Logic updated to correctly identify the other participant when logged in as a provider
+        if (!convo || !provider) return { name: 'Unknown' };
         return convo.provider?._id === provider._id ? convo.user : convo.provider;
     };
 
     const otherUser = selectedConversation ? getOtherParticipant(selectedConversation) : null;
     const isChatVisibleMobile = !!conversationIdFromUrl;
 
+    // ✅ ADDED: Helper component for message status
+    const MessageStatus = ({ status }) => {
+        if (status === 'sending') {
+            return <Clock size={12} className="timestamp" style={{ marginLeft: '4px', marginRight: '0' }} />;
+        }
+        if (status === 'error') {
+            return <AlertCircle size={12} className="timestamp" style={{ color: '#ff4d4d', marginLeft: '4px', marginRight: '0' }} />;
+        }
+        return null;
+    };
+
+    // ✅ ADDED: Helper component for date separator
+    const DateSeparator = ({ date }) => (
+        <div className="date-separator">
+            <span>{date}</span>
+        </div>
+    );
+
+    const formatTimestamp = (dateString) => {
+        if (!dateString) return '';
+        return new Date(dateString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    };
+
     // --- Render ---
     return (
         <div className={`chat-page-container ${isChatVisibleMobile ? 'show-chat' : ''}`}>
             <div className="conversation-list-panel">
                 <div className="chatNav-header">
-                    <button className="chatNav-menuButton" onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
+                    <button className="chatNav-menuButton" onClick={() => setIsDropdownOpen(true)}>
                         <Menu size={22} />
                     </button>
                     <h3 className="chatNav-title">Chats</h3>
@@ -285,7 +311,7 @@ export default function ProviderChatPage() { // Renamed for clarity
                                     </p>
                                 </div>
                                 <div className="convo-meta">
-                                    <span className="convo-timestamp">{formatTimestamp(convo.latestMessage?.createdAt)}</span>
+                                    <span className="convo-timestamp">{convo.latestMessage ? formatTimestamp(convo.latestMessage.createdAt) : ''}</span>
                                     {convo.unreadCount > 0 && <span className="unread-badge">{convo.unreadCount}</span>}
                                 </div>
                             </div>
@@ -309,16 +335,34 @@ export default function ProviderChatPage() { // Renamed for clarity
                         </div>
 
                         <div className="messages-area" ref={messagesAreaRef}>
+                            {/* ✅ CHANGED: Replaced map logic with date separator version */}
                             {isLoadingMessages ? <MessageSkeleton />
-                                : messages.map((msg) => (
-                                    // ✅ CHANGED: Check against provider._id to determine if the message was "sent"
-                                    <div key={msg._id} className={`message-bubble-wrapper ${msg.sender?._id === provider?._id ? 'sent' : 'received'}`}>
-                                        <div className="message-bubble">
-                                            <span className="message-content">{msg.content}</span>
-                                            <span className="timestamp">{new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                                        </div>
-                                    </div>
-                                ))
+                                : messages.map((msg, index) => {
+                                    const isSentByProvider = msg.sender?._id === provider?._id;
+
+                                    let showDateSeparator = false;
+                                    if (index === 0) {
+                                        showDateSeparator = true;
+                                    } else {
+                                        const prevMsg = messages[index - 1];
+                                        if (differenceInCalendarDays(new Date(msg.createdAt), new Date(prevMsg.createdAt)) > 0) {
+                                            showDateSeparator = true;
+                                        }
+                                    }
+
+                                    return (
+                                        <React.Fragment key={msg._id}>
+                                            {showDateSeparator && <DateSeparator date={formatDateSeparator(msg.createdAt)} />}
+                                            <div className={`message-bubble-wrapper ${isSentByProvider ? 'sent' : 'received'}`}>
+                                                <div className="message-bubble">
+                                                    <span className="message-content">{msg.content}</span>
+                                                    <span className="timestamp">{formatTimestamp(msg.createdAt)}</span>
+                                                    {isSentByProvider && <MessageStatus status={msg.status} />}
+                                                </div>
+                                            </div>
+                                        </React.Fragment>
+                                    );
+                                })
                             }
                             {isTyping && !isLoadingMessages && <TypingIndicator />}
                         </div>
@@ -329,9 +373,18 @@ export default function ProviderChatPage() { // Renamed for clarity
                                 value={newMessage}
                                 onChange={handleTyping}
                                 rows="1"
+                                // ✅ ADD THIS onInput HANDLER
+                                onInput={(e) => {
+                                    e.target.style.height = 'auto'; // Reset height
+                                    e.target.style.height = `${e.target.scrollHeight}px`; // Set to content height
+                                }}
                                 onKeyDown={(e) => {
                                     if (e.key === 'Enter' && !e.shiftKey) {
                                         e.preventDefault();
+
+                                        // ✅ ADD THIS to reset the height on send
+                                        e.target.style.height = 'auto';
+
                                         handleSendMessage(e);
                                     }
                                 }}

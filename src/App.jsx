@@ -11,6 +11,7 @@ import { Routes, Route } from "react-router-dom";
 import MainLayout from './components/MainLayout';
 import { UserProvider } from './context/UserContext';
 import { ProviderProvider } from './context/ProviderContext';
+import { ThemeProvider } from './context/ThemeContext';
 import Favourites from "./pages/Favourites";
 import ChatPage from './pages/ChatPage.jsx';
 import ProviderDashboard from "./pages/ProviderDashboard";
@@ -25,38 +26,40 @@ function App() {
       <ScrollToTop />
       <ProviderProvider>
         <UserProvider>
-          <Routes>
-            {/* Authentication Routes (No Layout) */}
-            <Route path="/login" element={<FestiveAuth />} />
-            <Route path="/provider-login" element={<ProviderAuth />} />
+          <ThemeProvider>
+            <Routes>
+              {/* Authentication Routes (No Layout) */}
+              <Route path="/login" element={<FestiveAuth />} />
+              <Route path="/provider-login" element={<ProviderAuth />} />
 
-            {/* Provider Dashboard Routes (No Layout) */}
-            <Route path="/provider/dashboard" element={<ProviderDashboard />} />
-            <Route path="/provider/add-service" element={<AddService />} />
-            <Route path="/provider/chat" element={<ProviderChatPage />} />
-            <Route path="/provider/chat/:conversationId" element={<ProviderChatPage />} />
+              {/* Provider Dashboard Routes (No Layout) */}
+              <Route path="/provider/dashboard" element={<ProviderDashboard />} />
+              <Route path="/provider/add-service" element={<AddService />} />
+              <Route path="/provider/chat" element={<ProviderChatPage />} />
+              <Route path="/provider/chat/:conversationId" element={<ProviderChatPage />} />
 
 
-            {/* --- Main Site Routes (These use the Navbar/Footer from MainLayout) --- */}
-            <Route element={<MainLayout />}>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/my-account" element={<MyAccountPage />} />
-              <Route path="/categories" element={<AllCategoriesPage />} />
-              <Route path="/category/:slug" element={<CategoryServicesPage />} />
-              <Route path="/service/:id" element={<ServiceDetailsPage />} />
-              <Route path="/my-reviews" element={<MyReviewsPage />} />
-              <Route path="/services" element={<AllServicesPage />} />
-              <Route path="/favourites" element={<Favourites />} />
-              <Route path="/dashboard" element={<DashboardPage />} />
+              {/* --- Main Site Routes (These use the Navbar/Footer from MainLayout) --- */}
+              <Route element={<MainLayout />}>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/my-account" element={<MyAccountPage />} />
+                <Route path="/categories" element={<AllCategoriesPage />} />
+                <Route path="/category/:slug" element={<CategoryServicesPage />} />
+                <Route path="/service/:id" element={<ServiceDetailsPage />} />
+                <Route path="/my-reviews" element={<MyReviewsPage />} />
+                <Route path="/services" element={<AllServicesPage />} />
+                <Route path="/favourites" element={<Favourites />} />
+                <Route path="/dashboard" element={<DashboardPage />} />
 
-              {/* The chat routes have been MOVED out of here */}
-            </Route>
+                {/* The chat routes have been MOVED out of here */}
+              </Route>
 
-            {/* --- Fullscreen App Routes (These DO NOT use MainLayout) --- */}
-            <Route path="/chat/:conversationId" element={<ChatPage />} />
-            <Route path="/chat" element={<ChatPage />} />
+              {/* --- Fullscreen App Routes (These DO NOT use MainLayout) --- */}
+              <Route path="/chat/:conversationId" element={<ChatPage />} />
+              <Route path="/chat" element={<ChatPage />} />
 
-          </Routes>
+            </Routes>
+          </ThemeProvider>
         </UserProvider>
       </ProviderProvider>
     </>

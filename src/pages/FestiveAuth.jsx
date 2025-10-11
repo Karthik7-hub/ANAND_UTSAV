@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { sendOtpRequest, verifyOtpRequest } from "../utils/festiveAuthApi";
 import { useUser } from "../context/UserContext";
+import { useTheme } from "../context/ThemeContext";
 import "../css/FestiveAuth.css";
 
 const INITIAL_FORM_STATE = {
@@ -22,16 +23,12 @@ export default function FestiveAuth() {
   const [notification, setNotification] = useState({ message: "", type: "" });
   const [isLoading, setIsLoading] = useState(false);
   const [isGenderMenuOpen, setIsGenderMenuOpen] = useState(false);
-  const [isDarkTheme, setIsDarkTheme] = useState(true); // NEW STATE for theme
+  const { theme, toggleTheme } = useTheme(); // NEW STATE for theme
   const genderMenuRef = useRef(null);
 
   const { login } = useUser();
   const navigate = useNavigate();
 
-  // Function to toggle the theme
-  const toggleTheme = () => {
-      setIsDarkTheme(prev => !prev);
-  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -119,26 +116,26 @@ export default function FestiveAuth() {
 
   return (
     // THEME CLASS APPLIED HERE
-    <div className={`auth-page-wrapper ${isDarkTheme ? '' : 'light-theme'}`}>
+    <div className={`auth-page-wrapper ${theme === 'light' ? 'light-theme' : ''}`}>
       <div className="auth-container">
 
         {/* --- LEFT PANEL: TABS & FORM --- */}
         <div className="form-panel">
           <div className="tabs-container">
-            <button 
-              className={`tab-btn ${activeTab === "login" ? "active" : ""}`} 
+            <button
+              className={`tab-btn ${activeTab === "login" ? "active" : ""}`}
               onClick={() => handleTabChange("login")}
             >
               User Login
             </button>
-            <button 
-              className={`tab-btn ${activeTab === "register" ? "active" : ""}`} 
+            <button
+              className={`tab-btn ${activeTab === "register" ? "active" : ""}`}
               onClick={() => handleTabChange("register")}
             >
               User Register
             </button>
           </div>
-          
+
           {notification.message && <div className={`notification ${notification.type}`}>{notification.message}</div>}
 
           <div className="form-content">
@@ -147,34 +144,34 @@ export default function FestiveAuth() {
               loginStep === "email" ? (
                 <form id="login-form-email" onSubmit={handleSendOtp} className="auth-form">
                   <h2>Sign In with Email</h2>
-                  
+
                   <div className="input-group">
                     <label htmlFor="email">Your Email Address</label>
                     <input id="email" type="email" placeholder="" value={formData.email} onChange={handleInputChange} required />
                   </div>
-                  
+
                   {/* REQUEST OTP Button moved here, below the email input */}
                   <button type="submit" className="submit-btn primary-btn request-otp-btn" disabled={isLoading}>
-                      {isLoading ? "SENDING..." : "REQUEST OTP"}
+                    {isLoading ? "SENDING..." : "REQUEST OTP"}
                   </button>
 
                   {/* Provider Login Button moved here, below the Request OTP button */}
                   <div className="provider-login-section">
-                      <button type="button" className="submit-btn provider-btn" onClick={() => navigate("/provider-login")}>
-                          LOGIN AS Service Provider
-                      </button>
+                    <button type="button" className="submit-btn provider-btn" onClick={() => navigate("/provider-login")}>
+                      LOGIN AS Service Provider
+                    </button>
                   </div>
                 </form>
               ) : (
                 <form onSubmit={handleVerifyOtp} className="auth-form otp-form">
                   <h2>Verify Code</h2>
                   <p className="otp-info">We sent a 6-digit code to **{formData.email}**</p>
-                  
+
                   <div className="input-group">
                     <label htmlFor="otp">Enter OTP</label>
                     <input id="otp" type="text" placeholder="" value={formData.otp} onChange={handleInputChange} required maxLength="6" pattern="\d{6}" title="Must be a 6-digit number" />
                   </div>
-                  
+
                   <button type="submit" className="submit-btn primary-btn" disabled={isLoading}>{isLoading ? "Verifying..." : "Verify & Log In"}</button>
                   <button type="button" className="back-btn" onClick={() => setLoginStep("email")}>Back to Email</button>
                 </form>
@@ -210,7 +207,7 @@ export default function FestiveAuth() {
                   </div>
 
                   <div className="input-group"><label htmlFor="location">Location</label><input id="location" placeholder="" value={formData.location} onChange={handleInputChange} required /></div>
-                  
+
                   <button type="submit" className="submit-btn primary-btn" disabled={isLoading}>{isLoading ? "Sending OTP..." : "Register & Send OTP"}</button>
                 </form>
               ) : (
@@ -226,31 +223,31 @@ export default function FestiveAuth() {
                 </form>
               )
             )}
-            
+
           </div>
         </div>
 
         {/* --- RIGHT PANEL: WELCOME & PRIMARY ACTION (Now just for display) --- */}
         <div className="info-panel">
-            <h1 className="welcome-text">WELCOME</h1>
-            <p className="welcome-subtext">Login in to unlock exclusive AnandUtsav</p>
+          <h1 className="welcome-text">WELCOME</h1>
+          <p className="welcome-subtext">Login in to unlock exclusive AnandUtsav</p>
         </div>
 
-      
+
 
       </div>
-      
+
       {/* NEW THEME TOGGLE SWITCH */}
       <div className="theme-toggle-container">
-          <input 
-              type="checkbox" 
-              id="theme-switch" 
-              className="theme-toggle-input"
-              checked={!isDarkTheme} // Checked means Light Theme is ON
-              onChange={toggleTheme}
-              title="Toggle Dark/Light Theme"
-          />
-          <label htmlFor="theme-switch" className="theme-toggle-label"></label>
+        <input
+          type="checkbox"
+          id="theme-switch"
+          className="theme-toggle-input"
+          checked={theme === 'light'} // Checked means Light Theme is ON
+          onChange={toggleTheme}
+          title="Toggle Dark/Light Theme"
+        />
+        <label htmlFor="theme-switch" className="theme-toggle-label"></label>
       </div>
     </div>
   );
