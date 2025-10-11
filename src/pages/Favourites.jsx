@@ -1,14 +1,10 @@
-// src/pages/Favourites.jsx
-
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useUser } from "../context/UserContext";
 import ServiceCard from "../components/ServiceCard";
 import "../css/Favourites.css";
 import axios from "axios";
 
-// ✨ CORRECTED SKELETON LOADER
-// This now matches the structure styled in your ServiceCard.css file,
-// so the shimmer animation and dark mode colors will work correctly.
+// ✨ Skeleton loader (matches ServiceCard layout)
 const ServiceCardSkeleton = () => (
   <div className="service-card-skeleton">
     <div className="skeleton-image"></div>
@@ -21,39 +17,57 @@ const ServiceCardSkeleton = () => (
 );
 
 export default function Favourites() {
-  const { user, favourites, token } = useUser();
+  const { user, favourites, token, loading } = useUser(); // ✅ using global loading
   const [favouriteServices, setFavouriteServices] = useState([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (favourites.length > 0 && token) {
-      const fetchFavouriteServices = async () => {
-        setLoading(true);
-        try {
-          const res = await axios.get(
-            "https://anand-u.vercel.app/provider/allservices",
-            { headers: { Authorization: `Bearer ${token}` } }
-          );
-          const allServices = res.data;
-          const favServices = allServices.filter((s) =>
-            favourites.includes(s._id)
-          );
-          setFavouriteServices(favServices);
-        } catch (err) {
-          console.error("Failed to fetch favourite services:", err);
-        } finally {
-          setLoading(false);
-        }
-      };
-      fetchFavouriteServices();
-    } else {
-      setFavouriteServices([]);
-      setLoading(false);
-    }
+    const fetchFavouriteServices = async () => {
+      if (!token || favourites.length === 0) {
+        setFavouriteServices([]);
+        return;
+      }
+
+      try {
+        const res = await axios.get(
+          "https://anand-u.vercel.app/provider/allservices",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        const allServices = res.data;
+        const favServices = allServices.filter((s) =>
+          favourites.includes(s._id)
+        );
+        setFavouriteServices(favServices);
+      } catch (err) {
+        console.error("Failed to fetch favourite services:", err);
+      }
+    };
+
+    fetchFavouriteServices();
   }, [favourites, token]);
 
+  if (loading) {
+    return (
+      <div className="favourites-page">
+        <div className="favourites-header">
+          <h2>My Favourites</h2>
+        </div>
+        <div className="service-grid">
+          {[...Array(favourites.length || 4)].map((_, i) => (
+            <ServiceCardSkeleton key={i} />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   if (!user) {
-    return <p className="favourites-message">Please log in to see your favourites.</p>;
+    return (
+      <p className="favourites-message">
+        Please log in to see your favourites.
+      </p>
+    );
   }
 
   return (
@@ -62,13 +76,7 @@ export default function Favourites() {
         <h2>My Favourites</h2>
       </div>
 
-      {loading ? (
-        <div className="service-grid">
-          {[...Array(favourites.length || 4)].map((_, i) => (
-            <ServiceCardSkeleton key={i} />
-          ))}
-        </div>
-      ) : favouriteServices.length === 0 ? (
+      {favouriteServices.length === 0 ? (
         <p className="favourites-message">You have no favourites yet.</p>
       ) : (
         <div className="service-grid">
