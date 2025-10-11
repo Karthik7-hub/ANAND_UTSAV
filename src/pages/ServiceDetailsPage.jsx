@@ -8,6 +8,7 @@ import { useUser } from '../context/UserContext';
 // ✨ Import the separated skeleton component
 import ServiceDetailsSkeleton from '../components/ServiceDetailsSkeleton';
 
+
 // --- ✨ NEW ADAPTIVE Image Carousel Component ---
 const ImageCarousel = ({ images, serviceName }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -147,6 +148,7 @@ export default function ServiceDetailsPage() {
   const [ratingValue, setRatingValue] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [isReviewFormOpen, setIsReviewFormOpen] = useState(false);
+ const [showBookingModal, setShowBookingModal] = useState(false);
 
   useEffect(() => {
     const fetchServiceAndReviews = async () => {
@@ -221,10 +223,21 @@ export default function ServiceDetailsPage() {
               <span>{service.priceInfo?.unit && `/ ${service.priceInfo.unit}`}</span>
             </p>
             <div className="cta-buttons-wrapper">
-              <button className="cta-button primary">
-                <CalendarCheck size={20} />
-                <span>Book Service</span>
-              </button>
+              <button
+  className="cta-button primary"
+  onClick={() => {
+    if (!user || !token) {
+      alert("Please login to book this service.");
+      navigate("/auth");
+      return;
+    }
+    navigate(`/book/${service._id}`);
+  }}
+>
+<CalendarCheck size={20} />
+  <span>Book Service</span>
+</button>
+
               <button className="cta-button secondary" onClick={async () => {
                 if (!user || !token) { alert("Please login to start a chat."); return; }
                 if (!service?.providers) { alert("Provider info not available."); return; }
@@ -292,6 +305,8 @@ export default function ServiceDetailsPage() {
           )}
         </div>
       </div>
+      
+
     </div>
   );
 }
