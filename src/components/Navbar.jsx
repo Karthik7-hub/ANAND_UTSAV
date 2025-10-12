@@ -172,7 +172,7 @@ export default function AnandUtsavNavbar() {
                         <>
                             <NavLink to="/dashboard" onClick={toggleMobileMenu}>My Dashboard</NavLink>
                             <NavLink to="/favourites" onClick={toggleMobileMenu}>Favourites</NavLink>
-                            <NavLink to="/bookings" onClick={toggleMobileMenu}>Bookings</NavLink>
+                            <NavLink to="/my-bookings" onClick={toggleMobileMenu}>Bookings</NavLink>
                         </>
                     ) : (
                         <NavLink to="/login" onClick={toggleMobileMenu}>Login / Register</NavLink>
