@@ -116,17 +116,43 @@ export const providerUpdateServiceRequest = async (serviceData) => {
     return { success: false, msg: err.response?.data?.msg || "Failed to update service" };
   }
 };
+
 // --- FETCH NEW BOOKINGS ---
 export const providerFetchNewBookings = async () => {
   try {
     const res = await axios.get("https://anand-u.vercel.app/provider/getnewbookings", {
       withCredentials: true,
     });
-
     return res.data;
   } catch (err) {
     console.error("Error fetching new bookings:", err);
     return { success: false, msg: "Failed to fetch new bookings", newBookings: [] };
+  }
+};
+
+// --- FETCH UPCOMING BOOKINGS ---
+export const providerFetchUpcomingBookings = async () => {
+  try {
+    const res = await axios.get("https://anand-u.vercel.app/provider/getupComingBookings", {
+      withCredentials: true,
+    });
+    return res.data;
+  } catch (err) {
+    console.error("Error fetching upcoming bookings:", err);
+    return { success: false, msg: "Failed to fetch upcoming bookings", newBookings: [] };
+  }
+};
+
+// --- FETCH COMPLETED BOOKINGS ---
+export const providerFetchCompletedBookings = async () => {
+  try {
+    const res = await axios.get("https://anand-u.vercel.app/provider/getcompletedBookings", {
+      withCredentials: true,
+    });
+    return res.data;
+  } catch (err) {
+    console.error("Error fetching completed bookings:", err);
+    return { success: false, msg: "Failed to fetch completed bookings", newBookings: [] };
   }
 };
 

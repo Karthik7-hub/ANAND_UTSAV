@@ -1,67 +1,53 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { providerFetchNewBookings, providerRespondBooking } from "../utils/providerAuthApi";
+import {
+  providerFetchNewBookings,
+  providerFetchUpcomingBookings,
+  providerFetchCompletedBookings,
+  providerRespondBooking,
+} from "../utils/providerAuthApi";
 
 export default function ProviderBookingsPage() {
+  const [activeTab, setActiveTab] = useState("new"); // "new" | "upcoming" | "completed"
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const fetchFn =
+    activeTab === "upcoming"
+      ? providerFetchUpcomingBookings
+      : activeTab === "completed"
+      ? providerFetchCompletedBookings
+      : providerFetchNewBookings;
 
   const fetchBookings = async () => {
     setLoading(true);
     try {
-      // 1️⃣ Fetch new booking IDs
-      const resIds = await providerFetchNewBookings();
-      if (!resIds.success) throw new Error(resIds.msg || "Failed to get booking IDs");
-      const bookingIds = resIds.newBookings;
+      const res = await fetchFn();
+      if (!res.success) throw new Error(res.msg || "Failed to fetch bookings");
+      console.log(`[${activeTab} bookings response]`, res);
 
-      // 2️⃣ Fetch all bookings
-      const resAllBookings = await axios.get("https://anand-u.vercel.app/booking/getBookings");
-      const allBookings = Array.isArray(resAllBookings.data.bookings)
-        ? resAllBookings.data.bookings
-        : [];
-
-      // 3️⃣ Filter only bookings we need
-      const filteredBookings = allBookings.filter((b) => bookingIds.includes(b._id));
-
-      // 4️⃣ Fetch all services
-      const resServices = await axios.get("https://anand-u.vercel.app/provider/allservices");
-      const allServices = Array.isArray(resServices.data) ? resServices.data : [];
-
-      // 5️⃣ Enrich bookings with service info
-      const enrichedBookings = filteredBookings.map((b) => {
-        const service = allServices.find((s) => s._id === b.service) || {};
-        return {
-          bookingId: b._id,
-          serviceName: service.name || "Unknown Service",
-          serviceCategory: service.categories?.name || "Unknown Category",
-          price: service.priceInfo?.amount || 0,
-          date: b.eventDate,
-          guests: b.avgGuestsCount || 0,
-          venue: b.venue || "N/A",
-          status: b.status || "Pending",
-          paymentStatus: b.paymentStatus || "Pending",
-        };
-      });
-
-      setBookings(enrichedBookings);
+      const bookingData =
+        res.newBookings || res.upComingBookings || res.completedBookings || [];
+      setBookings(bookingData);
     } catch (err) {
-      console.error(err);
+      console.error("❌ Error fetching bookings:", err);
       alert("Error fetching bookings");
+      setBookings([]);
     }
     setLoading(false);
   };
 
   useEffect(() => {
     fetchBookings();
-  }, []);
+  }, [activeTab]);
 
   const handleResponse = async (bookingId, action) => {
     if (!window.confirm(`Are you sure you want to ${action} this booking?`)) return;
+
     try {
       const res = await providerRespondBooking(bookingId, action);
       if (res.success) {
         alert(res.msg);
-        setBookings((prev) => prev.filter((b) => b.bookingId !== bookingId));
+        setBookings((prev) => prev.filter((b) => b._id !== bookingId));
       } else {
         alert(res.msg || "Action failed");
       }
@@ -71,45 +57,72 @@ export default function ProviderBookingsPage() {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (bookings.length === 0) return <div>No new bookings.</div>;
 
   return (
-    <div>
-      <h2>Bookings</h2>
-      <div className="service-grid">
-        {bookings.map((b) => (
-          <div key={b.bookingId} className="service-card-wrapper">
-            <h3>{b.serviceName}</h3>
-            <p><strong>Booking ID:</strong> {b.bookingId}</p>
-            <p><strong>Category:</strong> {b.serviceCategory}</p>
-            <p><strong>Price:</strong> ₹{b.price}</p>
-            <p><strong>Date:</strong> {new Date(b.date).toLocaleDateString()}</p>
-            <p><strong>Guests:</strong> {b.guests}</p>
-            <p><strong>Venue:</strong> {b.venue}</p>
-            <p><strong>Status:</strong> {b.status}</p>
-            <p><strong>Payment:</strong> {b.paymentStatus}</p>
+    <div style={{ padding: "1rem" }}>
+      <h2 style={{ textTransform: "capitalize" }}>Bookings</h2>
 
-            {/* Show Accept/Reject only for pending bookings */}
-            {b.status.toLowerCase().includes("pending") && (
-              <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
-                <button
-                  onClick={() => handleResponse(b.bookingId, "accept")}
-                  style={{ background: "#22c55e", color: "#fff", padding: "0.5rem 1rem" }}
-                >
-                  Accept
-                </button>
-                <button
-                  onClick={() => handleResponse(b.bookingId, "reject")}
-                  style={{ background: "#ef4444", color: "#fff", padding: "0.5rem 1rem" }}
-                >
-                  Reject
-                </button>
-              </div>
-            )}
-          </div>
+      {/* --- Tabs --- */}
+      <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem" }}>
+        {["new", "upcoming", "completed"].map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            style={{
+              padding: "0.5rem 1rem",
+              background: activeTab === tab ? "#FF9B33" : "#1e293b",
+              color: "#fff",
+              border: "none",
+              borderRadius: "6px",
+              cursor: "pointer",
+            }}
+          >
+            {tab.charAt(0).toUpperCase() + tab.slice(1)}
+          </button>
         ))}
       </div>
+
+      {loading ? (
+        <div>Loading {activeTab} bookings...</div>
+      ) : bookings.length === 0 ? (
+        <div>No {activeTab} bookings.</div>
+      ) : (
+        <div className="service-grid">
+          {bookings.map((b) => {
+            const service = b.service || {};
+            return (
+              <div key={b._id} className="service-card-wrapper">
+                <h3>{service.name || "Unknown Service"}</h3>
+                <p><strong>Price:</strong> ₹{service.priceInfo?.amount || 0}</p>
+                <p><strong>Date:</strong> {b.eventDate ? new Date(b.eventDate).toLocaleDateString() : "N/A"}</p>
+                <p><strong>Guests:</strong> {b.avgGuestsCount || 0}</p>
+                <p><strong>Venue:</strong> {b.venue || "N/A"}</p>
+                <p><strong>Status:</strong> {b.status || "Pending"}</p>
+                <p><strong>Payment:</strong> {b.paymentStatus || "Pending"}</p>
+
+                {activeTab === "new" && b.status && b.status.toLowerCase().includes("pending") && (
+  <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
+    <button
+      onClick={() => handleResponse(b._id, "accept")}
+      style={{ background: "#22c55e", color: "#fff", padding: "0.5rem 1rem" }}
+    >
+      Accept
+    </button>
+    <button
+      onClick={() => handleResponse(b._id, "reject")}
+      style={{ background: "#ef4444", color: "#fff", padding: "0.5rem 1rem" }}
+    >
+      Reject
+    </button>
+  </div>
+)}
+
+
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

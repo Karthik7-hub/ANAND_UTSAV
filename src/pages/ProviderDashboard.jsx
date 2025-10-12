@@ -18,8 +18,7 @@ export default function ProviderDashboard() {
   const [loading, setLoading] = useState(false);
   const [isProfileOpen, setProfileOpen] = useState(false);
   const [activeView, setActiveView] = useState('dashboard');
-
-
+  
   const profileRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -296,7 +295,7 @@ export default function ProviderDashboard() {
               </li>
               <li className="nav-item">
   <a
-    onClick={() => setActiveView('bookings')}
+    onClick={() => { setActiveView('bookings'); }}
     className={activeView === 'bookings' ? 'active' : ''}
   >
     <Calendar size={20} /> Bookings
@@ -342,7 +341,6 @@ export default function ProviderDashboard() {
           {activeView === 'dashboard' && <ServicesView />}
           {activeView === 'messages' && <ProviderChatPage />}
           {activeView === 'bookings' && <ProviderBookingsPage />}
-
         </main>
       </div>
     </>

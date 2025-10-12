@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import { useUser } from "../context/UserContext";
 
 export default function UserBookingsPage() {
   const { token } = useUser();
-
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
-  const [allServices, setAllServices] = useState([]);
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [payingId, setPayingId] = useState(null); // currently processing payment
@@ -22,27 +22,30 @@ export default function UserBookingsPage() {
         });
         setUser(userRes.data);
 
-        // 2️⃣ Get all services
-        const servicesRes = await axios.get("https://anand-u.vercel.app/provider/allservices");
-        const services = Array.isArray(servicesRes.data) ? servicesRes.data : [];
-        setAllServices(services);
+        // 2️⃣ Get user bookings
+        const bookingsRes = await axios.get(
+          "https://anand-u.vercel.app/booking/getUserBookings",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
 
-        // 3️⃣ Get bookings
-        const bookingsRes = await axios.get("https://anand-u.vercel.app/booking/getBookings", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const bookingsData = bookingsRes.data.bookings.map((b) => {
-          const service = services.find((s) => s._id === b.service);
-          return {
-            bookingId: b._id,
-            serviceName: service?.name || "Unknown Service",
-            status: b.status || "Pending",
-            paymentStatus: b.paymentStatus || "Pending",
-            eventDate: b.eventDate || null,
-            guests: b.avgGuestsCount || 0,
-            venue: b.venue || "N/A",
-          };
-        });
+        console.log("🔹 Full response:", bookingsRes.data);
+
+        const bookingsData = bookingsRes.data.bookings.map((b) => ({
+          bookingId: b._id,
+          serviceId: b.service?._id, 
+          serviceName: b.service?.name || "Unknown Service",
+          serviceDescription: b.service?.description || "",
+          servicePrice: b.service?.priceInfo?.amount || 0,
+          servicePriceUnit: b.service?.priceInfo?.unit || "N/A",
+          status: b.status || "Pending",
+          paymentStatus: b.paymentStatus || "Pending",
+          eventDate: b.eventDate || null,
+          guests: b.avgGuestsCount || 0,
+          venue: b.venue || "N/A",
+          totalAmount: b.totalAmount || 0,
+        }));
 
         setBookings(bookingsData);
       } catch (err) {
@@ -114,6 +117,7 @@ export default function UserBookingsPage() {
               <p><strong>Date:</strong> {b.eventDate ? new Date(b.eventDate).toDateString() : "N/A"}</p>
               <p><strong>Guests:</strong> {b.guests}</p>
               <p><strong>Venue:</strong> {b.venue}</p>
+              <p><strong>Total:</strong> ₹{b.totalAmount}</p>
               <p><strong>Status:</strong> {b.status}</p>
               <p><strong>Payment:</strong> {b.paymentStatus}</p>
             </div>
@@ -137,6 +141,24 @@ export default function UserBookingsPage() {
               {b.paymentStatus === "Paid" && (
                 <span style={{ color: "#22c55e", fontWeight: "bold" }}>Paid ✅</span>
               )}
+              {/* ✅ Show Rate Service only if booking is completed and paid */}
+  {["completed", "confirmed"].includes(b.status?.toLowerCase()) && b.paymentStatus === "Paid" && b.serviceId && (
+  <button
+    onClick={() => navigate(`/service/${b.serviceId}`)}
+    style={{
+      padding: "0.5rem 1rem",
+      backgroundColor: "#FF9B33",
+      color: "#fff",
+      border: "none",
+      borderRadius: "6px",
+      cursor: "pointer",
+    }}
+  >
+    Rate Service
+  </button>
+)}
+
+
             </div>
           </div>
         ))}
