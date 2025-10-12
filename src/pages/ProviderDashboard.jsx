@@ -9,6 +9,7 @@ import { useProvider } from '../context/ProviderContext'; // ✅ CHANGED: Import
 import { Plus, LayoutDashboard, Calendar, MessageSquare, Settings, LogOut, ChevronUp } from 'lucide-react';
 import ServiceProviderCard from "../components/ServiceProviderCard";
 import ProviderChatPage from "./ProviderChatPage";
+import ProviderBookingsPage from "./ProviderBookingsPage";
 
 export default function ProviderDashboard() {
   // --- State and Logic ---
@@ -17,7 +18,7 @@ export default function ProviderDashboard() {
   const [loading, setLoading] = useState(false);
   const [isProfileOpen, setProfileOpen] = useState(false);
   const [activeView, setActiveView] = useState('dashboard');
-
+  
   const profileRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -53,6 +54,14 @@ export default function ProviderDashboard() {
       fetchServices();
     }
   }, [location.state]); // Reruns if location state changes
+  useEffect(() => {
+  if (location.state?.updatedService) {
+    setServices(prev => [
+      location.state.updatedService,
+      ...prev.filter(s => s._id !== location.state.updatedService._id)
+    ]);
+  }
+}, [location.state]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -284,7 +293,15 @@ export default function ProviderDashboard() {
                   <LayoutDashboard size={20} /> Dashboard
                 </a>
               </li>
-              <li className="nav-item"><a href="#" onClick={handleDummyLink}><Calendar size={20} /> Bookings</a></li>
+              <li className="nav-item">
+  <a
+    onClick={() => { setActiveView('bookings'); }}
+    className={activeView === 'bookings' ? 'active' : ''}
+  >
+    <Calendar size={20} /> Bookings
+  </a>
+</li>
+
               <li className="nav-item">
                 <a onClick={() => setActiveView('messages')} className={activeView === 'messages' ? 'active' : ''}>
                   <MessageSquare size={20} /> Messages
@@ -323,6 +340,7 @@ export default function ProviderDashboard() {
           */}
           {activeView === 'dashboard' && <ServicesView />}
           {activeView === 'messages' && <ProviderChatPage />}
+          {activeView === 'bookings' && <ProviderBookingsPage />}
         </main>
       </div>
     </>

@@ -1,11 +1,15 @@
 import React from 'react';
+import { useNavigate } from "react-router-dom";
 import { Edit, Trash2, Package, Tag } from 'lucide-react';
 
 export default function ServiceProviderCard({ service, onDelete }) {
     // Dummy handler for the edit button
+    const navigate = useNavigate(); // ✅ add this
+
+    // REPLACE handleEdit with:
     const handleEdit = (e) => {
         e.preventDefault();
-        alert(`Edit functionality for "${service.name}" is not yet implemented.`);
+        navigate("/provider/edit-service", { state: { service } });
     };
 
     // Handler for the delete button, calls the function from the dashboard

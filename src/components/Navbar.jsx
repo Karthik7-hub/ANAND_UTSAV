@@ -24,6 +24,7 @@ export default function AnandUtsavNavbar() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+    
 
     const { theme, toggleTheme } = useTheme();
     const { user, logout, favourites } = useUser();
@@ -112,9 +113,10 @@ export default function AnandUtsavNavbar() {
                             {favCount > 0 && <span className="badge">{favCount}</span>}
                         </Link>
 
-                        <Link to="/bookings" className="icon-button desktop-icon">
-                            <CalendarCheck />
-                        </Link>
+                        <Link to="/my-bookings" className="icon-button desktop-icon">
+  <CalendarCheck />
+</Link>
+
 
                         {/* User Menu */}
                         <div className="user-menu-container" ref={userMenuRef}>
@@ -170,7 +172,7 @@ export default function AnandUtsavNavbar() {
                         <>
                             <NavLink to="/dashboard" onClick={toggleMobileMenu}>My Dashboard</NavLink>
                             <NavLink to="/favourites" onClick={toggleMobileMenu}>Favourites</NavLink>
-                            <NavLink to="/bookings" onClick={toggleMobileMenu}>Bookings</NavLink>
+                            <NavLink to="/my-bookings" onClick={toggleMobileMenu}>Bookings</NavLink>
                         </>
                     ) : (
                         <NavLink to="/login" onClick={toggleMobileMenu}>Login / Register</NavLink>

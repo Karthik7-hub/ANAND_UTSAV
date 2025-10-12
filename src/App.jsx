@@ -20,6 +20,13 @@ import MyReviewsPage from './pages/MyReviewsPage';
 import MyAccountPage from './pages/MyAccountPage';
 import DashboardPage from './pages/DashboardPage.jsx';
 import ProviderChatPage from './pages/ProviderChatPage.jsx';
+import BookServicePage from "./pages/BookServicePage";
+import EditService from "./pages/EditService.jsx";
+import UserBookingsPage from './pages/UserBookingsPage';
+
+
+
+
 function App() {
   return (
     <>
@@ -35,6 +42,7 @@ function App() {
               {/* Provider Dashboard Routes (No Layout) */}
               <Route path="/provider/dashboard" element={<ProviderDashboard />} />
               <Route path="/provider/add-service" element={<AddService />} />
+              <Route path="/provider/edit-service" element={<EditService />} />
               <Route path="/provider/chat" element={<ProviderChatPage />} />
               <Route path="/provider/chat/:conversationId" element={<ProviderChatPage />} />
 
@@ -46,15 +54,18 @@ function App() {
                 <Route path="/categories" element={<AllCategoriesPage />} />
                 <Route path="/category/:slug" element={<CategoryServicesPage />} />
                 <Route path="/service/:id" element={<ServiceDetailsPage />} />
+                
                 <Route path="/my-reviews" element={<MyReviewsPage />} />
                 <Route path="/services" element={<AllServicesPage />} />
                 <Route path="/favourites" element={<Favourites />} />
+                <Route path="/my-bookings" element={<UserBookingsPage />} />
                 <Route path="/dashboard" element={<DashboardPage />} />
 
                 {/* The chat routes have been MOVED out of here */}
               </Route>
 
               {/* --- Fullscreen App Routes (These DO NOT use MainLayout) --- */}
+              <Route path="/book/:id" element={<BookServicePage />} />
               <Route path="/chat/:conversationId" element={<ChatPage />} />
               <Route path="/chat" element={<ChatPage />} />
 
