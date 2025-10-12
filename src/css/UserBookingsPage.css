@@ -1,0 +1,269 @@
+/* ============================================= */
+/* 1. USER BOOKINGS PAGE (UBP) - SCOPED STYLES   */
+/* ============================================= */
+
+.ubp-page {
+    font-family: var(--font-body);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    padding: 2rem 1rem;
+    min-height: 100vh;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.ubp-container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.ubp-header {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.ubp-header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-color);
+}
+
+.ubp-section {
+    margin-bottom: 3rem;
+}
+
+.ubp-section-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-color);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.ubp-bookings-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+
+/* --- ✨ NEW Professional Booking Card Layout --- */
+.ubp-booking-card {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: var(--shadow-light);
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease;
+}
+
+.ubp-booking-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-heavy);
+}
+
+.ubp-card-header {
+    padding: 1.5rem;
+}
+
+.ubp-card-header h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin: 0;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.ubp-card-header h3:hover {
+    color: var(--primary-color);
+}
+
+.ubp-provider-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-color-light);
+    margin-top: 0.25rem;
+}
+
+.ubp-card-content {
+    padding: 1.5rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.ubp-card-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    font-size: 0.9rem;
+}
+
+.ubp-detail-item {
+    color: var(--text-color-light);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.ubp-detail-item strong {
+    color: var(--text-color);
+    font-weight: 500;
+}
+
+.ubp-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    background-color: var(--input-bg-color);
+    border-top: 1px solid var(--border-color);
+    border-radius: 0 0 11px 11px;
+}
+
+.ubp-status-group {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.ubp-status-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-color-light);
+}
+
+/* --- Badges --- */
+.ubp-status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: capitalize;
+    white-space: nowrap;
+}
+
+.ubp-status-badge.pending-confirmation {
+    background-color: rgba(255, 159, 64, 0.2);
+    color: #FF9F40;
+}
+
+.ubp-status-badge.confirmed {
+    background-color: rgba(0, 123, 255, 0.2);
+    color: #007BFF;
+}
+
+.ubp-status-badge.completed {
+    background-color: rgba(40, 167, 69, 0.2);
+    color: #28A745;
+}
+
+.ubp-status-badge.cancelled {
+    background-color: rgba(220, 53, 69, 0.2);
+    color: #DC3545;
+}
+
+.ubp-status-badge.payment-paid {
+    background-color: rgba(40, 167, 69, 0.2);
+    color: #28A745;
+}
+
+.ubp-status-badge.payment-pending {
+    background-color: rgba(255, 159, 64, 0.2);
+    color: #FF9F40;
+}
+
+.ubp-status-badge.payment-not-required {
+    background-color: rgba(108, 117, 125, 0.2);
+    color: #6C757D;
+}
+
+/* --- Buttons & Skeletons --- */
+.ubp-button {
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.ubp-button.pay {
+    background-color: #28a745;
+}
+
+.ubp-button.pay:hover {
+    background-color: #218838;
+}
+
+.ubp-button.rate {
+    background-color: var(--primary-color);
+}
+
+.ubp-button.rate:hover {
+    background-color: var(--primary-color-dark);
+}
+
+.ubp-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.ubp-empty-state {
+    text-align: center;
+    padding: 4rem 1rem;
+    color: var(--text-color-light);
+}
+
+.ubp-empty-state h2 {
+    color: var(--text-color);
+}
+
+.ubp-skeleton {
+    background-color: var(--input-bg-color);
+    border-radius: 8px;
+    position: relative;
+    overflow: hidden;
+}
+
+.ubp-skeleton::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -150%;
+    width: 150%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, var(--skeleton-shimmer), transparent);
+    animation: ubp-shimmer 1.5s infinite;
+}
+
+@keyframes ubp-shimmer {
+    100% {
+        left: 150%;
+    }
+}
+
+.ubp-skeleton.title {
+    height: 40px;
+    width: 300px;
+    margin: 0 auto 2rem auto;
+}
+
+.ubp-skeleton.section-title {
+    height: 28px;
+    width: 200px;
+    margin-bottom: 1.5rem;
+}
+
+.ubp-skeleton.card {
+    height: 240px;
+}

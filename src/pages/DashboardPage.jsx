@@ -65,7 +65,7 @@ export default function DashboardPage() {
                 </NavLink>
 
                 <NavLink
-                    to="/bookings"
+                    to="/my-bookings"
                     className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
                 >
                     <CalendarCheck />

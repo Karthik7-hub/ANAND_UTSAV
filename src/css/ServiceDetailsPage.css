@@ -319,6 +319,17 @@
     color: #f5b50a;
 }
 
+.star-rating .star {
+    color: #ccc;
+    font-size: 20px;
+    margin-right: 2px;
+    transition: color 0.3s;
+}
+
+.star-rating .star.filled {
+    color: #f5b50a;
+}
+
 .review-textarea {
     width: 100%;
     min-height: 120px;

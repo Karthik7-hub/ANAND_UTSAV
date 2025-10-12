@@ -148,7 +148,7 @@ export default function ServiceDetailsPage() {
   const [ratingValue, setRatingValue] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [isReviewFormOpen, setIsReviewFormOpen] = useState(false);
- const [showBookingModal, setShowBookingModal] = useState(false);
+  const [showBookingModal, setShowBookingModal] = useState(false);
 
   useEffect(() => {
     const fetchServiceAndReviews = async () => {
@@ -224,19 +224,19 @@ export default function ServiceDetailsPage() {
             </p>
             <div className="cta-buttons-wrapper">
               <button
-  className="cta-button primary"
-  onClick={() => {
-    if (!user || !token) {
-      alert("Please login to book this service.");
-      navigate("/auth");
-      return;
-    }
-    navigate(`/book/${service._id}`);
-  }}
->
-<CalendarCheck size={20} />
-  <span>Book Service</span>
-</button>
+                className="cta-button primary"
+                onClick={() => {
+                  if (!user || !token) {
+                    alert("Please login to book this service.");
+                    navigate("/login");
+                    return;
+                  }
+                  navigate(`/book/${service._id}`);
+                }}
+              >
+                <CalendarCheck size={20} />
+                <span>Book Service</span>
+              </button>
 
               <button className="cta-button secondary" onClick={async () => {
                 if (!user || !token) { alert("Please login to start a chat."); return; }
@@ -305,7 +305,7 @@ export default function ServiceDetailsPage() {
           )}
         </div>
       </div>
-      
+
 
     </div>
   );

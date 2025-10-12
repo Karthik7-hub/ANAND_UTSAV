@@ -1,0 +1,248 @@
+/* ============================================= */
+/* 1. INDEPENDENT THEME & COLOR VARIABLES        */
+/* ============================================= */
+/* By using the 'asf-' prefix, these variables are scoped */
+/* to this component and will NOT conflict with your global index.css */
+
+/* 🎨 --- Light Theme (Default) --- */
+:root {
+    --font-sans: 'Poppins', sans-serif;
+
+    /* ✨ --- RENAMED these variables to avoid global conflict --- ✨ */
+    --asf-primary-color: #FF9933;
+    --asf-primary-color-translucent: rgba(255, 153, 51, 0.4);
+
+    --asf-page-bg: #f4f7f9;
+    --asf-card-bg: rgba(255, 255, 255, 0.9);
+    --asf-card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+    --asf-card-border: 1px solid #e5e7eb;
+
+    --asf-text-primary: #111827;
+    --asf-text-secondary: #6b7280;
+    --asf-text-on-primary-btn: #ffffff;
+
+    --asf-input-bg: rgba(0, 0, 0, 0.03);
+    --asf-input-border: rgba(0, 0, 0, 0.1);
+
+    --asf-remove-btn-color: #ef4444;
+    --asf-remove-btn-hover-bg: rgba(239, 68, 68, 0.1);
+
+    --asf-add-btn-border: 1px dashed #a0a0a0;
+    --asf-add-btn-color: #6b7280;
+
+    --asf-dropdown-option-bg: #ffffff;
+    --asf-dropdown-arrow-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23374151' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+}
+
+/* 🌙 --- Dark Theme (Applied when html[data-theme='dark']) --- */
+[data-theme='dark'] {
+    --asf-page-bg: #111827;
+    --asf-card-bg: rgba(31, 41, 55, 0.25);
+    --asf-card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    --asf-card-border: 1px solid rgba(255, 255, 255, 0.18);
+
+    --asf-text-primary: #f0f0f0;
+    --asf-text-secondary: #9ca3af;
+
+    --asf-input-bg: rgba(255, 255, 255, 0.05);
+    --asf-input-border: rgba(255, 255, 255, 0.2);
+
+    --asf-remove-btn-color: #f87171;
+    --asf-remove-btn-hover-bg: rgba(248, 113, 113, 0.2);
+
+    --asf-add-btn-border: 1px dashed rgba(255, 255, 255, 0.3);
+    --asf-add-btn-color: #d1d5db;
+
+    --asf-dropdown-option-bg: #1f2937;
+    --asf-dropdown-arrow-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23d1d5db' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+}
+
+/* ============================================= */
+/* 2. COMPONENT-SCOPED STYLES                    */
+/* ============================================= */
+.asf-add-service-page {
+    font-family: var(--font-sans);
+    background-color: var(--asf-page-bg);
+    color: var(--asf-text-primary);
+    padding: 2rem 1rem;
+    min-height: 100vh;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.asf-add-service-page .asf-service-form-card {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2.5rem;
+    background: var(--asf-card-bg);
+    border-radius: 20px;
+    border: 1px solid var(--asf-card-border);
+    backdrop-filter: blur(15px);
+    box-shadow: var(--asf-card-shadow);
+    transition: background-color 0.3s ease, border 0.3s ease;
+}
+
+.asf-add-service-page .asf-form-title {
+    font-size: 2.25rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    text-align: center;
+    color: var(--asf-text-primary);
+}
+
+.asf-add-service-page .asf-service-form {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+
+.asf-add-service-page .asf-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.asf-add-service-page .asf-form-group label {
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: var(--asf-text-secondary);
+}
+
+.asf-add-service-page .asf-form-input,
+.asf-add-service-page .asf-form-select,
+.asf-add-service-page .asf-form-textarea {
+    width: 100%;
+    background: var(--asf-input-bg);
+    border: 1px solid var(--asf-input-border);
+    border-radius: 8px;
+    padding: 12px;
+    color: var(--asf-text-primary);
+    font-size: 1rem;
+    font-family: var(--font-sans);
+    transition: all 0.3s ease;
+}
+
+.asf-add-service-page .asf-form-input::placeholder,
+.asf-add-service-page .asf-form-textarea::placeholder {
+    color: var(--asf-text-secondary);
+}
+
+.asf-add-service-page .asf-form-input:focus,
+.asf-add-service-page .asf-form-select:focus,
+.asf-add-service-page .asf-form-textarea:focus {
+    outline: none;
+    border-color: var(--asf-primary-color);
+    box-shadow: 0 0 10px var(--asf-primary-color-translucent);
+}
+
+.asf-add-service-page .asf-form-textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+.asf-add-service-page .asf-form-select option {
+    background: var(--asf-dropdown-option-bg);
+    color: var(--asf-text-primary);
+}
+
+.asf-add-service-page .asf-image-input-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.asf-add-service-page .asf-remove-image-btn {
+    background: transparent;
+    border: none;
+    color: var(--asf-remove-btn-color);
+    cursor: pointer;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.2s ease;
+}
+
+.asf-add-service-page .asf-remove-image-btn:hover {
+    background: var(--asf-remove-btn-hover-bg);
+}
+
+.asf-add-service-page .asf-add-image-btn {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: transparent;
+    border: 1px dashed var(--asf-add-btn-border);
+    color: var(--asf-add-btn-color);
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.asf-add-service-page .asf-add-image-btn:hover {
+    border-color: var(--asf-primary-color);
+    color: var(--asf-primary-color);
+}
+
+.asf-add-service-page .asf-submit-btn {
+    grid-column: 1 / -1;
+    justify-self: center;
+    background-color: var(--asf-primary-color);
+    color: var(--asf-text-on-primary-btn);
+    border: none;
+    padding: 14px 32px;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 50%;
+    margin-top: 1rem;
+}
+
+.asf-add-service-page .asf-submit-btn:hover:not(:disabled) {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 15px var(--asf-primary-color-translucent);
+}
+
+.asf-add-service-page .asf-submit-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ============================================= */
+/* 3. RESPONSIVE & MOBILE-FRIENDLY STYLES        */
+/* ============================================= */
+
+@media (min-width: 768px) {
+    .asf-add-service-page .asf-service-form {
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem 2rem;
+    }
+
+    .asf-add-service-page .asf-form-group.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .asf-add-service-page .asf-form-select {
+        appearance: none;
+        background-image: var(--asf-dropdown-arrow-svg);
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        background-size: 1em;
+    }
+}
+
+@media (max-width: 767px) {
+    .asf-add-service-page .asf-form-group>div[style] {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 600px) {
+    .asf-add-service-page .asf-submit-btn {
+        width: 100%;
+    }
+}

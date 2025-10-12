@@ -1,50 +1,303 @@
-.book-page {
-  padding: 2rem;
-  background: linear-gradient(135deg, #fffaf0, #fff);
+/* ============================================= */
+/* 1. BOOK SERVICE PAGE (BSP) - SCOPED STYLES   */
+/* ============================================= */
+/* All styles are prefixed with .bsp- to avoid conflicts. */
+/* It uses your global variables from index.css. */
+
+.bsp-book-page {
+  font-family: var(--font-body);
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  padding: 2rem 1rem;
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
 }
 
-.service-summary {
-  background: #fff8e7;
-  border-radius: 16px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+.bsp-page-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--text-color);
+  text-align: center;
 }
 
-.availability-form, .booking-form {
-  background: #fff;
-  margin-top: 1.5rem;
-  padding: 1.5rem;
-  border-radius: 16px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-}
-
-.availability-form input, .booking-form input, .booking-form textarea {
+.bsp-card {
   width: 100%;
-  margin-top: 0.5rem;
-  padding: 0.6rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  max-width: 600px;
+  background: var(--card-bg-glass);
+  border: 1px solid var(--card-border-glass);
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: var(--shadow-heavy);
+  backdrop-filter: blur(15px);
+  transition: all 0.3s ease;
 }
 
-button {
-  background: #ffb400;
-  border: none;
-  padding: 0.7rem 1.2rem;
-  border-radius: 8px;
-  color: white;
-  cursor: pointer;
+.bsp-service-summary h2 {
+  font-size: 1.75rem;
   font-weight: 600;
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+}
+
+.bsp-service-summary p {
+  color: var(--text-color-light);
+  line-height: 1.6;
+}
+
+.bsp-price {
+  font-size: 1.5rem;
+  font-weight: 700;
   margin-top: 1rem;
-  transition: all 0.3s;
+  color: var(--text-color);
+  text-transform: capitalize;
 }
 
-button:hover {
-  background: #ff9800;
+.bsp-form-card h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
 }
 
-.back-btn {
-  background: none;
-  color: #333;
-  margin-top: 2rem;
+.bsp-input-group {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.bsp-input-icon {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-color-light);
+  pointer-events: none;
+}
+
+.bsp-book-page input,
+.bsp-book-page textarea {
+  width: 100%;
+  padding: 12px 15px 12px 45px;
+  /* Padding for icon */
+  background-color: var(--input-bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  color: var(--text-color);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.bsp-book-page input:focus,
+.bsp-book-page textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 10px var(--primary-color-light);
+}
+
+.bsp-book-page textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.bsp-guest-inputs {
+  display: flex;
+  gap: 1rem;
+}
+
+.bsp-button {
+  width: 100%;
+  background: var(--primary-color);
+  color: #fff;
+  border: none;
+  padding: 14px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.bsp-button:hover:not(:disabled) {
+  background: var(--primary-color-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-light);
+}
+
+.bsp-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.bsp-back-btn {
+  background: transparent;
+  color: var(--text-color-light);
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+
+.bsp-back-btn:hover {
+  background-color: var(--primary-color-light);
+  color: var(--primary-color);
+}
+
+/* --- Not Found Page --- */
+.bsp-not-found-container {
+  text-align: center;
+  padding: 4rem 1rem;
+}
+
+.bsp-not-found-container h2 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+/* --- Skeleton Loader --- */
+.bsp-skeleton {
+  background-color: var(--input-bg-color);
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.bsp-skeleton::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 150%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, var(--skeleton-shimmer), transparent);
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -150%;
+  }
+
+  100% {
+    left: 150%;
+  }
+}
+
+.bsp-skeleton-title {
+  height: 40px;
+  width: 300px;
+  margin-bottom: 1.5rem;
+}
+
+.bsp-skeleton-h2 {
+  height: 32px;
+  width: 60%;
+  margin-bottom: 1rem;
+}
+
+.bsp-skeleton-text {
+  height: 20px;
+  width: 90%;
+  margin-bottom: 0.5rem;
+}
+
+.bsp-skeleton-text.short {
+  width: 70%;
+}
+
+.bsp-skeleton-price {
+  height: 28px;
+  width: 30%;
+  margin-top: 1rem;
+}
+
+.bsp-skeleton-h3 {
+  height: 28px;
+  width: 50%;
+  margin: 0 auto 1.5rem auto;
+}
+
+.bsp-skeleton-input {
+  height: 50px;
+  width: 100%;
+}
+
+.bsp-skeleton-button {
+  height: 50px;
+  width: 100%;
+  margin-top: 1rem;
+}
+
+/* Add these new rules to your existing BookServicePage.css */
+
+.bsp-service-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 1.5rem;
+  /* Vertical and horizontal gap */
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.bsp-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-color-light);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.bsp-meta-icon {
+  color: var(--primary-color);
+  flex-shrink: 0;
+  /* Prevents icon from shrinking */
+}
+
+/* --- Responsive Design --- */
+@media (max-width: 600px) {
+  .bsp-book-page {
+    padding: 1rem;
+  }
+
+  .bsp-card {
+    padding: 1.5rem;
+  }
+
+  .bsp-page-title {
+    font-size: 2rem;
+  }
+
+  .bsp-service-summary h2 {
+    font-size: 1.5rem;
+  }
+
+  .bsp-price {
+    font-size: 1.25rem;
+  }
+
+  .bsp-form-card h3 {
+    font-size: 1.25rem;
+  }
+
+  .bsp-guest-inputs {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .bsp-guest-inputs .bsp-input-group {
+    margin-bottom: 1rem;
+  }
 }

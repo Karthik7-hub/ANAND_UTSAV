@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { providerAddServiceRequest } from "../utils/providerAuthApi";
 import { useNavigate } from "react-router-dom";
-import { PlusCircle, Trash2 } from 'lucide-react';
+import { PlusCircle, Trash2 } from 'lucide-react'
+import '../css/AddService.css';;
 
 export default function AddService() {
   const [form, setForm] = useState({
@@ -75,6 +76,7 @@ export default function AddService() {
         <h2 className="asf-form-title">Create a New Service</h2>
         <form onSubmit={handleSubmit} className="asf-service-form">
 
+          {/* --- ROW 1 --- */}
           {/* Service Name */}
           <div className="asf-form-group">
             <label>Service Name</label>
@@ -86,6 +88,7 @@ export default function AddService() {
             <label>Category</label>
             <select value={form.categoryName} onChange={(e) => setForm({ ...form, categoryName: e.target.value })} required className="asf-form-select">
               <option value="">Select Category</option>
+              {/* ...all your category options... */}
               <option value="Catering">Catering</option>
               <option value="Decorations">Decorations</option>
               <option value="Photography">Photography</option>
@@ -109,11 +112,12 @@ export default function AddService() {
             </select>
           </div>
 
-          {/* Price */}
-          <div className="asf-form-group">
+          {/* --- ROW 2 --- */}
+          {/* Price (Now in the second row, full-width) */}
+          <div className="asf-form-group full-width">
             <label>Price</label>
             <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <input type="number" placeholder="Amount" value={form.priceAmount} onChange={(e) => setForm({ ...form, priceAmount: e.target.value })} required className="asf-form-input" style={{ flex: 2 }} />
+              <input type="number" placeholder="Amount" value={form.priceAmount} onChange={(e) => setForm({ ...form, priceAmount: e.target.value })} required className="asf-form-input" style={{ flex: 2 }} min="0" />
               <select value={form.priceUnit} onChange={(e) => setForm({ ...form, priceUnit: e.target.value })} required className="asf-form-select" style={{ flex: 1 }}>
                 <option value="full-package">Full Package</option>
                 <option value="per-hour">Per Hour</option>
@@ -123,29 +127,30 @@ export default function AddService() {
             </div>
           </div>
 
+          {/* --- ROW 3 --- */}
           {/* Min / Max People */}
           <div className="asf-form-group">
             <label>Minimum & Maximum People</label>
             <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <input type="number" placeholder="Min People" value={form.minPeople} onChange={(e) => setForm({ ...form, minPeople: e.target.value })} required className="asf-form-input" style={{ flex: 1 }} />
-              <input type="number" placeholder="Max People" value={form.maxPeople} onChange={(e) => setForm({ ...form, maxPeople: e.target.value })} required className="asf-form-input" style={{ flex: 1 }} />
+              <input type="number" placeholder="Min People" value={form.minPeople} onChange={(e) => setForm({ ...form, minPeople: e.target.value })} required className="asf-form-input" style={{ flex: 1 }} min="0" />
+              <input type="number" placeholder="Max People" value={form.maxPeople} onChange={(e) => setForm({ ...form, maxPeople: e.target.value })} required className="asf-form-input" style={{ flex: 1 }} min="0" />
             </div>
           </div>
 
-          {/* Mindaysprior */}
+          {/* Minimum Days Prior Booking */}
           <div className="asf-form-group">
             <label>Minimum Days Prior Booking</label>
-            <input type="number" placeholder="e.g., 7" value={form.mindaysprior} onChange={(e) => setForm({ ...form, mindaysprior: e.target.value })} className="asf-form-input" />
+            <input type="number" placeholder="e.g., 7" value={form.mindaysprior} onChange={(e) => setForm({ ...form, mindaysprior: e.target.value })} className="asf-form-input" min="0" />
           </div>
 
           {/* Description */}
-          <div className="asf-form-group">
+          <div className="asf-form-group full-width">
             <label>Description</label>
             <textarea placeholder="Describe your service..." value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="asf-form-textarea" />
           </div>
 
           {/* Images */}
-          <div className="asf-form-group">
+          <div className="asf-form-group full-width">
             <label>Image URLs</label>
             {form.images.map((url, index) => (
               <div key={index} className="asf-image-input-group">
