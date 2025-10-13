@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, NavLink, useNavigate } from "react-router-dom";
-import { User, Menu, Search, Heart, X, LogOut, UserCircle, CalendarCheck, MessageSquare, Sun, Moon } from 'lucide-react';
+import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
+import { User, Menu, Search, Heart, X, LogOut, UserCircle, CalendarCheck, MessageSquare, Sun, Moon, ArrowLeft } from 'lucide-react';
 import { useUser } from '../context/UserContext';
 import "../css/Navbar.css";
 import { useTheme } from '../context/ThemeContext';
@@ -22,31 +22,57 @@ const useOutsideAlerter = (ref, callback) => {
 export default function AnandUtsavNavbar() {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-
-    const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false); // Only for mobile overlay
     const [query, setQuery] = useState('');
     const { theme, toggleTheme } = useTheme();
     const { user, logout, favourites } = useUser();
     const navigate = useNavigate();
 
-    const userMenuRef = useRef(null);
-    const searchContainerRef = useRef(null); // Ref for the new search dropdown
+    const [isNavbarVisible, setIsNavbarVisible] = useState(true); // NEW: Controls visibility
+    const lastScrollY = useRef(0); // NEW: Tracks last scroll position
+    const location = useLocation(); // NEW: Get the current page location
 
-    // --- Close menus on outside click ---
+    const userMenuRef = useRef(null);
+
+    useEffect(() => {
+        const isSearchPage = location.pathname === '/search-results';
+
+        const handleScroll = () => {
+            const currentScrollY = window.scrollY;
+
+            // ONLY apply hide/show logic on the search page
+            if (isSearchPage) {
+                if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
+                    setIsNavbarVisible(false);
+                } else {
+                    setIsNavbarVisible(true);
+                }
+            } else {
+                // On all other pages, the navbar is always visible
+                setIsNavbarVisible(true);
+            }
+
+            lastScrollY.current = currentScrollY;
+            setIsScrolled(currentScrollY > 10);
+        };
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, [location.pathname]); // NEW: Re-run this effect if the page changes
+
+    // --- Close user menu on outside click ---
     useOutsideAlerter(userMenuRef, () => setIsUserMenuOpen(false));
-    useOutsideAlerter(searchContainerRef, () => setIsSearchOpen(false));
 
     const handleSearchSubmit = (e) => {
         e.preventDefault();
         if (query.trim()) {
-            // Navigate to the search results page with the query
             navigate(`/search-results?q=${encodeURIComponent(query)}`);
-            setIsSearchOpen(false); // Close the dropdown after searching
+            setIsMobileSearchOpen(false); // Close mobile overlay if open
             setQuery('');
         }
     };
+
     // --- Effects for scroll, theme, etc. ---
     useEffect(() => {
         const handleScroll = () => setIsScrolled(window.scrollY > 10);
@@ -55,8 +81,9 @@ export default function AnandUtsavNavbar() {
     }, []);
 
     useEffect(() => {
-        document.body.style.overflow = isMobileMenuOpen ? 'hidden' : 'auto';
-    }, [isMobileMenuOpen]);
+        // Block scroll when mobile menu OR mobile search overlay is open
+        document.body.style.overflow = (isMobileMenuOpen || isMobileSearchOpen) ? 'hidden' : 'auto';
+    }, [isMobileMenuOpen, isMobileSearchOpen]);
 
     const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
 
@@ -66,12 +93,33 @@ export default function AnandUtsavNavbar() {
         navigate('/');
     };
 
+    const handleSuggestionClick = (searchTerm) => {
+        navigate(`/search-results?q=${encodeURIComponent(searchTerm)}`);
+        setIsMobileSearchOpen(false);
+        setQuery('');
+    };
+
     const favCount = favourites?.length || 0;
     const chatCount = 0;
 
+    const SearchSuggestions = () => (
+        <div className="search-suggestions">
+            <p>Popular:</p>
+            <span onClick={() => handleSuggestionClick('Wedding Planners')}>Wedding Planners</span>
+            <span onClick={() => handleSuggestionClick('Catering')}>Catering</span>
+            <span onClick={() => handleSuggestionClick('Decorators')}>Decorators</span>
+        </div>
+    );
+
     return (
         <>
-            <header className={`navbar-container ${isScrolled ? 'scrolled' : ''}`}>
+            <header
+                className={`
+                navbar-container 
+                ${isScrolled ? 'scrolled' : ''} 
+                ${!isNavbarVisible && location.pathname === '/search-results' ? 'hidden' : ''}
+              `}
+            >
                 <div className="navbar-content">
                     {/* Left Section */}
                     <div className="navbar-left">
@@ -83,67 +131,39 @@ export default function AnandUtsavNavbar() {
                         </Link>
                     </div>
 
-                    {/* Center (Desktop) */}
-                    <nav className="navbar-center">
-                        <NavLink to="/services" className="nav-link">Services</NavLink>
-                        <NavLink to="/about" className="nav-link">About Us</NavLink>
-                    </nav>
+                    {/* Center (Desktop Search) - NO DROPDOWN */}
+                    <div className="navbar-center">
+                        <form onSubmit={handleSearchSubmit} className="desktop-search-container">
+                            <div className="desktop-search-wrapper">
+                                <Search className="desktop-search-icon" />
+                                <input
+                                    type="text"
+                                    placeholder="Search for services, gifts..."
+                                    value={query}
+                                    onChange={(e) => setQuery(e.target.value)}
+                                />
+                            </div>
+                        </form>
+                    </div>
 
                     {/* Right Section */}
                     <div className="navbar-right">
-                        {/* NEW Search Dropdown */}
-                        <div className="search-container" ref={searchContainerRef}>
-                            <button className="icon-button" onClick={() => setIsSearchOpen(!isSearchOpen)}>
-                                <Search />
-                            </button>
-                            {isSearchOpen && (
-                                <div className="search-dropdown">
-                                    <form onSubmit={handleSearchSubmit} className="search-input-wrapper">
-                                        <Search className="search-dropdown-icon" />
-                                        <input
-                                            type="text"
-                                            placeholder="Search for services, gifts..."
-                                            autoFocus
-                                            value={query}
-                                            onChange={(e) => setQuery(e.target.value)}
-                                        />
-                                    </form>
-                                    <div className="search-suggestions">
-                                        <p>Popular:</p>
-                                        {/* These could also trigger a search */}
-                                        <span onClick={() => navigate('/search-results?q=Wedding+Planners')}>Wedding Planners</span>
-                                        <span onClick={() => navigate('/search-results?q=Catering')}>Catering</span>
-                                        <span onClick={() => navigate('/search-results?q=Decorators')}>Decorators</span>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-
-                        <Link to="/chat" className="icon-button messages-btn desktop-icon">
-                            <MessageSquare />
-                            {chatCount > 0 && <span className="badge">{chatCount}</span>}
-                        </Link>
-
+                        <button className="icon-button mobile-search-toggle" onClick={() => setIsMobileSearchOpen(true)}>
+                            <Search />
+                        </button>
+                        <Link to="/chat" className="icon-button messages-btn desktop-icon"><MessageSquare /></Link>
                         <Link to="/favourites" className="icon-button favourites-btn desktop-icon">
                             <Heart />
                             {favCount > 0 && <span className="badge">{favCount}</span>}
                         </Link>
-
-                        <Link to="/my-bookings" className="icon-button desktop-icon">
-                            <CalendarCheck />
-                        </Link>
-
+                        <Link to="/my-bookings" className="icon-button desktop-icon"><CalendarCheck /></Link>
 
                         {/* User Menu */}
                         <div className="user-menu-container" ref={userMenuRef}>
                             {user ? (
-                                <button className="icon-button" onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}>
-                                    <User />
-                                </button>
+                                <button className="icon-button" onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}><User /></button>
                             ) : (
-                                <Link to="/login" className="icon-button">
-                                    <User />
-                                </Link>
+                                <Link to="/login" className="icon-button"><User /></Link>
                             )}
                             {isUserMenuOpen && user && (
                                 <div className="user-dropdown">
@@ -151,18 +171,12 @@ export default function AnandUtsavNavbar() {
                                         <p>Signed in as</p>
                                         <strong>{user.username || user.email}</strong>
                                     </div>
-                                    <Link to="/dashboard" className="dropdown-item" onClick={() => setIsUserMenuOpen(false)}>
-                                        <UserCircle size={20} /> Dashboard
-                                    </Link>
-                                    <Link to="/chat" className="dropdown-item" onClick={() => setIsUserMenuOpen(false)}>
-                                        <MessageSquare size={20} /> Chats
-                                    </Link>
+                                    <Link to="/dashboard" className="dropdown-item" onClick={() => setIsUserMenuOpen(false)}><UserCircle size={20} /> Dashboard</Link>
+                                    <Link to="/chat" className="dropdown-item" onClick={() => setIsUserMenuOpen(false)}><MessageSquare size={20} /> Chats</Link>
                                     <button className="dropdown-item theme-toggle" onClick={toggleTheme}>
                                         {theme === 'light' ? <><Moon size={20} /> Switch to Dark</> : <><Sun size={20} /> Switch to Light</>}
                                     </button>
-                                    <button onClick={handleLogout} className="dropdown-item logout-btn">
-                                        <LogOut size={20} /> Logout
-                                    </button>
+                                    <button onClick={handleLogout} className="dropdown-item logout-btn"><LogOut size={20} /> Logout</button>
                                 </div>
                             )}
                         </div>
@@ -170,18 +184,32 @@ export default function AnandUtsavNavbar() {
                 </div>
             </header>
 
-            {/* Mobile Menu Panel (Slides from left) */}
+            {/* Mobile Search Overlay */}
+            <div className={`mobile-search-overlay ${isMobileSearchOpen ? 'open' : ''}`}>
+                <div className="mobile-search-header">
+                    <button className="icon-button" onClick={() => setIsMobileSearchOpen(false)}><ArrowLeft /></button>
+                    <form onSubmit={handleSearchSubmit} className="mobile-search-form">
+                        <input
+                            type="text"
+                            placeholder="Search for services, gifts..."
+                            autoFocus
+                            value={query}
+                            onChange={(e) => setQuery(e.target.value)}
+                        />
+                        {query && <button type="button" className="clear-search-btn" onClick={() => setQuery('')}><X size={20} /></button>}
+                    </form>
+                </div>
+                <div className="mobile-search-body"><SearchSuggestions /></div>
+            </div>
+
+            {/* Mobile Menu Panel */}
             <div className={`mobile-nav-panel ${isMobileMenuOpen ? 'open' : ''}`}>
                 <div className="mobile-nav-header">
                     <h1 className="logo">AnandUtsav</h1>
-                    <button className="icon-button" onClick={toggleMobileMenu}>
-                        <X size={26} />
-                    </button>
+                    <button className="icon-button" onClick={toggleMobileMenu}><X size={26} /></button>
                 </div>
                 <nav className="mobile-nav-links">
                     <NavLink to="/" onClick={toggleMobileMenu}>Home</NavLink>
-                    <NavLink to="/services" onClick={toggleMobileMenu}>Services</NavLink>
-                    <NavLink to="/about" onClick={toggleMobileMenu}>About Us</NavLink>
                     <hr className="nav-divider" />
                     {user ? (
                         <>

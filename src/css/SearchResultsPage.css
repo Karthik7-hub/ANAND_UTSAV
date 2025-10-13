@@ -4,67 +4,76 @@
     background-color: var(--bg-color);
     color: var(--text-color);
     min-height: 100vh;
-    padding: 2rem 1rem;
+    padding: 1rem;
 }
 
 .srp-header,
-.srp-controls,
-.srp-main-content,
-.srp-active-filters {
-    max-width: 1200px;
+.srp-main-content {
+    max-width: 1400px;
+    /* Wider layout */
     margin-left: auto;
     margin-right: auto;
 }
 
 .srp-header {
-    margin-bottom: 1.5rem;
-}
-
-.srp-header h1 {
-    font-size: 2.5rem;
-    color: var(--text-color);
-    margin: 0;
+    margin-bottom: 1rem;
+    padding-top: 1rem;
+    text-align: center;
 }
 
 .srp-header p {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     color: var(--text-color-light);
-    margin-top: 0.25rem;
 }
 
-/* --- Controls & Sort --- */
-.srp-controls {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-    gap: 1rem;
-    padding: 1rem;
-    background-color: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
+/* --- Sticky Header & Controls --- */
+.srp-sticky-header {
+    position: sticky;
+    top: 0;
+    z-index: 900;
+    background-color: var(--bg-color);
+    padding-top: 0.75rem;
+    /* Add padding for pills */
+    border-bottom: 1px solid var(--border-color);
+    transition: box-shadow 0.2s;
+}
+
+/* Add shadow on scroll */
+.srp-sticky-header.scrolled {
     box-shadow: var(--shadow-light);
 }
 
+.srp-controls {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 1rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+/* --- Control Buttons & Dropdown --- */
 .srp-filter-toggle {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    background-color: var(--primary-color);
-    color: var(--unread-badge-text, white);
-    border: none;
+    background: var(--input-bg-color);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
     padding: 0.7rem 1.2rem;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-weight: 600;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    font-weight: 500;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: background-color 0.2s, border-color 0.2s;
 }
 
 .srp-filter-toggle:hover {
-    background-color: var(--primary-color-dark);
+    border-color: var(--primary-color);
 }
 
+/* IMPROVED: Sort Dropdown */
 .srp-custom-dropdown {
     position: relative;
 }
@@ -72,21 +81,56 @@
 .srp-dropdown-toggle {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1.25rem;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.7rem 1.2rem;
     cursor: pointer;
     background: var(--input-bg-color);
     border: 1px solid var(--border-color);
     color: var(--text-color);
     border-radius: 50px;
-    box-shadow: var(--shadow-light);
+    font-size: 0.9rem;
+    width: 240px;
+    /* Let it size naturally */
+    min-width: 110px;
+    /* Fixed width to prevent resizing */
+    transition: border-color 0.2s;
+}
+
+.srp-dropdown-toggle:hover {
+    border-color: var(--primary-color);
+}
+
+.srp-dropdown-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    overflow: hidden;
+    /* Prevent text from pushing the arrow */
+}
+
+.srp-dropdown-label span {
+    color: var(--text-color-light);
+}
+
+.srp-dropdown-label strong {
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.srp-dropdown-arrow {
+    transition: transform 0.2s ease-in-out;
+    flex-shrink: 0;
 }
 
 .srp-dropdown-menu {
     position: absolute;
     right: 0;
     top: calc(100% + 8px);
-    width: 200px;
+    width: 240px;
+    /* Match the toggle width */
     padding: 0.5rem;
     list-style: none;
     background: var(--dropdown-bg);
@@ -100,10 +144,15 @@
     transition: all 0.2s ease;
 }
 
-.srp-custom-dropdown:hover .srp-dropdown-menu {
+/* Show/Hide menu with .is-open class (controlled by JS) */
+.srp-custom-dropdown.is-open .srp-dropdown-menu {
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
+}
+
+.srp-custom-dropdown.is-open .srp-dropdown-arrow {
+    transform: rotate(180deg);
 }
 
 .srp-dropdown-menu li {
@@ -111,6 +160,7 @@
     border-radius: 0.5rem;
     cursor: pointer;
     color: var(--dropdown-text);
+    font-weight: 500;
 }
 
 .srp-dropdown-menu li:hover {
@@ -122,16 +172,30 @@
     font-weight: 600;
 }
 
-/* --- Redesigned Filter Pills --- */
+/* --- Filter Pills --- */
 .srp-active-filters {
     display: flex;
-    flex-wrap: wrap;
     gap: 0.75rem;
-    margin-bottom: 2rem;
-    min-height: 34px;
+    overflow-x: auto;
+    white-space: nowrap;
+    /* Keeps pills in a single line */
+    padding: 0.5rem 1rem 0.75rem;
+    margin: 0;
+    -webkit-overflow-scrolling: touch;
+    /* Smooth scrolling for iOS */
+    scrollbar-width: none;
+    /* Hides scrollbar for Firefox */
+}
+
+
+.srp-active-filters::-webkit-scrollbar {
+    display: none;
+    /* Hides scrollbar for Chrome, Safari, etc. */
 }
 
 .srp-filter-pill {
+    flex-shrink: 0;
+    /* Prevents pills from shrinking */
     display: inline-flex;
     align-items: center;
     background-color: var(--primary-color-light);
@@ -186,6 +250,11 @@
     margin-bottom: 3rem;
 }
 
+/* Reduce margin for category section */
+.srp-main-content .srp-section:has(.srp-category-scroller) {
+    margin-bottom: 1.5rem;
+}
+
 .srp-section-title {
     font-size: 1.8rem;
     font-weight: 600;
@@ -215,7 +284,38 @@
     color: var(--text-color);
 }
 
-/* --- Redesigned Horizontal Category Scroller --- */
+/* --- Loading Spinner --- */
+.srp-loader-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 5rem 0;
+    min-height: 300px;
+    grid-column: 1 / -1;
+}
+
+.srp-loader {
+    width: 48px;
+    height: 48px;
+    border: 5px solid var(--primary-color-light);
+    border-bottom-color: var(--primary-color);
+    border-radius: 50%;
+    display: inline-block;
+    box-sizing: border-box;
+    animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* --- Horizontal Category Scroller --- */
 .srp-category-scroller {
     overflow-x: auto;
     padding-bottom: 1rem;
@@ -247,7 +347,7 @@
     width: max-content;
 }
 
-/* Category Card (Mobile First: Smaller Circles) */
+/* Category Card (Mobile First: Circles) */
 .srp-category-card {
     text-decoration: none;
     color: var(--text-color);
@@ -289,35 +389,6 @@
     font-size: 0.9rem;
 }
 
-/* Category Card (Desktop: Larger Capsules) */
-@media (min-width: 768px) {
-    .srp-category-grid-horizontal {
-        gap: 1.5rem;
-    }
-
-    .srp-category-card {
-        width: auto;
-        flex-direction: row;
-        gap: 1rem;
-        background-color: var(--bg-secondary);
-        border-radius: 50px;
-        padding: 0.75rem;
-        box-shadow: var(--shadow-light);
-    }
-
-    .srp-category-card__image-wrapper {
-        width: 50px;
-        height: 50px;
-        font-size: 1.5rem;
-    }
-
-    .srp-category-card__title {
-        font-size: 1rem;
-        font-weight: 600;
-        text-align: left;
-        padding-right: 1rem;
-    }
-}
 
 /* --- Filter Panel --- */
 .srp-filter-container {
@@ -375,6 +446,7 @@
     padding: 1.5rem;
     border-bottom: 1px solid var(--border-color);
     background: var(--bg-secondary);
+    flex-shrink: 0;
 }
 
 .srp-filter-header h3 {
@@ -409,6 +481,7 @@
     gap: 0.5rem;
 }
 
+/* Custom Checkbox Styles */
 .srp-checkbox-list {
     display: flex;
     flex-direction: column;
@@ -469,6 +542,7 @@
     display: block;
 }
 
+/* Filter Pills (Price/Rating) */
 .srp-price-options {
     display: flex;
     flex-wrap: wrap;
@@ -506,12 +580,14 @@
     gap: 0.75rem;
 }
 
+/* Filter Footer */
 .srp-filter-footer {
     display: flex;
     gap: 1rem;
     padding: 1rem 1.5rem;
     border-top: 1px solid var(--border-color);
     background: var(--bg-secondary);
+    flex-shrink: 0;
 }
 
 .srp-clear-filters-btn,
@@ -536,15 +612,60 @@
     border: none;
 }
 
-/* --- Mobile Responsiveness --- */
-@media (max-width: 768px) {
-    .srp-header h1 {
-        font-size: 2rem;
+/* --- Responsiveness --- */
+@media (min-width: 768px) {
+
+    /* Desktop Category Card Styles */
+    .srp-category-grid-horizontal {
+        gap: 1.5rem;
     }
 
+    .srp-category-card {
+        width: auto;
+        flex-direction: row;
+        gap: 1rem;
+        background-color: var(--bg-secondary);
+        border-radius: 50px;
+        padding: 0.75rem;
+        box-shadow: var(--shadow-light);
+    }
+
+    .srp-category-card__image-wrapper {
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+    }
+
+    .srp-category-card__title {
+        font-size: 1rem;
+        font-weight: 600;
+        text-align: left;
+        padding-right: 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .srp-header p {
+        font-size: 1rem;
+    }
+
+    /* UPDATED: On tablet and smaller, push controls to opposite ends */
     .srp-controls {
-        flex-direction: column;
-        align-items: stretch;
+        justify-content: space-between;
+    }
+
+    .srp-section-title {
+        text-align: center;
+        border-bottom: none;
+    }
+
+    .srp-section-title::after {
+        content: '';
+        display: block;
+        width: 60px;
+        height: 2px;
+        background: var(--primary-color);
+        margin: 0.5rem auto 0;
     }
 }
 

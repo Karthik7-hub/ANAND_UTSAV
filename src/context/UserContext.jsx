@@ -1,5 +1,8 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Dialog from '../components/Dialog'; // ✅ Import your dialog component
+import { User } from 'lucide-react';
 
 const UserContext = createContext(null);
 
@@ -10,6 +13,41 @@ export const UserProvider = ({ children }) => {
     const [token, setToken] = useState(() => localStorage.getItem('token'));
     const [favourites, setFavourites] = useState([]);
     const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
+
+    const [dialogOptions, setDialogOptions] = useState(null);
+
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    // ✅ Generic showDialog method (supports your custom props)
+    const showDialog = ({
+        title = 'Dialog',
+        message = '',
+        type = 'warning',
+        icon,
+        confirmText = 'Confirm',
+        cancelText = 'Cancel',
+        onConfirm,
+        onCancel,
+        confirmButtonOnly = false,
+    }) => {
+        setDialogOptions({
+            title,
+            message,
+            type,
+            icon,
+            confirmText,
+            cancelText,
+            onConfirm,
+            onCancel,
+            confirmButtonOnly,
+        });
+        setIsDialogOpen(true);
+    };
+
+    const closeDialog = () => {
+        setIsDialogOpen(false);
+    };
+
 
     // --- Restore session on page load
     useEffect(() => {
@@ -55,28 +93,27 @@ export const UserProvider = ({ children }) => {
             return null;
         }
     };
-    // Login
-    // MODIFIED: Now saves the user object to localStorage
+
+    // --- Login
     const login = (userData, authToken) => {
         localStorage.setItem('token', authToken);
-        localStorage.setItem('user', JSON.stringify(userData)); // ADDED: Save user object
+        localStorage.setItem('user', JSON.stringify(userData));
         setToken(authToken);
         setUser(userData);
         fetchUserDetails(authToken);
         fetchFavourites(authToken);
     };
 
-    // Logout
-    // MODIFIED: Now clears the user object from localStorage
+    // --- Logout
     const logout = () => {
         localStorage.removeItem('token');
-        localStorage.removeItem('user'); // ADDED: Clear user object
+        localStorage.removeItem('user');
         setToken(null);
         setUser(null);
         setFavourites([]);
     };
 
-    // --- Fetch favourites from backend
+    // --- Fetch favourites
     const fetchFavourites = async (authToken) => {
         try {
             const res = await axios.get('https://anand-u.vercel.app/user/getFavorite', {
@@ -92,9 +129,24 @@ export const UserProvider = ({ children }) => {
         }
     };
 
-    // --- Toggle favourite (optimistic UI)
+    // --- Toggle favourite (uses dialog instead of alert)
     const toggleFavourite = async (serviceId) => {
-        if (!user) return alert('Please login to manage favourites');
+        if (!user) {
+            showDialog({
+                title: 'Login Required',
+                message: 'Please log in to manage your favourites.',
+                type: 'warning',
+                icon: <User />,
+                confirmText: 'Login',
+                cancelText: 'Cancel',
+                confirmButtonOnly: false, // ✅ shows both buttons
+                onConfirm: () => {
+                    closeDialog();
+                    navigate('/login'); // ✅ Redirect to login
+                },
+            });
+            return;
+        }
 
         const isFav = favourites.includes(serviceId);
         const updatedFavourites = isFav
@@ -118,12 +170,48 @@ export const UserProvider = ({ children }) => {
             }
         } catch (err) {
             console.error('Error toggling favourite:', err);
-            setFavourites(favourites); // rollback if error
+            setFavourites(favourites); // rollback
+            showDialog({
+                title: 'Error',
+                message: 'Failed to update favourites. Please try again.',
+                type: 'error',
+                confirmText: 'Close',
+                confirmButtonOnly: true,
+            });
         }
     };
 
+    const value = {
+        user,
+        token,
+        login,
+        logout,
+        favourites,
+        toggleFavourite,
+        loading,
+        showDialog,
+    };
 
-    const value = { user, token, login, logout, favourites, toggleFavourite, loading };
+    return (
+        <UserContext.Provider value={value}>
+            {children}
 
-    return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
+            {isDialogOpen && dialogOptions && (
+                <Dialog
+                    isOpen={isDialogOpen}
+                    onClose={closeDialog}
+                    onConfirm={dialogOptions.onConfirm}
+                    onCancel={dialogOptions.onCancel}
+                    type={dialogOptions.type}
+                    icon={dialogOptions.icon}
+                    title={dialogOptions.title}
+                    confirmText={dialogOptions.confirmText}
+                    cancelText={dialogOptions.cancelText}
+                    confirmButtonOnly={dialogOptions.confirmButtonOnly}
+                >
+                    {dialogOptions.message}
+                </Dialog>
+            )}
+        </UserContext.Provider>
+    );
 };
