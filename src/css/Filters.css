@@ -1,0 +1,126 @@
+/* --- Panel Structure --- */
+.filters-panel__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.2rem 1.5rem;
+    border-bottom: 1px solid #e0d7d0;
+    flex-shrink: 0;
+}
+
+.filters-panel__header h3 {
+    margin: 0;
+    font-size: 1.4rem;
+    font-family: var(--font-heading);
+}
+
+/* UPDATED: Prominent, easy-to-tap close button */
+.filters-panel__close-btn {
+    background: #ede6e1;
+    border: none;
+    color: var(--text-color);
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.filters-panel__close-btn:hover {
+    background-color: #e0d7d0;
+    transform: rotate(90deg);
+}
+
+.filters-panel__body {
+    padding: 1.5rem;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+.filters-panel__footer {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    border-top: 1px solid #e0d7d0;
+    background-color: #f7f1ed;
+    flex-shrink: 0;
+}
+
+/* --- Footer Buttons --- */
+.filters-panel__clear-btn,
+.filters-panel__apply-btn {
+    flex: 1;
+    padding: 0.9rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.filters-panel__clear-btn {
+    background-color: #ede6e1;
+    color: var(--text-color-light);
+}
+
+.filters-panel__clear-btn:hover {
+    border-color: var(--text-color-light);
+}
+
+.filters-panel__apply-btn {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.filters-panel__apply-btn:hover {
+    background-color: var(--primary-color-dark);
+}
+
+/* --- Filter Groups (largely unchanged, minor color tweaks) --- */
+.filter-group {
+    margin-bottom: 2rem;
+}
+
+.filter-group h4 {
+    margin: 0 0 1.2rem 0;
+    font-size: 1rem;
+    color: var(--text-color-light);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.price-filter__slider {
+    background: #e0d7d0;
+}
+
+.category-filter {
+    padding-right: 10px;
+}
+
+.category-filter__item label {
+    color: var(--text-color);
+}
+
+.rating-filter__button {
+    background-color: #ede6e1;
+    border-color: #e0d7d0;
+}
+
+.rating-filter__button:hover {
+    border-color: var(--primary-color);
+    background-color: #f7f1ed;
+}
+
+.rating-filter__button.active {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}
+
+.rating-filter__button.active .star-icon {
+    fill: white;
+    stroke: white;
+}

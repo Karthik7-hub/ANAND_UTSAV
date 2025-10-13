@@ -6,7 +6,7 @@ import CategoryServicesPage from './pages/CategoryServicesPage';
 import AllServicesPage from './pages/AllServicesPage';
 import ServiceDetailsPage from './pages/ServiceDetailsPage';
 import ScrollToTop from './components/ScrollToTop';
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from 'react-router-dom';
 import MainLayout from './components/MainLayout';
 import { UserProvider } from './context/UserContext';
 import { ProviderProvider } from './context/ProviderContext';
@@ -22,9 +22,7 @@ import ProviderChatPage from './pages/ProviderChatPage.jsx';
 import BookServicePage from "./pages/BookServicePage";
 import EditService from "./pages/EditService.jsx";
 import UserBookingsPage from './pages/UserBookingsPage';
-
-
-
+import SearchResultsPage from './pages/SearchResultsPage';
 
 function App() {
   return (
@@ -58,6 +56,7 @@ function App() {
                 <Route path="/favourites" element={<Favourites />} />
                 <Route path="/my-bookings" element={<UserBookingsPage />} />
                 <Route path="/dashboard" element={<DashboardPage />} />
+                <Route path="/search-results" element={<SearchResultsPage />} />
 
                 {/* The chat routes have been MOVED out of here */}
               </Route>
@@ -67,6 +66,8 @@ function App() {
               <Route path="/chat/:conversationId" element={<ChatPage />} />
               <Route path="/chat" element={<ChatPage />} />
 
+              {/* 2. This route matches any path that wasn't matched above */}
+              <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </ThemeProvider>
         </UserProvider>

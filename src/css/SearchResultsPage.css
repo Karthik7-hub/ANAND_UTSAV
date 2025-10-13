@@ -1,0 +1,559 @@
+/* --- Base Page Layout --- */
+.srp-page {
+    font-family: var(--font-body);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    min-height: 100vh;
+    padding: 2rem 1rem;
+}
+
+.srp-header,
+.srp-controls,
+.srp-main-content,
+.srp-active-filters {
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.srp-header {
+    margin-bottom: 1.5rem;
+}
+
+.srp-header h1 {
+    font-size: 2.5rem;
+    color: var(--text-color);
+    margin: 0;
+}
+
+.srp-header p {
+    font-size: 1.1rem;
+    color: var(--text-color-light);
+    margin-top: 0.25rem;
+}
+
+/* --- Controls & Sort --- */
+.srp-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    gap: 1rem;
+    padding: 1rem;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: var(--shadow-light);
+}
+
+.srp-filter-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: var(--primary-color);
+    color: var(--unread-badge-text, white);
+    border: none;
+    padding: 0.7rem 1.2rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.srp-filter-toggle:hover {
+    background-color: var(--primary-color-dark);
+}
+
+.srp-custom-dropdown {
+    position: relative;
+}
+
+.srp-dropdown-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    cursor: pointer;
+    background: var(--input-bg-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    border-radius: 50px;
+    box-shadow: var(--shadow-light);
+}
+
+.srp-dropdown-menu {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    width: 200px;
+    padding: 0.5rem;
+    list-style: none;
+    background: var(--dropdown-bg);
+    border: 1px solid var(--dropdown-border);
+    border-radius: 8px;
+    box-shadow: var(--shadow-heavy);
+    z-index: 20;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: all 0.2s ease;
+}
+
+.srp-custom-dropdown:hover .srp-dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.srp-dropdown-menu li {
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    color: var(--dropdown-text);
+}
+
+.srp-dropdown-menu li:hover {
+    background-color: var(--dropdown-item-hover-bg);
+}
+
+.srp-dropdown-menu li.active {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+/* --- Redesigned Filter Pills --- */
+.srp-active-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+    min-height: 34px;
+}
+
+.srp-filter-pill {
+    display: inline-flex;
+    align-items: center;
+    background-color: var(--primary-color-light);
+    color: var(--primary-color);
+    border: 1px solid transparent;
+    border-radius: 20px;
+    padding: 0.3rem 0.3rem 0.3rem 0.8rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    animation: pillFadeIn 0.3s ease;
+}
+
+@keyframes pillFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.srp-filter-pill span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+    padding-right: 0.25rem;
+}
+
+.srp-filter-pill button {
+    background: rgba(var(--primary-color-rgb), 0.2);
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    color: var(--primary-color);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.srp-filter-pill button:hover {
+    background: rgba(var(--primary-color-rgb), 0.3);
+}
+
+/* --- Sections and Grids --- */
+.srp-section {
+    margin-bottom: 3rem;
+}
+
+.srp-section-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--primary-color);
+}
+
+.srp-grid {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+}
+
+.srp-message-box {
+    text-align: center;
+    padding: 4rem 2rem;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    grid-column: 1 / -1;
+}
+
+.srp-message-box h3 {
+    font-size: 1.5rem;
+    color: var(--text-color);
+}
+
+/* --- Redesigned Horizontal Category Scroller --- */
+.srp-category-scroller {
+    overflow-x: auto;
+    padding-bottom: 1rem;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-color) var(--bg-color);
+}
+
+.srp-category-scroller::-webkit-scrollbar {
+    height: 8px;
+}
+
+.srp-category-scroller::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.srp-category-scroller::-webkit-scrollbar-thumb {
+    background-color: var(--border-color);
+    border-radius: 4px;
+    border: 2px solid var(--bg-color);
+}
+
+.srp-category-scroller::-webkit-scrollbar-thumb:hover {
+    background-color: var(--text-color-light);
+}
+
+.srp-category-grid-horizontal {
+    display: flex;
+    gap: 1rem;
+    width: max-content;
+}
+
+/* Category Card (Mobile First: Smaller Circles) */
+.srp-category-card {
+    text-decoration: none;
+    color: var(--text-color);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    transition: transform 0.2s ease-out;
+    width: 90px;
+}
+
+.srp-category-card:hover {
+    transform: translateY(-5px);
+}
+
+.srp-category-card__image-wrapper {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    overflow: hidden;
+    background-color: var(--bg-secondary);
+    box-shadow: var(--shadow-light);
+    border: 3px solid var(--bg-secondary);
+    transition: border-color 0.2s ease;
+    display: grid;
+    place-items: center;
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.srp-category-card:hover .srp-category-card__image-wrapper {
+    border-color: var(--primary-color);
+}
+
+.srp-category-card__title {
+    font-weight: 500;
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+/* Category Card (Desktop: Larger Capsules) */
+@media (min-width: 768px) {
+    .srp-category-grid-horizontal {
+        gap: 1.5rem;
+    }
+
+    .srp-category-card {
+        width: auto;
+        flex-direction: row;
+        gap: 1rem;
+        background-color: var(--bg-secondary);
+        border-radius: 50px;
+        padding: 0.75rem;
+        box-shadow: var(--shadow-light);
+    }
+
+    .srp-category-card__image-wrapper {
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+    }
+
+    .srp-category-card__title {
+        font-size: 1rem;
+        font-weight: 600;
+        text-align: left;
+        padding-right: 1rem;
+    }
+}
+
+/* --- Filter Panel --- */
+.srp-filter-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+    pointer-events: none;
+    visibility: hidden;
+}
+
+.srp-filter-backdrop {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.srp-filter-panel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 350px;
+    height: 100%;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.2);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease-out;
+    display: flex;
+    flex-direction: column;
+}
+
+.srp-filter-container.is-open {
+    pointer-events: auto;
+    visibility: visible;
+}
+
+.srp-filter-container.is-open .srp-filter-backdrop {
+    opacity: 1;
+}
+
+.srp-filter-container.is-open .srp-filter-panel {
+    transform: translateX(0);
+}
+
+.srp-filter-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-secondary);
+}
+
+.srp-filter-header h3 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.srp-filter-close-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    color: var(--text-color);
+}
+
+.srp-filter-body {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 1.5rem;
+}
+
+.srp-filter-group {
+    margin-bottom: 2rem;
+}
+
+.srp-filter-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.srp-checkbox-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.srp-checkbox-label {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    user-select: none;
+    padding-left: 28px;
+    min-height: 20px;
+}
+
+.srp-checkbox-label input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+}
+
+.srp-custom-checkbox {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 20px;
+    width: 20px;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    transition: all 0.2s ease;
+}
+
+.srp-checkbox-label:hover .srp-custom-checkbox {
+    border-color: var(--primary-color);
+}
+
+.srp-checkbox-label input:checked~.srp-custom-checkbox {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.srp-custom-checkbox::after {
+    content: "";
+    position: absolute;
+    display: none;
+    left: 6px;
+    top: 2px;
+    width: 5px;
+    height: 10px;
+    border: solid var(--unread-badge-text, white);
+    border-width: 0 3px 3px 0;
+    transform: rotate(45deg);
+}
+
+.srp-checkbox-label input:checked~.srp-custom-checkbox::after {
+    display: block;
+}
+
+.srp-price-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.srp-price-pill,
+.srp-rating-pill {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    border-radius: 8px;
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.srp-price-pill:hover,
+.srp-rating-pill:hover {
+    border-color: var(--primary-color);
+}
+
+.srp-price-pill.active,
+.srp-rating-pill.active {
+    background: var(--primary-color);
+    color: var(--unread-badge-text, white);
+    border-color: var(--primary-color);
+    font-weight: 600;
+}
+
+.srp-rating-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+}
+
+.srp-filter-footer {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--border-color);
+    background: var(--bg-secondary);
+}
+
+.srp-clear-filters-btn,
+.srp-apply-btn {
+    flex: 1;
+    padding: 0.8rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.srp-clear-filters-btn {
+    background: none;
+    border: 1px solid var(--text-color-light);
+    color: var(--text-color-light);
+}
+
+.srp-apply-btn {
+    background: var(--primary-color);
+    color: var(--unread-badge-text, white);
+    border: none;
+}
+
+/* --- Mobile Responsiveness --- */
+@media (max-width: 768px) {
+    .srp-header h1 {
+        font-size: 2rem;
+    }
+
+    .srp-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+
+@media (max-width: 480px) {
+    .srp-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .srp-filter-panel {
+        width: 90%;
+    }
+}

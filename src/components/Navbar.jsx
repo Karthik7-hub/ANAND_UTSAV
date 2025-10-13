@@ -22,10 +22,11 @@ const useOutsideAlerter = (ref, callback) => {
 export default function AnandUtsavNavbar() {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const [isSearchOpen, setIsSearchOpen] = useState(false);
+
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
-
+    const [isSearchOpen, setIsSearchOpen] = useState(false);
+    const [query, setQuery] = useState('');
     const { theme, toggleTheme } = useTheme();
     const { user, logout, favourites } = useUser();
     const navigate = useNavigate();
@@ -37,6 +38,15 @@ export default function AnandUtsavNavbar() {
     useOutsideAlerter(userMenuRef, () => setIsUserMenuOpen(false));
     useOutsideAlerter(searchContainerRef, () => setIsSearchOpen(false));
 
+    const handleSearchSubmit = (e) => {
+        e.preventDefault();
+        if (query.trim()) {
+            // Navigate to the search results page with the query
+            navigate(`/search-results?q=${encodeURIComponent(query)}`);
+            setIsSearchOpen(false); // Close the dropdown after searching
+            setQuery('');
+        }
+    };
     // --- Effects for scroll, theme, etc. ---
     useEffect(() => {
         const handleScroll = () => setIsScrolled(window.scrollY > 10);
@@ -88,15 +98,22 @@ export default function AnandUtsavNavbar() {
                             </button>
                             {isSearchOpen && (
                                 <div className="search-dropdown">
-                                    <div className="search-input-wrapper">
+                                    <form onSubmit={handleSearchSubmit} className="search-input-wrapper">
                                         <Search className="search-dropdown-icon" />
-                                        <input type="text" placeholder="Search for services, gifts..." autoFocus />
-                                    </div>
+                                        <input
+                                            type="text"
+                                            placeholder="Search for services, gifts..."
+                                            autoFocus
+                                            value={query}
+                                            onChange={(e) => setQuery(e.target.value)}
+                                        />
+                                    </form>
                                     <div className="search-suggestions">
                                         <p>Popular:</p>
-                                        <span>Wedding Planners</span>
-                                        <span>Catering</span>
-                                        <span>Decorators</span>
+                                        {/* These could also trigger a search */}
+                                        <span onClick={() => navigate('/search-results?q=Wedding+Planners')}>Wedding Planners</span>
+                                        <span onClick={() => navigate('/search-results?q=Catering')}>Catering</span>
+                                        <span onClick={() => navigate('/search-results?q=Decorators')}>Decorators</span>
                                     </div>
                                 </div>
                             )}
