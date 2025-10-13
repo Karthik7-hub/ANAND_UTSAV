@@ -1,31 +1,65 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
   providerLogoutRequest,
   providerFetchServices,
   providerDeleteService,
+  providerFetchNewBookings, // ✅ Import new booking fetcher
+  providerFetchUpcomingBookings, // ✅ Import upcoming booking fetcher
 } from "../utils/providerAuthApi";
-import { useProvider } from '../context/ProviderContext'; // ✅ CHANGED: Import the useProvider hook
-import { Plus, LayoutDashboard, Calendar, MessageSquare, Settings, LogOut, ChevronUp } from 'lucide-react';
+import { useProvider } from '../context/ProviderContext';
+import { useTheme } from '../context/ThemeContext';
+// ✅ User icon is now imported, Settings is removed
+import { Plus, LayoutDashboard, Calendar, MessageSquare, User, LogOut, ChevronUp, Menu, Sun, Moon, CheckCircle, XCircle, Briefcase, Star, AlertTriangle } from 'lucide-react';
+import Dialog from '../components/Dialog';
 import ServiceProviderCard from "../components/ServiceProviderCard";
 import ProviderChatPage from "./ProviderChatPage";
 import ProviderBookingsPage from "./ProviderBookingsPage";
+import '../css/ProviderDashboard.css';
+
+// Helper function to calculate the weighted average rating
+function calculateOverallAverageRating(services) {
+  const ratedServices = services.filter(service => service.avgRating > 0 && service.reviewCount > 0);
+  if (ratedServices.length === 0) return 0;
+  const totals = ratedServices.reduce((acc, service) => {
+    acc.totalWeightedRatingSum += service.avgRating * service.reviewCount;
+    acc.totalReviewCount += service.reviewCount;
+    return acc;
+  }, { totalWeightedRatingSum: 0, totalReviewCount: 0 });
+  return totals.totalReviewCount === 0 ? 0 : totals.totalWeightedRatingSum / totals.totalReviewCount;
+}
+
+// ✅ HELPER FUNCTION: Gets today's date as a 'YYYY-MM-DD' string
+const getTodayDateString = () => new Date().toISOString().split('T')[0];
 
 export default function ProviderDashboard() {
-  // --- State and Logic ---
+  // --- STATE MANAGEMENT ---
   const [services, setServices] = useState([]);
+  const [newBookings, setNewBookings] = useState([]);
+  const [upcomingBookings, setUpcomingBookings] = useState([]);
+  const [urgentBookings, setUrgentBookings] = useState([]);
   const [fetching, setFetching] = useState(true);
   const [loading, setLoading] = useState(false);
   const [isProfileOpen, setProfileOpen] = useState(false);
   const [activeView, setActiveView] = useState('dashboard');
-  
+  const [isSidebarOpen, setSidebarOpen] = useState(false);
+  const [dialogState, setDialogState] = useState({ isOpen: false });
+
+  // --- HOOKS ---
   const profileRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
-
   const { provider, logout } = useProvider();
+  const { theme, toggleTheme } = useTheme();
 
+  const averageRating = useMemo(() => calculateOverallAverageRating(services), [services]);
 
+  // --- HELPER FUNCTIONS ---
+  const showDialog = (config) => setDialogState({ ...config, isOpen: true });
+
+  const closeDialog = () => setDialogState(prevState => ({ ...prevState, isOpen: false }));
+
+  // --- DATA FETCHING & SIDE EFFECTS ---
   const fetchServices = async () => {
     setFetching(true);
     try {
@@ -33,36 +67,69 @@ export default function ProviderDashboard() {
       if (res.success && Array.isArray(res.services)) {
         setServices(res.services);
       } else {
-        console.error("API did not return a valid services array:", res);
         setServices([]);
       }
     } catch (err) {
       console.error("Error fetching services:", err);
-      setServices([]); // Set to empty array on error
+      setServices([]);
     }
     setFetching(false);
   };
 
-  // This useEffect now calls the real fetchServices function
+  // Effect to handle service updates from other pages (Add/Edit)
   useEffect(() => {
-    // If we are navigating from the "Add Service" page, use the new service data instantly
-    if (location.state?.newService) {
-      setServices(prev => [location.state.newService, ...prev.filter(s => s._id !== location.state.newService._id)]);
+    // Clear the location state to prevent re-triggering on view changes
+    const state = location.state;
+    if (state) {
+      window.history.replaceState({}, document.title)
+    }
+
+    if (state?.newService) {
+      setServices(prev => [state.newService, ...prev]);
       setFetching(false);
+    } else if (state?.updatedService) {
+      setServices(prev => prev.map(s => s._id === state.updatedService._id ? state.updatedService : s));
     } else {
-      // Otherwise, fetch all services from the backend on initial load
       fetchServices();
     }
-  }, [location.state]); // Reruns if location state changes
-  useEffect(() => {
-  if (location.state?.updatedService) {
-    setServices(prev => [
-      location.state.updatedService,
-      ...prev.filter(s => s._id !== location.state.updatedService._id)
-    ]);
-  }
-}, [location.state]);
+  }, [location.state]);
 
+  // ✅ EFFECT: Calculates urgent bookings whenever the upcoming bookings list changes
+  useEffect(() => {
+    if (upcomingBookings.length === 0) return;
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const dismissedToday = JSON.parse(localStorage.getItem('dismissedNotifications') || '{}');
+    const todayString = getTodayDateString();
+    const potentialUrgent = upcomingBookings.filter(b => {
+      if (!b.eventDate || !b.service || typeof b.service.mindaysprior === 'undefined') return false;
+      const eventDate = new Date(b.eventDate); eventDate.setHours(0, 0, 0, 0);
+      const diffDays = Math.ceil((eventDate - today) / (1000 * 60 * 60 * 24));
+      return diffDays <= b.service.mindaysprior && diffDays >= 0;
+    });
+    const newUrgent = potentialUrgent.filter(b => dismissedToday[b._id] !== todayString);
+    setUrgentBookings(newUrgent);
+  }, [upcomingBookings]);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      setFetching(true);
+      try {
+        const [servicesRes, newBookingsRes, upcomingBookingsRes] = await Promise.all([
+          providerFetchServices(), providerFetchNewBookings(), providerFetchUpcomingBookings(),
+        ]);
+        if (servicesRes.success) setServices(servicesRes.services || []);
+        if (newBookingsRes.success) setNewBookings(newBookingsRes.newBookings || []);
+        if (upcomingBookingsRes.success) setUpcomingBookings(upcomingBookingsRes.upComingBookings || []);
+      } catch (error) {
+        console.error("Failed to fetch dashboard data:", error);
+        showDialog({ type: 'error', title: 'Data Error', icon: <XCircle />, children: "Could not load dashboard data.", confirmButtonOnly: true, confirmText: 'OK', onConfirm: closeDialog });
+      }
+      setFetching(false);
+    };
+    fetchDashboardData();
+  }, []);
+
+  // Effect to close popups on outside click
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (profileRef.current && !profileRef.current.contains(event.target)) {
@@ -73,276 +140,203 @@ export default function ProviderDashboard() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // ✅ UPDATED HANDLER: Now saves the dismissal to localStorage
+  const handleDismissNotification = (bookingId) => {
+    setUrgentBookings(prev => prev.filter(b => b._id !== bookingId));
+    const dismissed = JSON.parse(localStorage.getItem('dismissedNotifications') || '{}');
+    dismissed[bookingId] = getTodayDateString();
+    localStorage.setItem('dismissedNotifications', JSON.stringify(dismissed));
+  };
+
+  // --- EVENT HANDLERS ---
   const handleLogout = async () => {
     if (loading) return;
     setLoading(true);
     try {
       const res = await providerLogoutRequest();
       if (res.success) {
-        logout(); // This clears localStorage and React state
-        alert("✅ Logged out successfully");
-        navigate("/provider-login");
+        logout();
+        showDialog({
+          type: 'success', title: 'Logged Out', icon: <CheckCircle />,
+          children: 'You have been logged out successfully.',
+          confirmButtonOnly: true, confirmText: 'OK',
+          onConfirm: () => navigate("/provider-login"),
+        });
       } else {
-        alert(res.msg || "❌ Logout failed");
+        showDialog({
+          type: 'error', title: 'Logout Failed', icon: <XCircle />,
+          children: res.msg || "Could not log out. Please try again.",
+          confirmButtonOnly: true, onConfirm: closeDialog,
+        });
       }
     } catch (err) {
-      console.error("Logout error:", err);
-      alert("❌ Logout failed");
+      showDialog({
+        type: 'error', title: 'Error', icon: <XCircle />,
+        children: "An error occurred during logout.",
+        confirmButtonOnly: true, onConfirm: closeDialog,
+      });
     }
     setLoading(false);
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure?")) return;
-
-    // Optimistically remove from UI
+  const confirmDelete = async (id) => {
+    closeDialog();
+    const originalServices = [...services];
     setServices(prev => prev.filter(s => s._id !== id));
-
-    // Call API to delete from database
     try {
-      await providerDeleteService(id);
+      const res = await providerDeleteService(id);
+      if (!res.success) {
+        showDialog({
+          type: 'error', title: 'Deletion Failed', icon: <XCircle />,
+          children: res.msg || "Could not delete the service from the server.",
+          confirmButtonOnly: true, onConfirm: closeDialog
+        });
+        setServices(originalServices); // Revert UI on failure
+      }
     } catch (err) {
-      console.error("Failed to delete service from backend:", err);
-      // Optional: Re-fetch to sync state if the API call fails
-      fetchServices();
+      showDialog({
+        type: 'error', title: 'Error', icon: <XCircle />,
+        children: "A network error occurred. Please try again.",
+        confirmButtonOnly: true, onConfirm: closeDialog
+      });
+      setServices(originalServices); // Revert UI on failure
     }
   };
-  const handleDummyLink = (e) => {
-    e.preventDefault();
-    alert("This feature is not yet available.");
+
+  const handleDelete = (id) => {
+    showDialog({
+      type: 'warning',
+      title: 'Confirm Deletion',
+      icon: <XCircle />,
+      children: 'Are you sure you want to delete this service? This action cannot be undone.',
+      confirmText: 'Yes, Delete',
+      cancelText: 'Cancel',
+      onConfirm: () => confirmDelete(id),
+      onClose: closeDialog,
+    });
   };
 
-  // NEW: Wrapped the original services view in its own component for cleaner conditional rendering.
-  const ServicesView = () => (
-    <>
-      <div className="dashboard-main-header">
-        <h2>My Services</h2>
-        <Link to="/provider/add-service" className="action-button"><Plus /> Add New Service</Link>
-      </div>
+  const handleDummyLink = (e) => { e.preventDefault(); showDialog({ type: 'info', title: 'Feature Not Available', children: 'This feature is under development.', confirmButtonOnly: true, confirmText: 'Got it', onConfirm: closeDialog }); };
 
-      {fetching ? (
-        <div className="status-container"><div className="loading-spinner"></div></div>
-      ) : services.length === 0 ? (
-        <div className="status-container">
-          <h3>No services yet</h3>
-          <p>Click "Add New Service" to get started.</p>
-        </div>
-      ) : (
-        <div className="service-grid">
-          {services.map((service, index) => (
-            <div key={service._id} className="service-card-wrapper" style={{ animationDelay: `${index * 100}ms` }}>
-              <ServiceProviderCard
-                service={service}
-                onDelete={() => handleDelete(service._id)}
-              />
-            </div>
-          ))}
-        </div>
-      )}
-    </>
+
+  const ServicesView = () => (
+    <div className="view-wrapper" id="services-section">
+      <div className="view-header">
+        <h2>My Services</h2>
+        <Link to="/provider/add-service" className="action-button primary"><Plus size={18} /> Add New Service</Link>
+      </div>
+      <div className="view-content">
+        {fetching ? (
+          <div className="status-container"><div className="loading-spinner"></div></div>
+        ) : services.length === 0 ? (
+          <div className="status-container">
+            <h3>No services yet</h3><p>Click "Add New Service" to get started.</p>
+          </div>
+        ) : (
+          <div className="service-grid">
+            {services.map((service, index) => (
+              <div key={service._id} className="service-card-wrapper" style={{ animationDelay: `${index * 50}ms` }}>
+                <ServiceProviderCard service={service} onDelete={() => handleDelete(service._id)} />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
   );
 
   return (
-    <>
-      <style>{`
-              :root {
-                  --primary-color: #FF9B33; --glass-bg: rgba(30, 41, 59, 0.5);
-                  --glass-border: rgba(255, 255, 255, 0.1); --text-color: #cbd5e1;
-                  --text-light: #94a3b8; --sidebar-bg: rgba(13, 17, 23, 0.9);
-                  --font-sans: 'Poppins', sans-serif;
-              }
-              
-              html, body {
-                  overflow: hidden;
-                  height: 100%;
-                  width: 100%;
-              }
-              body { 
-                  background-color: #0d1117; 
-                  font-family: var(--font-sans); 
-                  margin: 0;
-              }
-              * { box-sizing: border-box; }
-
-              .dashboard-layout { 
-                  display: grid; 
-                  grid-template-columns: 260px 1fr; 
-                  height: 100vh;
-                  width: 100%;
-              }
-              .dashboard-sidebar {
-                  background: var(--sidebar-bg); border-right: 1px solid var(--glass-border);
-                  backdrop-filter: blur(20px); display: flex; flex-direction: column;
-                  padding: 1.5rem; color: var(--text-color);
-              }
-              .sidebar-header { text-align: center; margin-bottom: 2.5rem; }
-              .sidebar-header h1 { font-size: 1.8rem; color: #fff; letter-spacing: 1px; }
-              .sidebar-nav { flex-grow: 1; }
-              .sidebar-nav ul { list-style: none; padding: 0; margin: 0; }
-              .nav-item a {
-                  display: flex; align-items: center; gap: 0.75rem;
-                  padding: 0.8rem 1rem; margin-bottom: 0.5rem; border-radius: 8px;
-                  color: var(--text-light); text-decoration: none; transition: all 0.2s ease-in-out;
-                  cursor: pointer; /* MODIFIED: Make it clear it's clickable */
-              }
-              .nav-item a:hover { background: var(--glass-bg); color: #fff; }
-              .nav-item a.active { background: var(--primary-color); color: #fff; font-weight: 500; }
-              
-              .sidebar-profile { position: relative; margin-top: 1rem; }
-              .profile-card {
-                  display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem;
-                  border-radius: 10px; cursor: pointer; background: var(--glass-bg);
-                  border: 1px solid transparent; transition: all 0.2s ease-in-out;
-              }
-              .profile-card:hover { border-color: var(--glass-border); }
-              .profile-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--primary-color); display: grid; place-items: center; font-weight: bold; color: #fff; font-size: 1.2rem; }
-              .profile-info { flex-grow: 1; overflow: hidden; }
-              .profile-info .name { font-weight: 500; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-              .profile-info .email { font-size: 0.8rem; color: var(--text-light); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
-              .profile-card .chevron { transition: transform 0.3s; }
-              .profile-card.open .chevron { transform: rotate(180deg); }
-
-              .profile-menu {
-                  position: absolute; bottom: calc(100% + 10px); left: 0; right: 0;
-                  background: var(--sidebar-bg); border: 1px solid var(--glass-border);
-                  border-radius: 10px; z-index: 10; padding: 0.5rem; backdrop-filter: blur(20px);
-                  opacity: 0; visibility: hidden; transform: translateY(10px);
-                  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-              }
-              .profile-menu.open { opacity: 1; visibility: visible; transform: translateY(0); }
-              .profile-menu-item {
-                  display: flex; align-items: center; gap: 0.75rem; padding: 0.7rem 1rem;
-                  border-radius: 6px; color: var(--text-light); cursor: pointer; text-decoration: none;
-              }
-              .profile-menu-item:hover { background: var(--glass-bg); color: #fff; }
-              .profile-menu-item.logout { color: #ff8a8a; }
-              .profile-menu-item.logout:hover { background: rgba(255, 107, 107, 0.1); color: #ff6b6b; }
-              
-              .dashboard-main { 
-                  padding: 2.5rem; 
-                  overflow-y: auto;
-                  overflow-x: hidden;
-              }
-              
-              .dashboard-main-header { 
-                  display: flex; 
-                  justify-content: space-between; 
-                  align-items: center; 
-                  margin-bottom: 2rem; 
-                  padding-bottom: 2rem;
-                  border-bottom: 1px solid var(--glass-border);
-              }
-              .dashboard-main-header h2 { 
-                  font-size: 2.5rem; 
-                  margin: 0; 
-                  color: #fff;
-                  font-weight: 600;
-              }
-              
-              .action-button {
-                  display: inline-flex; align-items: center; gap: 0.5rem; padding: 12px 24px;
-                  border-radius: 50px; border: none; background: var(--primary-color);
-                  color: #fff; font-size: 1rem; font-weight: 500; cursor: pointer;
-                  text-decoration: none; transition: all 0.3s ease;
-              }
-              .action-button:hover { transform: translateY(-3px); box-shadow: 0 4px 15px rgba(255, 153, 51, 0.4); }
-              
-              .service-grid {
-                  display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-                  gap: 2rem;
-                  padding-top: 2rem;
-              }
-              
-              .service-card-wrapper {
-                  transition: transform 0.3s ease;
-                  opacity: 0;
-                  animation: fadeInUp 0.5s ease forwards;
-              }
-              .service-card-wrapper:hover { 
-                  transform: translateY(-5px);
-              }
-              
-              @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-              
-              .status-container { 
-                  padding: 4rem 0;
-                  text-align: center; 
-              }
-              .status-container h3 {
-                  color: #fff;
-                  font-size: 1.5rem;
-                  margin-bottom: 0.75rem;
-              }
-              .status-container p {
-                  color: var(--text-light);
-                  font-size: 1rem;
-              }
-
-              .loading-spinner { width: 48px; height: 48px; border: 5px solid var(--glass-border); border-bottom-color: var(--primary-color); border-radius: 50%; display: inline-block; animation: rotation 1s linear infinite; }
-               @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-            `}</style>
-
+    <div className="provider-dashboard-theme-wrapper" data-theme={theme}>
       <div className="dashboard-layout">
-        <aside className="dashboard-sidebar">
-          <div className="sidebar-header"><h1>AnandUtsav</h1></div>
-          <nav className="sidebar-nav">
-            <ul>
-              {/* MODIFIED: Sidebar links now use onClick handlers to switch views */}
-              <li className="nav-item">
-                <a onClick={() => setActiveView('dashboard')} className={activeView === 'dashboard' ? 'active' : ''}>
-                  <LayoutDashboard size={20} /> Dashboard
-                </a>
-              </li>
-              <li className="nav-item">
-  <a
-    onClick={() => { setActiveView('bookings'); }}
-    className={activeView === 'bookings' ? 'active' : ''}
-  >
-    <Calendar size={20} /> Bookings
-  </a>
-</li>
+        <Dialog {...dialogState} onClose={closeDialog} />
+        {isSidebarOpen && <div className="mobile-sidebar-overlay" onClick={() => setSidebarOpen(false)}></div>}
 
-              <li className="nav-item">
-                <a onClick={() => setActiveView('messages')} className={activeView === 'messages' ? 'active' : ''}>
-                  <MessageSquare size={20} /> Messages
-                </a>
-              </li>
-              <li className="nav-item"><a href="#" onClick={handleDummyLink}><Settings size={20} /> Settings</a></li>
-            </ul>
-          </nav>
-
-          <div className="sidebar-profile" ref={profileRef}>
-            <div className={`profile-menu ${isProfileOpen ? 'open' : ''}`}>
-              <a className="profile-menu-item" href="#" onClick={handleDummyLink}><Settings size={18} /> View Profile</a>
-              <div className="profile-menu-item logout" onClick={handleLogout}>
-                <LogOut size={18} /> {loading ? "Logging out..." : "Logout"}
-              </div>
-            </div>
-            <div className={`profile-card ${isProfileOpen ? 'open' : ''}`} onClick={() => setProfileOpen(!isProfileOpen)}>
-              <div className="profile-avatar">
-                {/* Display first letter of provider's name, or 'P' as fallback */}
-                {provider?.name?.charAt(0).toUpperCase() || 'P'}
-              </div>
-              <div className="profile-info">
-                {/* Display provider's name from context, with fallback text */}
-                <div className="name">{provider?.name || 'Service Provider'}</div>
-                {/* Display provider's email from context, with fallback text */}
-                <div className="email">{provider?.email || 'Provider Account'}</div>
-              </div>
-              <ChevronUp size={20} className="chevron" />
-            </div>
+        <aside className={`dashboard-sidebar ${isSidebarOpen ? 'open' : ''}`}>
+          <div className="sidebar-brand">
+            <div className="brand-logo">A</div>
+            <h1>AnandUtsav</h1>
           </div>
+          <nav className="sidebar-nav">
+            <a onClick={() => { setActiveView('dashboard'); setSidebarOpen(false); }} className={`nav-item ${activeView === 'dashboard' ? 'active' : ''}`}>
+              <LayoutDashboard size={20} /> Dashboard
+            </a>
+            <a onClick={() => { setActiveView('bookings'); setSidebarOpen(false); }} className={`nav-item ${activeView === 'bookings' ? 'active' : ''}`}>
+              <Calendar size={20} /> Bookings
+            </a>
+            <a onClick={() => { setActiveView('messages'); setSidebarOpen(false); }} className={`nav-item ${activeView === 'messages' ? 'active' : ''}`}>
+              <MessageSquare size={20} /> Messages
+            </a>
+          </nav>
         </aside>
 
-        <main className="dashboard-main">
-          {/* // MODIFIED: This is the core of the new feature.
-            // We conditionally render the correct component based on the 'activeView' state.
-          */}
-          {activeView === 'dashboard' && <ServicesView />}
-          {activeView === 'messages' && <ProviderChatPage />}
-          {activeView === 'bookings' && <ProviderBookingsPage />}
-        </main>
+        <div className="dashboard-content-wrapper">
+          <header className="dashboard-header">
+            <button className="mobile-menu-toggle" onClick={() => setSidebarOpen(true)} aria-label="Open sidebar">
+              <Menu size={24} />
+            </button>
+            <div className="header-title">
+              {activeView.charAt(0).toUpperCase() + activeView.slice(1)}
+            </div>
+            <div className="header-profile" ref={profileRef}>
+              <button className="profile-button" onClick={() => setProfileOpen(!isProfileOpen)}>
+                <div className="profile-avatar">{provider?.name?.charAt(0).toUpperCase() || 'P'}</div>
+                <span className="profile-name">{provider?.name || 'Provider'}</span>
+              </button>
+              <div className={`profile-menu ${isProfileOpen ? 'open' : ''}`}>
+                <div className="menu-header">
+                  <div className="name">{provider?.name || 'Service Provider'}</div>
+                  <div className="email">{provider?.email || 'Provider Account'}</div>
+                </div>
+                <a className="profile-menu-item" href="#" onClick={handleDummyLink}><User size={16} /> View Profile</a>
+                <button className="profile-menu-item" onClick={toggleTheme}>
+                  {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+                  <span>Toggle Theme</span>
+                </button>
+                <div className="menu-divider"></div>
+                <button className="profile-menu-item logout" onClick={handleLogout}>
+                  <LogOut size={16} />
+                  <span>{loading ? "Logging out..." : "Logout"}</span>
+                </button>
+              </div>
+            </div>
+          </header>
+
+          <main className="dashboard-main" id="dashboard-main-content">
+            {urgentBookings.length > 0 && (
+              <div className="urgent-notifications-container">
+                {urgentBookings.map(booking => (
+                  <div key={booking._id} className="notification-card">
+                    <div className="notification-icon"><AlertTriangle size={20} /></div>
+                    <div className="notification-content">
+                      <strong>Urgent Booking Approaching:</strong>
+                      <p>"{booking.service?.name || 'A service'}" is scheduled for {new Date(booking.eventDate).toLocaleDateString()}.</p>
+                    </div>
+                    <button className="notification-close-btn" onClick={() => handleDismissNotification(booking._id)} aria-label="Dismiss notification"><X size={18} /></button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {activeView === 'dashboard' && (
+              <>
+                <div className="welcome-header">
+                  <h1>Welcome back, <span className="provider-name">{provider?.name || 'Provider'}!</span></h1>
+                  <p>Here's a quick overview of your business.</p>
+                </div>
+                <div className="dashboard-stats">
+                  <div className="stat-card"><div className="stat-icon"><Briefcase size={24} /></div><div className="stat-info"><span className="stat-value">{services.length}</span><span className="stat-label">Total Services</span></div></div>
+                  <div className="stat-card"><div className="stat-icon"><Calendar size={24} /></div><div className="stat-info"><span className="stat-value">{newBookings.length}</span><span className="stat-label">New Bookings</span></div></div>
+                  <div className="stat-card"><div className="stat-icon"><Star size={24} /></div><div className="stat-info"><span className="stat-value">{averageRating > 0 ? averageRating.toFixed(1) : "N/A"}</span><span className="stat-label">Avg. Rating</span></div></div>
+                </div>
+              </>
+            )}
+
+            {activeView === 'dashboard' && <ServicesView />}
+            {activeView === 'messages' && <ProviderChatPage />}
+            {activeView === 'bookings' && <ProviderBookingsPage />}
+          </main>
+        </div>
       </div>
-    </>
+    </div>
   );
 }

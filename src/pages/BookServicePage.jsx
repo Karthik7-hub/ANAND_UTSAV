@@ -1,14 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import "../css/BookServicePage.css"; // CSS remains the same
+import "../css/BookServicePage.css"; // Import the new stylesheet
 import { useUser } from "../context/UserContext";
-// ✨ --- IMPORT NEW ICONS --- ✨
-import { Calendar, Users, Home, Edit3, ArrowLeft, CalendarClock } from 'lucide-react';
+import Dialog from '../components/Dialog'; // Import the Dialog component
+import { Calendar, Users, Home, Edit3, ArrowLeft, CalendarClock, CheckCircle, XCircle } from 'lucide-react';
 
-// --- Skeleton Loader Component (no changes) ---
+// --- Skeleton Loader Component ---
 const BookingSkeleton = () => (
-  // ... same skeleton code as before
   <div className="bsp-book-page">
     <div className="bsp-skeleton bsp-skeleton-title"></div>
     <div className="bsp-card bsp-service-summary">
@@ -29,40 +28,35 @@ const BookingSkeleton = () => (
   </div>
 );
 
-
 export default function BookServicePage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { token } = useUser();
 
-  const [date, setDate] = useState("");
-  const [minp, setMinp] = useState("");
-  const [maxp, setMaxp] = useState("");
-  const [venue, setVenue] = useState("");
-  const [specialRequests, setSpecialRequests] = useState("");
-
+  const [form, setForm] = useState({ date: "", minp: "", maxp: "", venue: "", specialRequests: "" });
   const [actionLoading, setActionLoading] = useState(false);
   const [pageLoading, setPageLoading] = useState(true);
-
   const [step, setStep] = useState(1);
   const [service, setService] = useState(null);
+  const [dialogState, setDialogState] = useState({ isOpen: false });
 
-  // ✨ --- CALCULATE THE EARLIEST BOOKABLE DATE --- ✨
-  const minBookingDate = React.useMemo(() => {
+  const showDialog = (config) => setDialogState({ ...config, isOpen: true });
+  const closeDialog = () => setDialogState(prevState => ({ ...prevState, isOpen: false }));
+
+
+
+  const minBookingDate = useMemo(() => {
     if (!service) return new Date().toISOString().split("T")[0];
-
     const earliestDate = new Date();
-    // Add the required notice days to today's date
     earliestDate.setDate(earliestDate.getDate() + (service.mindaysprior || 0));
     return earliestDate.toISOString().split("T")[0];
   }, [service]);
-
 
   useEffect(() => {
     const fetchService = async () => {
       try {
         setPageLoading(true);
-        const res = await axios.get("https://anand-u.vercel.app/provider/allservices");
+        const res = await axios.get(`https://anand-u.vercel.app/provider/allservices`);
         const allServices = Array.isArray(res.data) ? res.data : [];
         const selectedService = allServices.find((s) => s._id === id);
         setService(selectedService);
@@ -76,80 +70,75 @@ export default function BookServicePage() {
     fetchService();
   }, [id]);
 
-  // ... (handleCheckAvailability and handleConfirmBooking functions remain the same)
   const handleCheckAvailability = async () => {
-    if (!date || !minp || !maxp) {
-      alert("Please fill in the date and number of guests.");
+    if (!form.date || !form.minp || !form.maxp) {
+      showDialog({ type: 'error', title: 'Missing Information', icon: <XCircle />, children: "Please fill in the event date and number of guests.", confirmButtonOnly: true, onConfirm: closeDialog });
       return;
     }
-    if (Number(minp) > Number(maxp)) {
-      alert("Minimum guests cannot be more than maximum guests.");
+    if (Number(form.minp) > Number(form.maxp)) {
+      showDialog({ type: 'error', title: 'Invalid Guest Count', icon: <XCircle />, children: "Minimum guests cannot be more than maximum guests.", confirmButtonOnly: true, onConfirm: closeDialog });
       return;
     }
 
     setActionLoading(true);
     try {
       const res = await axios.post("https://anand-u.vercel.app/booking/availabilty", {
-        minp: Number(minp),
-        maxp: Number(maxp),
-        date,
-        serviceId: id,
+        minp: Number(form.minp), maxp: Number(form.maxp),
+        date: form.date, serviceId: id,
       });
 
       if (res.data.success) {
-        alert("✅ Service is available! Please confirm your details.");
-        setStep(2);
+        showDialog({
+          type: 'success', title: 'Service Available!', icon: <CheckCircle />,
+          children: 'Great news! The service is available for your selected date and guest count.',
+          confirmButtonOnly: true, confirmText: 'Next Step',
+          onConfirm: () => { setStep(2); closeDialog(); }
+        });
       } else {
-        alert(res.data.msg || "Sorry, the service is not available for the selected date or guest count.");
+        showDialog({ type: 'warning', title: 'Not Available', icon: <XCircle />, children: res.data.msg || "Sorry, this service is not available for the selected criteria.", confirmButtonOnly: true, onConfirm: closeDialog });
       }
     } catch (err) {
-      console.error(err);
-      alert("An error occurred while checking availability.");
+      showDialog({ type: 'error', title: 'Error', icon: <XCircle />, children: "An error occurred while checking availability.", confirmButtonOnly: true, onConfirm: closeDialog });
     } finally {
       setActionLoading(false);
     }
   };
 
   const handleConfirmBooking = async () => {
-    if (!venue.trim()) {
-      alert("Please enter the venue address.");
+    if (!form.venue.trim()) {
+      showDialog({ type: 'error', title: 'Missing Information', icon: <XCircle />, children: "Please enter the venue address to proceed.", confirmButtonOnly: true, onConfirm: closeDialog });
       return;
     }
 
     setActionLoading(true);
     try {
-      const res = await axios.post(
-        "https://anand-u.vercel.app/booking/book",
-        {
-          minp: Number(minp),
-          maxp: Number(maxp),
-          date,
-          venue,
-          specialRequests,
-          totalAmount: service?.priceInfo?.amount || 0,
-          serviceId: id,
-          provider: service?.providers?._id,
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const res = await axios.post("https://anand-u.vercel.app/booking/book", {
+        minp: Number(form.minp), maxp: Number(form.maxp),
+        date: form.date, venue: form.venue, specialRequests: form.specialRequests,
+        totalAmount: service?.priceInfo?.amount || 0,
+        serviceId: id, provider: service?.providers,
+      }, { headers: { Authorization: `Bearer ${token}` } });
 
       if (res.data.success) {
-        alert("🎉 Booking request sent! You will be notified upon provider's confirmation.");
-        navigate(`/service/${id}`);
+        showDialog({
+          type: 'success', title: 'Booking Request Sent!', icon: <CheckCircle />,
+          children: "Your request has been sent to the provider. You will be notified upon their confirmation.",
+          confirmButtonOnly: true, confirmText: 'Done',
+          onConfirm: () => navigate(`/service/${id}`)
+        });
       } else {
-        alert(res.data.msg || "Booking failed. Please try again.");
+        showDialog({ type: 'error', title: 'Booking Failed', icon: <XCircle />, children: res.data.msg || "Your booking could not be processed. Please try again.", confirmButtonOnly: true, onConfirm: closeDialog });
       }
     } catch (err) {
-      console.error(err);
-      alert("An error occurred during booking.");
+      showDialog({ type: 'error', title: 'Error', icon: <XCircle />, children: "An unexpected error occurred during booking.", confirmButtonOnly: true, onConfirm: closeDialog });
     } finally {
       setActionLoading(false);
     }
   };
 
-  if (pageLoading) {
-    return <BookingSkeleton />;
-  }
+  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+
+  if (pageLoading) return <BookingSkeleton />;
 
   if (!service) {
     return (
@@ -165,6 +154,7 @@ export default function BookServicePage() {
 
   return (
     <div className="bsp-book-page">
+      <Dialog {...dialogState} onClose={closeDialog} />
       <button className="bsp-back-btn" onClick={() => step === 1 ? navigate(-1) : setStep(1)}>
         <ArrowLeft size={18} /> {step === 1 ? 'Back' : 'Edit Details'}
       </button>
@@ -175,26 +165,19 @@ export default function BookServicePage() {
         <h2>{service.name}</h2>
         <p>{service.description}</p>
         <p className="bsp-price">
-          ₹{service.priceInfo?.amount || 'N/A'}{" "}
+          ₹{service.priceInfo?.amount?.toLocaleString() || 'N/A'}{" "}
           {service.priceInfo?.unit && `/ ${service.priceInfo.unit.replace('-', ' ')}`}
         </p>
-
-        {/* ✨ --- NEW DETAILS SECTION --- ✨ */}
         <div className="bsp-service-meta">
           <div className="bsp-meta-item">
             <Users size={16} className="bsp-meta-icon" />
-            <span>
-              Guests: {service.minPeople || 1} - {service.maxPeople || 'Any'}
-            </span>
+            <span>Guests: {service.minPeople || 1} - {service.maxPeople || 'Any'}</span>
           </div>
           <div className="bsp-meta-item">
             <CalendarClock size={16} className="bsp-meta-icon" />
-            <span>
-              {service.mindaysprior > 0 ? `${service.mindaysprior} days notice required` : 'No prior notice required'}
-            </span>
+            <span>{service.mindaysprior > 0 ? `${service.mindaysprior} days notice required` : 'No prior notice required'}</span>
           </div>
         </div>
-
       </div>
 
       <div className="bsp-card bsp-form-card">
@@ -202,18 +185,25 @@ export default function BookServicePage() {
           <>
             <h3>Step 1: Check Availability</h3>
             <div className="bsp-input-group">
-              <Calendar size={18} className="bsp-input-icon" />
-              {/* ✨ --- DATE INPUT IS NOW SMARTER --- ✨ */}
-              <input type="date" value={date} onChange={(e) => setDate(e.target.value)} min={minBookingDate} />
+              <label htmlFor="date">Event Date</label>
+              <div className="bsp-input-wrapper">
+                <Calendar size={18} className="bsp-input-icon" />
+                <input id="date" name="date" type="date" value={form.date} onChange={handleChange} min={minBookingDate} />
+              </div>
             </div>
+            <label>Number of Guests</label>
             <div className="bsp-guest-inputs">
               <div className="bsp-input-group">
-                <Users size={18} className="bsp-input-icon" />
-                <input type="number" placeholder="Min guests" value={minp} onChange={(e) => setMinp(e.target.value)} min="0" />
+                <div className="bsp-input-wrapper">
+                  <Users size={18} className="bsp-input-icon" />
+                  <input name="minp" type="number" placeholder="Min" value={form.minp} onChange={handleChange} min="1" />
+                </div>
               </div>
               <div className="bsp-input-group">
-                <Users size={18} className="bsp-input-icon" />
-                <input type="number" placeholder="Max guests" value={maxp} onChange={(e) => setMaxp(e.target.value)} min="0" />
+                <div className="bsp-input-wrapper">
+                  <Users size={18} className="bsp-input-icon" />
+                  <input name="maxp" type="number" placeholder="Max" value={form.maxp} onChange={handleChange} min={form.minp || "1"} />
+                </div>
               </div>
             </div>
             <button className="bsp-button" onClick={handleCheckAvailability} disabled={actionLoading}>
@@ -221,19 +211,24 @@ export default function BookServicePage() {
             </button>
           </>
         ) : (
-          // ... (Step 2 remains the same)
           <>
             <h3>Step 2: Confirm Booking Details</h3>
             <div className="bsp-input-group">
-              <Home size={18} className="bsp-input-icon" />
-              <input type="text" placeholder="Venue address" value={venue} onChange={(e) => setVenue(e.target.value)} />
+              <label htmlFor="venue">Venue / Address</label>
+              <div className="bsp-input-wrapper">
+                <Home size={18} className="bsp-input-icon" />
+                <input id="venue" name="venue" type="text" placeholder="e.g., Grand Hotel, City Center" value={form.venue} onChange={handleChange} />
+              </div>
             </div>
             <div className="bsp-input-group">
-              <Edit3 size={18} className="bsp-input-icon" />
-              <textarea placeholder="Special requests (optional)" value={specialRequests} onChange={(e) => setSpecialRequests(e.target.value)} />
+              <label htmlFor="specialRequests">Special Requests (Optional)</label>
+              <div className="bsp-input-wrapper">
+                <Edit3 size={18} className="bsp-input-icon" />
+                <textarea id="specialRequests" name="specialRequests" placeholder="e.g., vegetarian options, specific song list" value={form.specialRequests} onChange={handleChange} />
+              </div>
             </div>
             <button className="bsp-button" onClick={handleConfirmBooking} disabled={actionLoading}>
-              {actionLoading ? "Booking..." : "Confirm Booking"}
+              {actionLoading ? "Sending Request..." : "Confirm Booking"}
             </button>
           </>
         )}

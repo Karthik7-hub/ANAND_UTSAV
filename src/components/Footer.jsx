@@ -21,10 +21,9 @@ const Footer = () => {
                 {/* ALL OUR APPS */}
                 <ul className="footer-column">
                     <li className="title">ALL OUR APPS</li>
-                    <li>BillBites</li>
-                    <li>DEMO</li>
-                    <li>DEMO</li>
-                    <li>DEMO</li>
+                    <li>Anand Utsav Corporate</li>
+                    <li>Careers</li>
+                    <li>Team</li>
                 </ul>
 
                 {/* LEARN MORE */}
@@ -48,7 +47,7 @@ const Footer = () => {
             {/* Footer bottom text */}
             <div className="footer-bottom">
                 By continuing past this page, you agree to our Terms of Service, Cookie Policy, Privacy Policy and Content Policies.
-                All trademarks are properties of their respective owners. 2008-2025 © Zomato™ Ltd. All rights reserved.
+                All trademarks are properties of their respective owners. 2008-2025 © Anand Utsav™ Ltd. All rights reserved.
             </div>
         </footer>
     );

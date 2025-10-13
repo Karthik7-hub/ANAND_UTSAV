@@ -8,13 +8,11 @@
     --festive-primary-hover: #fb923c;
     --festive-error: #ef4444;
     --festive-success: #22c55e;
-
     --festive-radius: 16px;
     --festive-transition: 0.35s ease;
     --festive-shadow-lg: 0 14px 36px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
 }
 
-/* Dark Theme Variables */
 html[data-theme="dark"] {
     --festive-bg: #111827;
     --festive-card-bg: rgba(31, 41, 55);
@@ -25,7 +23,6 @@ html[data-theme="dark"] {
     --festive-primary-focus: rgba(249, 115, 22, 0.2);
 }
 
-/* Light Theme Variables */
 html[data-theme="light"] {
     --festive-bg: #f3f4f6;
     --festive-card-bg: rgba(255, 255, 255);
@@ -53,7 +50,6 @@ html[data-theme="light"] {
     transition: background-color 0.5s ease;
 }
 
-/* ✨ --- DYNAMIC BACKGROUND ANIMATION --- ✨ */
 .auth-page-wrapper::before {
     content: '';
     position: absolute;
@@ -88,8 +84,6 @@ html[data-theme="light"] {
     z-index: 1;
     transition: all var(--festive-transition);
     animation: auth-container-pop-in 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-
-    /* --- High-Fidelity Frosted Glass & Shadow Border --- */
     background: var(--festive-card-bg);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
@@ -178,20 +172,59 @@ html[data-theme="light"] {
 }
 
 .form-content {
+    position: relative;
+    transition: height 0.4s ease;
+}
+
+.form-content.dropdown-active {
+    overflow: visible;
+}
+
+.form-fader {
+    display: grid;
+    grid-template-areas: "form-stack";
+    min-height: 250px;
+}
+
+.form-fader>.auth-form {
+    grid-area: "form-stack";
+    opacity: 0;
+    transition: opacity 0.4s ease-in-out, visibility 0.4s;
+    visibility: hidden;
+    height: 0;
     overflow: hidden;
-    width: 100%;
 }
 
-.form-step-container {
-    display: flex;
-    width: 200%;
-    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+.form-fader>.auth-form.active {
+    opacity: 1;
+    visibility: visible;
+    height: auto;
+    overflow: visible;
 }
 
-.form-step {
-    width: 50%;
-    flex-shrink: 0;
-    padding: 0 0.15rem;
+.form-section {
+    position: relative;
+    display: grid;
+    grid-template-areas: "section-stack";
+    min-height: 200px;
+    /* Give it a base height */
+    transition: height 0.3s ease;
+}
+
+.form-step-content {
+    grid-area: "section-stack";
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease-in-out, visibility 0.3s;
+    height: 0;
+    overflow: hidden;
+}
+
+.form-step-content.active {
+    opacity: 1;
+    visibility: visible;
+    height: auto;
+    overflow: visible;
 }
 
 .auth-form h2 {
@@ -208,6 +241,10 @@ html[data-theme="light"] {
 .input-group {
     margin-bottom: 1.25rem;
     position: relative;
+}
+
+.input-group.dropdown-open {
+    z-index: 50;
 }
 
 .input-group label {
@@ -252,6 +289,10 @@ html[data-theme="light"] {
     color: var(--festive-primary);
 }
 
+.input-field input {
+    padding-right: 3rem;
+}
+
 .otp-info {
     text-align: center;
     color: var(--festive-text-muted);
@@ -263,7 +304,6 @@ html[data-theme="light"] {
     color: var(--festive-primary);
 }
 
-/* --- Redesigned & Animated Dropdown --- */
 .custom-select-container {
     position: relative;
 }
@@ -311,9 +351,8 @@ html[data-theme="light"] {
     overflow: hidden;
     transform-origin: top;
     animation: scale-in-fade-in 0.2s ease-out;
-
-    /* Frosted Glass for Dropdown */
     background: var(--festive-card-bg);
+    backdrop-filter: blur(10px);
     border: 1px solid var(--festive-card-border);
 }
 
@@ -373,6 +412,23 @@ html[data-theme="light"] {
     color: #fff;
 }
 
+.password-toggle-btn {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: 0.8rem 1rem;
+    cursor: pointer;
+    color: var(--festive-text-muted);
+    transition: color var(--festive-transition);
+}
+
+.password-toggle-btn:hover {
+    color: var(--festive-primary);
+}
+
 .switcher-section {
     text-align: center;
     margin-top: 2rem;
@@ -395,6 +451,10 @@ html[data-theme="light"] {
 .switcher-link:hover {
     color: var(--festive-primary-hover);
     text-decoration: underline;
+}
+
+.standalone-back-btn {
+    margin-top: 1rem;
 }
 
 /* ============================================= */
@@ -479,7 +539,6 @@ html[data-theme="light"] .moon-icon {
     }
 }
 
-/* Staggered input animation */
 .auth-form .input-group {
     animation: input-fade-in 0.5s ease-out both;
 }
@@ -528,24 +587,4 @@ html[data-theme="light"] .moon-icon {
     .auth-form h2 {
         font-size: 1.5rem;
     }
-}
-
-.input-group {
-    margin-bottom: 1.25rem;
-    position: relative;
-}
-
-.input-group.dropdown-open {
-    z-index: 50;
-}
-
-.form-content {
-    overflow: hidden;
-    width: 100%;
-    position: relative;
-}
-
-.form-content.dropdown-active,
-.form-content.dropdown-active .form-step {
-    overflow: visible;
 }

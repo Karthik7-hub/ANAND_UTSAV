@@ -1,11 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import '../css/Dialog.css'; // The stylesheet with BEM class names
+import '../css/Dialog.css';
 
-/**
- * A flexible, portal-based dialog component.
- * Its visibility is controlled by the `isOpen` prop from the parent.
- */
 function Dialog({
     isOpen,
     onClose,
@@ -20,34 +16,45 @@ function Dialog({
     confirmationLabel,
     confirmationText,
 }) {
-    // State to manage the text inside the confirmation input field
     const [inputValue, setInputValue] = useState('');
 
-    // This effect resets the input field every time the dialog is opened.
-    // This prevents old text from appearing when the user reopens it.
     useEffect(() => {
         if (isOpen) {
             setInputValue('');
         }
     }, [isOpen]);
 
-    // If the dialog is not supposed to be open, render nothing.
     if (!isOpen) {
         return null;
     }
 
-    // Determine if the confirmation button should be disabled
-    const isConfirmDisabled = confirmationText ? inputValue !== confirmationText : false;
-    const confirmButtonModifier = type === 'success' ? 'success' : 'danger';
+    // ✅ FIX: This function conditionally calls onClose only for the 'info' type.
+    const handleOverlayClick = () => {
+        if (type === 'info') {
+            onClose();
+        }
+        // For 'success', 'error', 'warning', etc., this does nothing.
+    };
 
-    // The JSX for the entire dialog, which will be "teleported" by the Portal
+    const isConfirmDisabled = confirmationText ? inputValue !== confirmationText : false;
+    const confirmButtonModifier = (type === 'error' || type === 'warning') ? 'danger' : 'success';
+
     const dialogJsx = (
-        <div className="dialog-overlay dialog-overlay--visible" onClick={onClose}>
+        <div
+            className="dialog-overlay dialog-overlay--visible"
+            // ✅ FIX: The overlay now uses our new conditional handler.
+            onClick={handleOverlayClick}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="dialog-title"
+        >
             <div onClick={(e) => e.stopPropagation()} className={`dialog-card dialog-card--${type}`}>
                 {icon && <div className="dialog-card__icon">{icon}</div>}
+
                 <div className="dialog-card__content">
-                    <h3 className="dialog-card__title">{title}</h3>
+                    <h3 id="dialog-title" className="dialog-card__title">{title}</h3>
                     <p className="dialog-card__message">{children}</p>
+
                     {confirmationText && (
                         <div className="dialog-card__confirmation">
                             <label htmlFor="confirmation-input">{confirmationLabel}</label>
@@ -57,12 +64,12 @@ function Dialog({
                                 value={inputValue}
                                 onChange={(e) => setInputValue(e.target.value)}
                                 autoComplete="off"
-                                // Automatically focus the input when the dialog opens
                                 autoFocus
                             />
                         </div>
                     )}
                 </div>
+
                 <div className="dialog-card__actions">
                     {!confirmButtonOnly && (
                         <button className="dialog-card__btn dialog-card__btn--secondary" onClick={onClose}>
@@ -81,7 +88,12 @@ function Dialog({
         </div>
     );
 
-    // Use the Portal to teleport the JSX to the 'dialog-root' div in your main HTML file
+    if (!document.getElementById('dialog-root')) {
+        const portalRoot = document.createElement('div');
+        portalRoot.id = 'dialog-root';
+        document.body.appendChild(portalRoot);
+    }
+
     return createPortal(dialogJsx, document.getElementById('dialog-root'));
 }
 

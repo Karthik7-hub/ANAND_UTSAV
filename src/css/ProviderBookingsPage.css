@@ -1,0 +1,215 @@
+/* ============================================= */
+/* 1. BOOKINGS PAGE WRAPPER & TABS               */
+/* ============================================= */
+.bookings-page-wrapper .view-content {
+    padding-top: 0;
+}
+
+.bookings-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+    padding: 0.5rem;
+    background-color: var(--pro-dsh-bg-hover);
+    border-radius: var(--pro-dsh-radius-lg);
+    border: 1px solid var(--pro-dsh-border-color);
+}
+
+.booking-tab-btn {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: var(--pro-dsh-radius-md);
+    border: none;
+    cursor: pointer;
+    background-color: transparent;
+    color: var(--pro-dsh-text-secondary);
+    transition: all var(--pro-dsh-transition-speed) ease;
+}
+
+.booking-tab-btn:hover:not(.active) {
+    background-color: var(--pro-dsh-bg-content-card);
+    color: var(--pro-dsh-text-primary);
+}
+
+.booking-tab-btn.active {
+    background-color: var(--pro-dsh-primary-color);
+    color: var(--pro-dsh-text-on-primary);
+    box-shadow: 0 4px 15px -2px var(--pro-dsh-primary-color-translucent);
+}
+
+/* ============================================= */
+/* 2. BOOKINGS GRID & CARD STYLING               */
+/* ============================================= */
+.bookings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+}
+
+.booking-card {
+    background-color: var(--pro-dsh-bg-content-card);
+    border: 1px solid var(--pro-dsh-border-color);
+    border-radius: var(--pro-dsh-radius-lg);
+    display: flex;
+    flex-direction: column;
+    transition: all var(--pro-dsh-transition-speed) ease;
+    box-shadow: var(--pro-dsh-shadow-sm);
+}
+
+.booking-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--pro-dsh-shadow-md);
+}
+
+.booking-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem;
+    border-bottom: 1px solid var(--pro-dsh-border-color);
+}
+
+.booking-card-header h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--pro-dsh-text-primary);
+}
+
+.booking-card-body {
+    padding: 1.25rem;
+    display: grid;
+    gap: 1rem;
+    flex-grow: 1;
+}
+
+.info-row {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    gap: 1rem;
+    font-size: 0.9rem;
+}
+
+.info-label {
+    font-weight: 500;
+    color: var(--pro-dsh-text-secondary);
+}
+
+.info-value {
+    font-weight: 500;
+    color: var(--pro-dsh-text-primary);
+}
+
+.info-value.venue {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.info-value.price {
+    font-weight: 700;
+    color: var(--pro-dsh-primary-color);
+}
+
+.booking-card-footer {
+    display: flex;
+    gap: 1rem;
+    padding: 0 1.25rem 1.25rem;
+    margin-top: auto;
+}
+
+.booking-card-footer .action-button {
+    flex: 1;
+    font-size: 0.9rem;
+    padding: 0.6rem;
+}
+
+.action-button.accept {
+    background-color: #22c55e;
+    color: white;
+}
+
+.action-button.accept:hover {
+    background-color: #16a34a;
+}
+
+.action-button.reject {
+    background-color: #ef4444;
+    color: white;
+}
+
+.action-button.reject:hover {
+    background-color: #dc2626;
+}
+
+
+/* ============================================= */
+/* 3. STATUS BADGES                              */
+/* ============================================= */
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.status-pending {
+    background-color: rgba(234, 179, 8, 0.1);
+    color: #ca8a04;
+}
+
+.provider-dashboard-theme-wrapper[data-theme='dark'] .status-pending {
+    background-color: rgba(234, 179, 8, 0.2);
+    color: #facc15;
+}
+
+.status-accepted,
+.status-upcoming {
+    background-color: rgba(34, 197, 94, 0.1);
+    color: #16a34a;
+}
+
+.provider-dashboard-theme-wrapper[data-theme='dark'] .status-accepted,
+.provider-dashboard-theme-wrapper[data-theme='dark'] .status-upcoming {
+    background-color: rgba(74, 222, 128, 0.2);
+    color: #4ade80;
+}
+
+.status-completed {
+    background-color: rgba(59, 130, 246, 0.1);
+    color: #2563eb;
+}
+
+.provider-dashboard-theme-wrapper[data-theme='dark'] .status-completed {
+    background-color: rgba(96, 165, 250, 0.2);
+    color: #60a5fa;
+}
+
+.status-rejected,
+.status-cancelled {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: #b91c1c;
+}
+
+.provider-dashboard-theme-wrapper[data-theme='dark'] .status-rejected,
+.provider-dashboard-theme-wrapper[data-theme='dark'] .status-cancelled {
+    background-color: rgba(248, 113, 113, 0.2);
+    color: #f87171;
+}
+
+
+/* ============================================= */
+/* 4. RESPONSIVE STYLES                          */
+/* ============================================= */
+@media (max-width: 768px) {
+    .bookings-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .bookings-tabs {
+        flex-direction: column;
+    }
+}

@@ -2,7 +2,6 @@ import './css/App.css';
 import HomePage from './pages/HomePage.jsx';
 import FestiveAuth from './pages/FestiveAuth';
 import ProviderAuth from './pages/ProviderAuth';
-import AllCategoriesPage from './pages/AllCategoriesPage';
 import CategoryServicesPage from './pages/CategoryServicesPage';
 import AllServicesPage from './pages/AllServicesPage';
 import ServiceDetailsPage from './pages/ServiceDetailsPage';
@@ -51,10 +50,9 @@ function App() {
               <Route element={<MainLayout />}>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/my-account" element={<MyAccountPage />} />
-                <Route path="/categories" element={<AllCategoriesPage />} />
                 <Route path="/category/:slug" element={<CategoryServicesPage />} />
                 <Route path="/service/:id" element={<ServiceDetailsPage />} />
-                
+
                 <Route path="/my-reviews" element={<MyReviewsPage />} />
                 <Route path="/services" element={<AllServicesPage />} />
                 <Route path="/favourites" element={<Favourites />} />

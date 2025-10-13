@@ -24,7 +24,7 @@ export default function AnandUtsavNavbar() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isSearchOpen, setIsSearchOpen] = useState(false);
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-    
+
 
     const { theme, toggleTheme } = useTheme();
     const { user, logout, favourites } = useUser();
@@ -75,7 +75,6 @@ export default function AnandUtsavNavbar() {
 
                     {/* Center (Desktop) */}
                     <nav className="navbar-center">
-                        <NavLink to="/categories" className="nav-link">Categories</NavLink>
                         <NavLink to="/services" className="nav-link">Services</NavLink>
                         <NavLink to="/about" className="nav-link">About Us</NavLink>
                     </nav>
@@ -114,8 +113,8 @@ export default function AnandUtsavNavbar() {
                         </Link>
 
                         <Link to="/my-bookings" className="icon-button desktop-icon">
-  <CalendarCheck />
-</Link>
+                            <CalendarCheck />
+                        </Link>
 
 
                         {/* User Menu */}
@@ -164,7 +163,6 @@ export default function AnandUtsavNavbar() {
                 </div>
                 <nav className="mobile-nav-links">
                     <NavLink to="/" onClick={toggleMobileMenu}>Home</NavLink>
-                    <NavLink to="/categories" onClick={toggleMobileMenu}>Categories</NavLink>
                     <NavLink to="/services" onClick={toggleMobileMenu}>Services</NavLink>
                     <NavLink to="/about" onClick={toggleMobileMenu}>About Us</NavLink>
                     <hr className="nav-divider" />

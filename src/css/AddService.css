@@ -8,7 +8,6 @@
 :root {
     --font-sans: 'Poppins', sans-serif;
 
-    /* ✨ --- RENAMED these variables to avoid global conflict --- ✨ */
     --asf-primary-color: #FF9933;
     --asf-primary-color-translucent: rgba(255, 153, 51, 0.4);
 
@@ -69,7 +68,7 @@
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.asf-add-service-page .asf-service-form-card {
+.asf-service-form-card {
     max-width: 800px;
     margin: 0 auto;
     padding: 2.5rem;
@@ -79,37 +78,41 @@
     backdrop-filter: blur(15px);
     box-shadow: var(--asf-card-shadow);
     transition: background-color 0.3s ease, border 0.3s ease;
+    position: relative;
+    /* Crucial for positioning the back arrow */
 }
 
-.asf-add-service-page .asf-form-title {
+.asf-form-title {
     font-size: 2.25rem;
     font-weight: 700;
     margin-bottom: 2rem;
     text-align: center;
     color: var(--asf-text-primary);
+    padding: 0 2.5rem;
+    /* Adds space on the sides to avoid overlap with back button */
 }
 
-.asf-add-service-page .asf-service-form {
+.asf-service-form {
     display: grid;
     grid-template-columns: 1fr;
     gap: 1.5rem;
 }
 
-.asf-add-service-page .asf-form-group {
+.asf-form-group {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
 }
 
-.asf-add-service-page .asf-form-group label {
+.asf-form-group label {
     font-weight: 500;
     font-size: 0.9rem;
     color: var(--asf-text-secondary);
 }
 
-.asf-add-service-page .asf-form-input,
-.asf-add-service-page .asf-form-select,
-.asf-add-service-page .asf-form-textarea {
+.asf-form-input,
+.asf-form-select,
+.asf-form-textarea {
     width: 100%;
     background: var(--asf-input-bg);
     border: 1px solid var(--asf-input-border);
@@ -121,36 +124,61 @@
     transition: all 0.3s ease;
 }
 
-.asf-add-service-page .asf-form-input::placeholder,
-.asf-add-service-page .asf-form-textarea::placeholder {
+.asf-form-input::placeholder,
+.asf-form-textarea::placeholder {
     color: var(--asf-text-secondary);
 }
 
-.asf-add-service-page .asf-form-input:focus,
-.asf-add-service-page .asf-form-select:focus,
-.asf-add-service-page .asf-form-textarea:focus {
+.asf-form-input:focus,
+.asf-form-select:focus,
+.asf-form-textarea:focus {
     outline: none;
     border-color: var(--asf-primary-color);
     box-shadow: 0 0 10px var(--asf-primary-color-translucent);
 }
 
-.asf-add-service-page .asf-form-textarea {
+.asf-form-textarea {
     resize: vertical;
     min-height: 120px;
 }
 
-.asf-add-service-page .asf-form-select option {
+.asf-form-select option {
     background: var(--asf-dropdown-option-bg);
     color: var(--asf-text-primary);
 }
 
-.asf-add-service-page .asf-image-input-group {
+.asf-image-input-group {
     display: flex;
     align-items: center;
     gap: 0.5rem;
 }
 
-.asf-add-service-page .asf-remove-image-btn {
+/* ============================================= */
+/* 3. BUTTONS (BACK, REMOVE, ADD, SUBMIT)        */
+/* ============================================= */
+
+.asf-back-icon-btn {
+    position: absolute;
+    top: 1.5rem;
+    left: 1.5rem;
+    background: transparent;
+    border: none;
+    padding: 0.5rem;
+    border-radius: 50%;
+    cursor: pointer;
+    color: var(--asf-text-secondary);
+    transition: background-color 0.2s, color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.asf-back-icon-btn:hover {
+    background-color: var(--asf-input-bg);
+    color: var(--asf-text-primary);
+}
+
+.asf-remove-image-btn {
     background: transparent;
     border: none;
     color: var(--asf-remove-btn-color);
@@ -163,11 +191,11 @@
     transition: background-color 0.2s ease;
 }
 
-.asf-add-service-page .asf-remove-image-btn:hover {
+.asf-remove-image-btn:hover {
     background: var(--asf-remove-btn-hover-bg);
 }
 
-.asf-add-service-page .asf-add-image-btn {
+.asf-add-image-btn {
     align-self: flex-start;
     display: inline-flex;
     align-items: center;
@@ -181,12 +209,12 @@
     transition: all 0.3s ease;
 }
 
-.asf-add-service-page .asf-add-image-btn:hover {
+.asf-add-image-btn:hover {
     border-color: var(--asf-primary-color);
     color: var(--asf-primary-color);
 }
 
-.asf-add-service-page .asf-submit-btn {
+.asf-submit-btn {
     grid-column: 1 / -1;
     justify-self: center;
     background-color: var(--asf-primary-color);
@@ -202,31 +230,31 @@
     margin-top: 1rem;
 }
 
-.asf-add-service-page .asf-submit-btn:hover:not(:disabled) {
+.asf-submit-btn:hover:not(:disabled) {
     transform: translateY(-3px);
     box-shadow: 0 4px 15px var(--asf-primary-color-translucent);
 }
 
-.asf-add-service-page .asf-submit-btn:disabled {
+.asf-submit-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
 
 /* ============================================= */
-/* 3. RESPONSIVE & MOBILE-FRIENDLY STYLES        */
+/* 4. RESPONSIVE & MOBILE-FRIENDLY STYLES        */
 /* ============================================= */
 
 @media (min-width: 768px) {
-    .asf-add-service-page .asf-service-form {
+    .asf-service-form {
         grid-template-columns: 1fr 1fr;
         gap: 1.5rem 2rem;
     }
 
-    .asf-add-service-page .asf-form-group.full-width {
+    .asf-form-group.full-width {
         grid-column: 1 / -1;
     }
 
-    .asf-add-service-page .asf-form-select {
+    .asf-form-select {
         appearance: none;
         background-image: var(--asf-dropdown-arrow-svg);
         background-repeat: no-repeat;
@@ -236,13 +264,27 @@
 }
 
 @media (max-width: 767px) {
-    .asf-add-service-page .asf-form-group>div[style] {
+    .asf-form-group>div[style] {
         flex-direction: column;
+        /* Stack combined inputs like Price and Min/Max People */
     }
 }
 
 @media (max-width: 600px) {
-    .asf-add-service-page .asf-submit-btn {
+    .asf-submit-btn {
         width: 100%;
+    }
+
+    .asf-form-title {
+        font-size: 1.75rem;
+    }
+
+    .asf-service-form-card {
+        padding: 2.5rem 1.5rem;
+    }
+
+    .asf-back-icon-btn {
+        top: 1rem;
+        left: 1rem;
     }
 }

@@ -1,46 +1,61 @@
-/*
-========================================
---- DIALOG COMPONENT (BEM Naming) ---
-========================================
-*/
+/* ============================================= */
+/* 1. DIALOG - THEME & COLOR VARIABLES           */
+/* ============================================= */
+/* These variables are based on your global index.css theme for consistency. */
 
-/* --- Trigger Button Style --- */
-/* This style is for the button that opens the dialog */
-.delete-account-trigger {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.8rem 1.25rem;
-    border-radius: 8px;
-    background-color: transparent;
-    border: 1px solid var(--border-color);
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 0.9rem;
-    font-family: var(--font-body);
-    color: var(--text-color-light);
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
+:root {
+    --font-body: 'Poppins', sans-serif;
+    --font-heading: 'Poppins', sans-serif;
+
+    /* Base Colors */
+    --text-color: #333333;
+    --text-color-light: #555555;
+    --border-color: #dee2e6;
+    --input-bg-color: #e9edf0;
+    --unread-badge-text: #ffffff;
+    --shadow-heavy: 0 10px 30px rgba(0, 0, 0, 0.1);
+
+    /* Glassmorphism Card (Light Theme) */
+    --card-bg-glass: rgba(255, 255, 255, 0.6);
+    --card-border-glass: rgba(255, 255, 255, 0.9);
+
+    /* Action Colors from your theme */
+    --primary-color: #FF671F;
+    --primary-color-dark: #E6550D;
+    --primary-color-light: rgba(255, 103, 31, 0.1);
+    --success-color: #28a745;
+    --success-color-dark: #218838;
 }
 
-.delete-account-trigger:hover {
-    background-color: var(--primary-color-light);
-    color: var(--primary-color);
-    border-color: var(--primary-color);
+[data-theme="dark"] {
+    --text-color: #f8f9fa;
+    --text-color-light: #a0a0a0;
+    --border-color: #343a40;
+    --input-bg-color: #2a2a2a;
+    --unread-badge-text: #1e1e1e;
+    --shadow-heavy: 0 10px 30px rgba(0, 0, 0, 0.3);
+
+    /* Glassmorphism Card (Dark Theme) */
+    --card-bg-glass: rgba(30, 30, 30, 0.5);
+    --card-border-glass: rgba(255, 255, 255, 0.1);
+
+    /* Action Colors from your theme */
+    --primary-color: #FF8A50;
+    --primary-color-dark: #FF671F;
+    --primary-color-light: rgba(255, 138, 80, 0.1);
 }
 
-.delete-account-trigger svg {
-    width: 20px;
-    height: 20px;
-    stroke-width: 2px;
-}
 
-
-/* --- Block: dialog-overlay --- */
+/* ============================================= */
+/* 2. DIALOG - OVERLAY & ANIMATION               */
+/* ============================================= */
 .dialog-overlay {
     position: fixed;
     inset: 0;
-    z-index: 50;
+
+    /* ✨ --- Z-INDEX FIX: Ensures dialog is always on top --- ✨ */
+    z-index: 1000;
+
     display: grid;
     place-items: center;
     padding: 1rem;
@@ -52,7 +67,6 @@
     transition: opacity 0.2s ease, visibility 0.2s ease;
 }
 
-/* Modifier for visibility */
 .dialog-overlay--visible {
     opacity: 1;
     visibility: visible;
@@ -75,7 +89,9 @@
 }
 
 
-/* --- Block: dialog-card --- */
+/* ============================================= */
+/* 3. DIALOG - CARD & CONTENT                    */
+/* ============================================= */
 .dialog-card {
     background-color: var(--card-bg-glass);
     border: 1px solid var(--card-border-glass);
@@ -92,7 +108,6 @@
     -webkit-backdrop-filter: blur(16px);
 }
 
-/* Elements of dialog-card */
 .dialog-card__icon {
     width: 48px;
     height: 48px;
@@ -114,6 +129,42 @@
     color: var(--text-color-light);
 }
 
+.dialog-card__confirmation {
+    width: 100%;
+    margin-top: 1.5rem;
+    text-align: left;
+}
+
+.dialog-card__confirmation label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: var(--text-color-light);
+}
+
+.dialog-card__confirmation input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: var(--font-body);
+    background-color: var(--input-bg-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.dialog-card__confirmation input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px var(--primary-color-light);
+}
+
+
+/* ============================================= */
+/* 4. DIALOG - ACTIONS & BUTTONS                 */
+/* ============================================= */
 .dialog-card__actions {
     display: flex;
     gap: 0.75rem;
@@ -130,10 +181,15 @@
     font-weight: 600;
     font-family: var(--font-body);
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    transition: all 0.2s ease;
 }
 
-/* Modifiers for dialog-card */
+.dialog-card__btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* --- Modifiers for Icon Color --- */
 .dialog-card--warning .dialog-card__icon,
 .dialog-card--error .dialog-card__icon {
     color: var(--primary-color);
@@ -143,7 +199,7 @@
     color: var(--success-color);
 }
 
-/* Modifiers for dialog-card__btn */
+/* --- Modifiers for Button Styles --- */
 .dialog-card__btn--danger {
     background-color: var(--primary-color);
     color: var(--unread-badge-text);
@@ -173,46 +229,4 @@
 
 [data-theme="dark"] .dialog-card__btn--secondary:hover {
     filter: brightness(1.1);
-}
-
-/* Add these styles to your existing Dialog.css file */
-
-.dialog-card__confirmation {
-    width: 100%;
-    margin-top: 1.5rem;
-    text-align: left;
-}
-
-.dialog-card__confirmation label {
-    display: block;
-    font-size: 0.9rem;
-    font-weight: 500;
-    margin-bottom: 0.5rem;
-    color: var(--text-color-light);
-}
-
-.dialog-card__confirmation input {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-family: var(--font-body);
-
-    /* Theming using your global variables from index.css */
-    background-color: var(--input-bg-color);
-    border: 1px solid var(--border-color);
-    color: var(--text-color);
-    transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.dialog-card__confirmation input:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px var(--primary-color-light);
-}
-
-/* Style for the disabled button state */
-.dialog-card__btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
 }
