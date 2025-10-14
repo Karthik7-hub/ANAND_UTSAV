@@ -1,8 +1,9 @@
+
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import Dialog from '../components/Dialog'; // ✅ Import your dialog component
 import { User } from 'lucide-react';
+import { useTheme } from './ThemeContext'; // ✅ Import the hook to use the dialog
 
 const UserContext = createContext(null);
 
@@ -15,40 +16,7 @@ export const UserProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
-    const [dialogOptions, setDialogOptions] = useState(null);
-
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
-    // ✅ Generic showDialog method (supports your custom props)
-    const showDialog = ({
-        title = 'Dialog',
-        message = '',
-        type = 'warning',
-        icon,
-        confirmText = 'Confirm',
-        cancelText = 'Cancel',
-        onConfirm,
-        onCancel,
-        confirmButtonOnly = false,
-    }) => {
-        setDialogOptions({
-            title,
-            message,
-            type,
-            icon,
-            confirmText,
-            cancelText,
-            onConfirm,
-            onCancel,
-            confirmButtonOnly,
-        });
-        setIsDialogOpen(true);
-    };
-
-    const closeDialog = () => {
-        setIsDialogOpen(false);
-    };
-
-
+    const { showDialog } = useTheme();
     // --- Restore session on page load
     useEffect(() => {
         const restoreSession = async () => {
@@ -141,7 +109,6 @@ export const UserProvider = ({ children }) => {
                 cancelText: 'Cancel',
                 confirmButtonOnly: false, // ✅ shows both buttons
                 onConfirm: () => {
-                    closeDialog();
                     navigate('/login'); // ✅ Redirect to login
                 },
             });
@@ -195,23 +162,6 @@ export const UserProvider = ({ children }) => {
     return (
         <UserContext.Provider value={value}>
             {children}
-
-            {isDialogOpen && dialogOptions && (
-                <Dialog
-                    isOpen={isDialogOpen}
-                    onClose={closeDialog}
-                    onConfirm={dialogOptions.onConfirm}
-                    onCancel={dialogOptions.onCancel}
-                    type={dialogOptions.type}
-                    icon={dialogOptions.icon}
-                    title={dialogOptions.title}
-                    confirmText={dialogOptions.confirmText}
-                    cancelText={dialogOptions.cancelText}
-                    confirmButtonOnly={dialogOptions.confirmButtonOnly}
-                >
-                    {dialogOptions.message}
-                </Dialog>
-            )}
         </UserContext.Provider>
     );
 };

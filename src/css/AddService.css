@@ -241,6 +241,148 @@
 }
 
 /* ============================================= */
+/* 5. FILE UPLOAD & IMAGE PREVIEW STYLES (REVISED) */
+/* ============================================= */
+
+.asf-form-input-hidden {
+    display: none;
+}
+
+/* ✅ FIX: New wrapper for the preview and placeholder */
+.asf-image-preview-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 150px;
+    border: var(--asf-add-btn-border);
+    border-radius: 8px;
+    background-color: var(--asf-input-bg);
+    overflow: hidden;
+    padding: 0.5rem;
+    /* Adds some inner padding */
+}
+
+/* The clickable placeholder for when no image is selected */
+.asf-image-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--asf-text-secondary);
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+}
+
+.asf-image-placeholder:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme='dark'] .asf-image-placeholder:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* The image preview style */
+.asf-image-preview {
+    max-width: 100%;
+    max-height: 100%;
+    /* ✅ FIX: Changed from 'cover' to 'contain' */
+    object-fit: contain;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.asf-image-preview:hover {
+    transform: scale(1.05);
+}
+
+.asf-image-input-group {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+/* ✅ FIX: Re-styled remove button for better visibility on a separate element */
+.asf-remove-image-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background-color: var(--asf-remove-btn-color) !important;
+    color: var(--asf-text-on-primary-btn) !important;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    opacity: 0.85;
+    transition: opacity 0.2s;
+}
+
+.asf-remove-image-btn:hover {
+    opacity: 1;
+}
+
+.asf-image-viewer-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    padding: 1rem;
+    backdrop-filter: blur(5px);
+}
+
+.asf-image-viewer-content {
+    position: relative;
+    max-width: 90vw;
+    max-height: 90vh;
+}
+
+.asf-image-viewer-img {
+    display: block;
+    max-width: 100%;
+    max-height: 90vh;
+    border-radius: 8px;
+    /* Matches form input radius */
+    box-shadow: var(--asf-card-shadow);
+    /* Uses your themed shadow */
+}
+
+.asf-close-viewer-btn {
+    position: absolute;
+    top: -15px;
+    right: -15px;
+    background-color: var(--asf-card-bg);
+    /* Uses your themed card background */
+    color: var(--asf-text-primary);
+    /* Uses your themed text color */
+    border: 1px solid var(--asf-card-border);
+    /* Uses your themed border */
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: var(--asf-card-shadow);
+    transition: transform 0.2s ease;
+}
+
+.asf-close-viewer-btn:hover {
+    transform: scale(1.1);
+}
+
+/* ============================================= */
 /* 4. RESPONSIVE & MOBILE-FRIENDLY STYLES        */
 /* ============================================= */
 

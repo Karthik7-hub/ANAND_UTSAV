@@ -28,6 +28,17 @@ function Dialog({
         return null;
     }
 
+    const handleConfirmClick = async () => {
+        // If an onConfirm function was provided, execute it.
+        // We use `await` to handle asynchronous actions (like API calls).
+        if (onConfirm) {
+            await onConfirm();
+        }
+
+        // After the confirmation logic is done, always close the dialog.
+        onClose();
+    };
+
     // ✅ FIX: This function conditionally calls onClose only for the 'info' type.
     const handleOverlayClick = () => {
         if (type === 'info') {
@@ -78,7 +89,7 @@ function Dialog({
                     )}
                     <button
                         className={`dialog-card__btn dialog-card__btn--${confirmButtonModifier}`}
-                        onClick={onConfirm}
+                        onClick={handleConfirmClick}
                         disabled={isConfirmDisabled}
                     >
                         {confirmText}

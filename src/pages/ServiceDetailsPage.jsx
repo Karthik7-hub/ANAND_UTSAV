@@ -1,21 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import '../css/ServiceDetailsPage.css';
-import { CalendarCheck, MessageSquare, ChevronLeft, ChevronRight } from 'lucide-react';
-import { allCategories } from '../data/categoriesData';
+import { CalendarCheck, MessageSquare, ChevronLeft, ChevronRight, User as UserIcon, MapPin, Briefcase } from 'lucide-react';
 import axios from 'axios';
 import { useUser } from '../context/UserContext';
-// ✨ Import the separated skeleton component
+import { useTheme } from '../context/ThemeContext';
 import ServiceDetailsSkeleton from '../components/ServiceDetailsSkeleton';
 
+// --- Reusable Components within this file ---
 
-// --- ✨ NEW ADAPTIVE Image Carousel Component ---
 const ImageCarousel = ({ images, serviceName }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [touchStart, setTouchStart] = useState(null);
   const [touchEnd, setTouchEnd] = useState(null);
-
-  // Minimum swipe distance
   const minSwipeDistance = 50;
 
   const goToPrevious = () => {
@@ -30,31 +27,22 @@ const ImageCarousel = ({ images, serviceName }) => {
     setCurrentIndex(newIndex);
   };
 
-  const goToSlide = (index) => {
-    setCurrentIndex(index);
-  };
+  const goToSlide = (index) => setCurrentIndex(index);
 
-  // --- Swipe Logic ---
   const onTouchStart = (e) => {
-    setTouchEnd(null); // Reset touch end position
+    setTouchEnd(null);
     setTouchStart(e.targetTouches[0].clientX);
   };
 
-  const onTouchMove = (e) => {
-    setTouchEnd(e.targetTouches[0].clientX);
-  };
+  const onTouchMove = (e) => setTouchEnd(e.targetTouches[0].clientX);
 
   const onTouchEnd = () => {
     if (!touchStart || !touchEnd) return;
     const distance = touchStart - touchEnd;
     const isLeftSwipe = distance > minSwipeDistance;
     const isRightSwipe = distance < -minSwipeDistance;
-    if (isLeftSwipe) {
-      goToNext();
-    } else if (isRightSwipe) {
-      goToPrevious();
-    }
-    // Reset touch positions
+    if (isLeftSwipe) goToNext();
+    else if (isRightSwipe) goToPrevious();
     setTouchStart(null);
     setTouchEnd(null);
   };
@@ -67,58 +55,56 @@ const ImageCarousel = ({ images, serviceName }) => {
 
   return (
     <div className="carousel-container">
-      <div
-        className="carousel-main-image-wrapper"
-        onTouchStart={onTouchStart}
-        onTouchMove={onTouchMove}
-        onTouchEnd={onTouchEnd}
-      >
-        {/* Image slides with transition */}
+      <div className="carousel-main-image-wrapper" onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
         <div className="carousel-slider" style={{ transform: `translateX(-${currentIndex * 100}%)` }}>
           {images.map((img, index) => (
-            <img
-              key={index}
-              src={img}
-              alt={`${serviceName} - Image ${index + 1}`}
-              className="main-image"
-            />
+            <img key={index} src={img} alt={`${serviceName} - Image ${index + 1}`} className="main-image" />
           ))}
         </div>
-
-        {/* Navigation Buttons */}
         <button onClick={goToPrevious} className="carousel-nav-btn prev"><ChevronLeft size={28} /></button>
         <button onClick={goToNext} className="carousel-nav-btn next"><ChevronRight size={28} /></button>
       </div>
-
-      {/* Desktop Thumbnail Gallery */}
       <div className="carousel-thumbnails">
         {images.map((img, index) => (
-          <img
-            key={index}
-            src={img}
-            alt={`${serviceName} thumbnail ${index + 1}`}
-            className={`thumbnail ${currentIndex === index ? 'active' : ''}`}
-            onClick={() => goToSlide(index)}
-          />
+          <img key={index} src={img} alt={`${serviceName} thumbnail ${index + 1}`} className={`thumbnail ${currentIndex === index ? 'active' : ''}`} onClick={() => goToSlide(index)} />
         ))}
       </div>
-
-      {/* Mobile Dot Indicators */}
       <div className="carousel-dots">
         {images.map((_, index) => (
-          <button
-            key={index}
-            className={`dot ${currentIndex === index ? 'active' : ''}`}
-            onClick={() => goToSlide(index)}
-          />
+          <button key={index} className={`dot ${currentIndex === index ? 'active' : ''}`} onClick={() => goToSlide(index)} />
         ))}
       </div>
     </div>
   );
 };
-// --- StarRating and getCategoryName functions (No changes) ---
+
+const ProviderInfoCard = ({ provider }) => {
+  if (!provider) return null;
+  const totalServices = provider.services?.length || 0;
+  const totalBookings = [...(provider.completedBookings || []), ...(provider.newBookings || []), ...(provider.upComingBookings || [])].length;
+
+  return (
+    <div className="provider-info-card">
+      <div className="provider-header">
+        <UserIcon size={32} className="provider-icon" />
+        <div className="provider-title">
+          <h2>Provider Information</h2>
+          <span>Meet the professional behind the service.</span>
+        </div>
+      </div>
+      <div className="provider-details">
+        <h3>{provider.name}</h3>
+        <div className="provider-meta">
+          <span className="meta-item"><MapPin size={16} /> {provider.location}</span>
+          <span className="meta-item"><Briefcase size={16} /> {totalServices} services listed</span>
+          <span className="meta-item"><CalendarCheck size={16} /> {totalBookings} bookings handled</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const StarRating = ({ rating = 0 }) => {
-  // ... code is identical
   const totalStars = 5;
   const filledStars = Math.round(rating);
   return (
@@ -127,19 +113,39 @@ const StarRating = ({ rating = 0 }) => {
     </div>
   );
 };
-function getCategoryName(id) {
-  // ... code is identical
-  const cat = allCategories.find((c) => c.id === id);
-  return cat ? cat.name : 'Unknown';
-}
 
+// Helper to correctly parse the images array from the API
+// --- Reusable Components (ImageCarousel, ProviderInfoCard, etc.) ---
+// ... (These are unchanged)
+
+// ✅ REPLACE the old parseImages function with this new, robust version.
+const parseImages = (images) => {
+  if (!Array.isArray(images)) {
+    return [];
+  }
+  const parsed = images.map(img => {
+    if (typeof img === 'string') {
+      return img;
+    }
+    if (typeof img === 'object' && img !== null && typeof img.url === 'string') {
+      return img.url;
+    }
+    if (typeof img === 'object' && img !== null && typeof img['0'] === 'string') {
+      return Object.keys(img)
+        .sort((a, b) => parseInt(a, 10) - parseInt(b, 10))
+        .map(key => img[key])
+        .join('');
+    }
+    return null;
+  });
+  return parsed.filter(Boolean);
+};
 
 export default function ServiceDetailsPage() {
-  // The rest of your ServiceDetailsPage component logic is exactly the same.
-  // No changes are needed here.
   const { id } = useParams();
   const navigate = useNavigate();
   const { user, token } = useUser();
+  const { showDialog } = useTheme();
   const [service, setService] = useState(null);
   const [loading, setLoading] = useState(true);
   const [reviews, setReviews] = useState([]);
@@ -148,18 +154,17 @@ export default function ServiceDetailsPage() {
   const [ratingValue, setRatingValue] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [isReviewFormOpen, setIsReviewFormOpen] = useState(false);
-  const [showBookingModal, setShowBookingModal] = useState(false);
 
   useEffect(() => {
     const fetchServiceAndReviews = async () => {
       if (!id) return;
       setLoading(true);
       try {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        const serviceRes = await axios.get('https://anand-u.vercel.app/provider/allservices');
-        const allServices = Array.isArray(serviceRes.data) ? serviceRes.data : [];
-        const selectedService = allServices.find((s) => s._id === id);
-        setService(selectedService);
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate loading
+        const serviceRes = await axios.get(`https://anand-u.vercel.app/provider/getServiceById/${id}`);
+        if (serviceRes.data && serviceRes.data.service) {
+          setService(serviceRes.data.service);
+        }
         const reviewRes = await axios.get(`https://anand-u.vercel.app/review/serviceReview/${id}`);
         if (reviewRes.data.success) {
           setReviews(reviewRes.data.reviews || []);
@@ -176,13 +181,19 @@ export default function ServiceDetailsPage() {
 
   const handleSubmitReview = async (e) => {
     e.preventDefault();
-    if (!token) { alert('Please login to submit a review.'); return; }
-    if (!ratingValue) { alert('Please select a rating before submitting.'); return; }
+    if (!token) {
+      showDialog({ title: 'Login Required', message: 'Please log in to submit a review.', type: 'warning' });
+      return;
+    }
+    if (!ratingValue) {
+      showDialog({ title: 'Rating Required', message: 'Please select a star rating before submitting.', type: 'warning' });
+      return;
+    }
     try {
       setSubmitting(true);
       const res = await axios.post(`https://anand-u.vercel.app/review/givereview`, { serviceId: id, rating: ratingValue, review: reviewText }, { headers: { Authorization: `Bearer ${token}` } });
       if (res.data.success) {
-        alert(res.data.msg);
+        showDialog({ title: 'Success!', message: res.data.msg, type: 'success' });
         setReviewText('');
         setRatingValue(0);
         setIsReviewFormOpen(false);
@@ -191,25 +202,31 @@ export default function ServiceDetailsPage() {
           setReviews(reviewRes.data.reviews || []);
           setAvgRating(reviewRes.data.averageRating || 0);
         }
-      } else { alert(res.data.msg || 'Failed to submit review'); }
-    } catch (err) { console.error('❌ Error submitting review:', err); alert('Error submitting review'); }
-    finally { setSubmitting(false); }
+      } else {
+        showDialog({ title: 'Submission Failed', message: res.data.msg || 'Failed to submit review', type: 'error' });
+      }
+    } catch (err) {
+      console.error('❌ Error submitting review:', err);
+      showDialog({ title: 'Error', message: 'An unexpected error occurred while submitting your review.', type: 'error' });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (loading) return <ServiceDetailsSkeleton />;
   if (!service) return <div className="service-details-page"><p>Service not found.</p></div>;
 
+  const parsedImages = parseImages(service.images);
   const displayRating = avgRating?.toFixed(1) || service.avgRating?.toFixed(1) || 'N/A';
+  const categoryName = service.categories?.name || 'Uncategorized';
 
   return (
     <div className="service-details-page">
-      <div className={`details-card ${!service.images?.length ? 'no-image' : ''}`}>
-        <ImageCarousel images={service.images} serviceName={service.name} />
+      <div className={`details-card ${!parsedImages.length ? 'no-image' : ''}`}>
+        <ImageCarousel images={parsedImages} serviceName={service.name} />
         <div className="service-info">
           <div className="meta-info">
-            <span className="category-tag">
-              {service.categories?.name || getCategoryName(service.categoryId || service.category)}
-            </span>
+            <span className="category-tag">{categoryName}</span>
             <div className="rating-display">
               <span className="star-icon">★</span>
               <span>{displayRating} ({reviews.length} reviews)</span>
@@ -223,30 +240,36 @@ export default function ServiceDetailsPage() {
               <span>{service.priceInfo?.unit && `/ ${service.priceInfo.unit}`}</span>
             </p>
             <div className="cta-buttons-wrapper">
-              <button
-                className="cta-button primary"
-                onClick={() => {
-                  if (!user || !token) {
-                    alert("Please login to book this service.");
-                    navigate("/login");
-                    return;
-                  }
-                  navigate(`/book/${service._id}`);
-                }}
-              >
+              <button className="cta-button primary" onClick={() => {
+                if (!user) {
+                  showDialog({ title: "Login Required", message: "You need to be logged in to book a service.", confirmText: "Go to Login", onConfirm: () => navigate('/login') });
+                  return;
+                }
+                navigate(`/book/${service._id}`);
+              }}>
                 <CalendarCheck size={20} />
                 <span>Book Service</span>
               </button>
-
               <button className="cta-button secondary" onClick={async () => {
-                if (!user || !token) { alert("Please login to start a chat."); return; }
-                if (!service?.providers) { alert("Provider info not available."); return; }
+                if (!user) {
+                  showDialog({ title: "Login Required", message: "Please log in to start a chat with the provider.", confirmText: "Go to Login", onConfirm: () => navigate('/login') });
+                  return;
+                }
+                if (!service?.providers?._id) {
+                  showDialog({ title: "Unavailable", message: "Provider information is not available for chat.", type: 'info' });
+                  return;
+                }
                 try {
                   const res = await axios.post("https://anand-u.vercel.app/convo/", { providerId: service.providers._id }, { headers: { Authorization: `Bearer ${token}` } });
                   if (res.data && res.data._id) {
                     navigate(`/chat/${res.data._id}`);
-                  } else { alert('Could not initiate chat.'); }
-                } catch (err) { console.error('Failed to start chat:', err.response?.data || err.message); alert('An error occurred while starting the chat.'); }
+                  } else {
+                    showDialog({ title: "Failed", message: "Could not initiate chat.", type: 'error' });
+                  }
+                } catch (err) {
+                  console.error('Failed to start chat:', err.response?.data || err.message);
+                  showDialog({ title: "Error", message: "An error occurred while starting the chat.", type: 'error' });
+                }
               }}>
                 <MessageSquare size={20} />
                 <span>Chat with Provider</span>
@@ -255,6 +278,8 @@ export default function ServiceDetailsPage() {
           </div>
         </div>
       </div>
+
+      <ProviderInfoCard provider={service.providers} />
 
       <div className="reviews-section">
         <h2 className="reviews-title">Customer Reviews & Ratings</h2>
@@ -280,10 +305,9 @@ export default function ServiceDetailsPage() {
         ) : (
           <div className="login-prompt">
             <p>You must be logged in to leave a review.</p>
-            <button onClick={() => navigate('/auth')}>Login to Review</button>
+            <button onClick={() => navigate('/login')}>Login to Review</button>
           </div>
         )}
-
         <div className="reviews-list">
           {reviews.length > 0 ? (
             reviews.map((r) => (
@@ -305,8 +329,6 @@ export default function ServiceDetailsPage() {
           )}
         </div>
       </div>
-
-
     </div>
   );
 }

@@ -28,7 +28,7 @@ export const providerLoginRequest = (formData) =>
     email: formData?.email?.trim(),
     password: formData?.password?.trim(),
   });
-  export const providerLogoutRequest = async () => {
+export const providerLogoutRequest = async () => {
   try {
     const res = await axios.post(`${AUTH_URL}/logout`, {}, { withCredentials: true });
     return res.data;
@@ -62,11 +62,11 @@ export const providerResetPasswordRequest = (formData) =>
   });
 
 // --- ADD SERVICE ---
-export const providerAddServiceRequest = async (serviceData) => {
+export const providerAddServiceRequest = async (formData) => {
   try {
-    const res = await axios.post(`${SERVICE_URL}/addService`, serviceData, {
-      headers: { "Content-Type": "application/json" },
-      withCredentials: true, // send cookie automatically
+    const res = await axios.post(`${SERVICE_URL}/addService`, formData, {
+      // REMOVED: No 'headers' object. Axios handles it for FormData.
+      withCredentials: true,
     });
     return res.data;
   } catch (err) {

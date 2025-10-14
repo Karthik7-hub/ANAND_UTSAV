@@ -1,40 +1,92 @@
 // src/context/ThemeContext.js
-import React, { createContext, useState, useEffect, useContext } from 'react';
 
-// Create the context
+import React, { createContext, useState, useEffect, useContext } from 'react';
+import Dialog from '../components/Dialog'; // ✅ Import Dialog here
+
+// We could rename this to UIContext, but ThemeContext works for now
 const ThemeContext = createContext();
 
-// Create a custom hook for easy access in any component
 export const useTheme = () => useContext(ThemeContext);
 
-// Create the Provider component that will wrap your entire app
 export const ThemeProvider = ({ children }) => {
-    // We will store the theme as 'light' or 'dark' strings
+    // --- Theme State (no changes) ---
     const [theme, setTheme] = useState(() => {
-        // Use 'chat-theme' as the single key
         const savedTheme = localStorage.getItem("chat-theme");
-        return savedTheme || 'dark'; // Default to dark theme
+        return savedTheme || 'dark';
     });
 
-    // This effect runs whenever the theme state changes
+    // ✅ MOVED: All dialog state is now managed here
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [dialogOptions, setDialogOptions] = useState(null);
+
     useEffect(() => {
-        // Apply the theme to the entire HTML document
         document.documentElement.setAttribute('data-theme', theme);
-        // Save the current theme to localStorage
         localStorage.setItem("chat-theme", theme);
     }, [theme]);
 
-    // The function to toggle the theme
     const toggleTheme = () => {
         setTheme(prevTheme => (prevTheme === 'light' ? 'dark' : 'light'));
     };
 
-    // Provide the theme state and the toggle function to all children
-    const value = { theme, toggleTheme };
+    // ✅ MOVED: The showDialog function now lives here
+    // ✅ Generic showDialog method (supports your custom props)
+    const showDialog = ({
+        title = 'Dialog',
+        message = '',
+        type = 'warning',
+        icon,
+        confirmText = 'Confirm',
+        cancelText = 'Cancel',
+        onConfirm,
+        onCancel,
+        confirmButtonOnly = false,
+    }) => {
+        setDialogOptions({
+            title,
+            message,
+            type,
+            icon,
+            confirmText,
+            cancelText,
+            onConfirm,
+            onCancel,
+            confirmButtonOnly,
+        });
+        setIsDialogOpen(true);
+    };
+    // ✅ MOVED: The closeDialog function now lives here
+    const closeDialog = () => {
+        setIsDialogOpen(false);
+    };
+
+    // Provide the theme, dialog functions, and state to all children
+    const value = {
+        theme,
+        toggleTheme,
+        showDialog, // ✅ Expose the function to the whole app
+    };
 
     return (
         <ThemeContext.Provider value={value}>
             {children}
+
+            {/* ✅ The Dialog component is rendered here, managed entirely by this context */}
+            {isDialogOpen && dialogOptions && (
+                <Dialog
+                    isOpen={isDialogOpen}
+                    onClose={closeDialog}
+                    onConfirm={dialogOptions.onConfirm}
+                    onCancel={dialogOptions.onCancel}
+                    type={dialogOptions.type}
+                    icon={dialogOptions.icon}
+                    title={dialogOptions.title}
+                    confirmText={dialogOptions.confirmText}
+                    cancelText={dialogOptions.cancelText}
+                    confirmButtonOnly={dialogOptions.confirmButtonOnly}
+                >
+                    {dialogOptions.message}
+                </Dialog>
+            )}
         </ThemeContext.Provider>
     );
 };

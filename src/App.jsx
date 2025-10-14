@@ -28,9 +28,11 @@ function App() {
   return (
     <>
       <ScrollToTop />
-      <ProviderProvider>
-        <UserProvider>
-          <ThemeProvider>
+
+      <ThemeProvider>
+        <ProviderProvider>
+          <UserProvider>
+
             <Routes>
               {/* Authentication Routes (No Layout) */}
               <Route path="/login" element={<FestiveAuth />} />
@@ -69,9 +71,10 @@ function App() {
               {/* 2. This route matches any path that wasn't matched above */}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
-          </ThemeProvider>
-        </UserProvider>
-      </ProviderProvider>
+
+          </UserProvider>
+        </ProviderProvider>
+      </ThemeProvider>
     </>
   );
 }
