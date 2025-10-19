@@ -4,15 +4,15 @@
     background-color: var(--bg-color);
     color: var(--text-color);
     min-height: 100vh;
-    padding: 1rem;
+    padding-top: 1rem;
 }
 
 .srp-header,
 .srp-main-content {
     max-width: 1400px;
     /* Wider layout */
-    margin-left: auto;
-    margin-right: auto;
+    margin-left: 1.5rem;
+    margin-right: 1.5rem;
 }
 
 .srp-header {
@@ -90,11 +90,8 @@
     color: var(--text-color);
     border-radius: 50px;
     font-size: 0.9rem;
-    width: 240px;
-    /* Let it size naturally */
-    min-width: 110px;
-    /* Fixed width to prevent resizing */
     transition: border-color 0.2s;
+    /* REMOVED fixed width/min-width to prevent overflow */
 }
 
 .srp-dropdown-toggle:hover {
@@ -106,11 +103,15 @@
     align-items: center;
     gap: 0.5rem;
     overflow: hidden;
-    /* Prevent text from pushing the arrow */
+    /* <-- ADDED to make ellipsis work */
+    max-width: 220px;
+    /* <-- ADDED to set a max width on the text */
 }
 
 .srp-dropdown-label span {
     color: var(--text-color-light);
+    white-space: nowrap;
+    /* Keep "Sort by:" on one line */
 }
 
 .srp-dropdown-label strong {
@@ -118,6 +119,8 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    display: block;
+    /* <-- ADDED to make ellipsis work inside flex */
 }
 
 .srp-dropdown-arrow {
@@ -138,17 +141,23 @@
     border-radius: 8px;
     box-shadow: var(--shadow-heavy);
     z-index: 20;
+
+    /* --- NEW ANIMATION --- */
     opacity: 0;
     visibility: hidden;
-    transform: translateY(10px);
-    transition: all 0.2s ease;
+    transform: scaleX(0.8);
+    /* Start at 80% width */
+    transform-origin: right center;
+    /* Animate from the right edge */
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
 }
 
 /* Show/Hide menu with .is-open class (controlled by JS) */
 .srp-custom-dropdown.is-open .srp-dropdown-menu {
     opacity: 1;
     visibility: visible;
-    transform: translateY(0);
+    transform: scaleX(1);
+    /* Animate to 100% width */
 }
 
 .srp-custom-dropdown.is-open .srp-dropdown-arrow {
@@ -649,10 +658,7 @@
         font-size: 1rem;
     }
 
-    /* UPDATED: On tablet and smaller, push controls to opposite ends */
-    .srp-controls {
-        justify-content: space-between;
-    }
+    /* REMOVED justify-content: space-between */
 
     .srp-section-title {
         text-align: center;

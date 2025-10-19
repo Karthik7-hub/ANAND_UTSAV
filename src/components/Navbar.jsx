@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from "react";
 import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
-import { User, Menu, Search, Heart, X, LogOut, UserCircle, CalendarCheck, MessageSquare, Sun, Moon, ArrowLeft } from 'lucide-react';
-import { useUser } from '../context/UserContext';
+import { User, Menu, Search, Heart, X, LogOut, UserCircle, CalendarCheck, MessageSquare, Sun, Moon, ArrowLeft } from "lucide-react";
+import { useUser } from "../context/UserContext";
 import "../css/Navbar.css";
-import { useTheme } from '../context/ThemeContext';
+import { useTheme } from "../context/ThemeContext";
 
 // --- Custom Hook for detecting outside clicks ---
 const useOutsideAlerter = (ref, callback) => {
@@ -24,7 +24,7 @@ export default function AnandUtsavNavbar() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
     const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false); // Only for mobile overlay
-    const [query, setQuery] = useState('');
+    const [query, setQuery] = useState("");
     const { theme, toggleTheme } = useTheme();
     const { user, logout, favourites } = useUser();
     const navigate = useNavigate();
@@ -35,14 +35,17 @@ export default function AnandUtsavNavbar() {
 
     const userMenuRef = useRef(null);
 
+    // --- Main Scroll Effect (Handles visibility AND scrolled state) ---
     useEffect(() => {
-        const isSearchPage = location.pathname === '/search-results';
+        const isSearchPage = location.pathname === "/search-results";
+        // Correctly check for category pages
+        const isCategoryServicesPage = location.pathname.startsWith("/category/");
 
         const handleScroll = () => {
             const currentScrollY = window.scrollY;
 
-            // ONLY apply hide/show logic on the search page
-            if (isSearchPage) {
+            // Apply hide/show logic ONLY on the search or category pages
+            if (isSearchPage || isCategoryServicesPage) {
                 if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
                     setIsNavbarVisible(false);
                 } else {
@@ -54,12 +57,13 @@ export default function AnandUtsavNavbar() {
             }
 
             lastScrollY.current = currentScrollY;
+            // This single listener also handles the 'scrolled' state
             setIsScrolled(currentScrollY > 10);
         };
 
-        window.addEventListener('scroll', handleScroll, { passive: true });
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, [location.pathname]); // NEW: Re-run this effect if the page changes
+        window.addEventListener("scroll", handleScroll, { passive: true });
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, [location.pathname]); // Re-run this effect if the page changes
 
     // --- Close user menu on outside click ---
     useOutsideAlerter(userMenuRef, () => setIsUserMenuOpen(false));
@@ -69,20 +73,16 @@ export default function AnandUtsavNavbar() {
         if (query.trim()) {
             navigate(`/search-results?q=${encodeURIComponent(query)}`);
             setIsMobileSearchOpen(false); // Close mobile overlay if open
-            setQuery('');
+            setQuery("");
         }
     };
 
-    // --- Effects for scroll, theme, etc. ---
-    useEffect(() => {
-        const handleScroll = () => setIsScrolled(window.scrollY > 10);
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
+    // --- (REMOVED REDUNDANT SCROLL EFFECT) ---
 
+    // --- Effect for body scroll lock ---
     useEffect(() => {
         // Block scroll when mobile menu OR mobile search overlay is open
-        document.body.style.overflow = (isMobileMenuOpen || isMobileSearchOpen) ? 'hidden' : 'auto';
+        document.body.style.overflow = (isMobileMenuOpen || isMobileSearchOpen) ? "hidden" : "auto";
     }, [isMobileMenuOpen, isMobileSearchOpen]);
 
     const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -90,24 +90,24 @@ export default function AnandUtsavNavbar() {
     const handleLogout = () => {
         logout();
         setIsUserMenuOpen(false);
-        navigate('/');
+        navigate("/");
     };
 
     const handleSuggestionClick = (searchTerm) => {
         navigate(`/search-results?q=${encodeURIComponent(searchTerm)}`);
         setIsMobileSearchOpen(false);
-        setQuery('');
+        setQuery("");
     };
 
     const favCount = favourites?.length || 0;
-    const chatCount = 0;
+    const chatCount = 0; // Placeholder
 
     const SearchSuggestions = () => (
         <div className="search-suggestions">
             <p>Popular:</p>
-            <span onClick={() => handleSuggestionClick('Wedding Planners')}>Wedding Planners</span>
-            <span onClick={() => handleSuggestionClick('Catering')}>Catering</span>
-            <span onClick={() => handleSuggestionClick('Decorators')}>Decorators</span>
+            <span onClick={() => handleSuggestionClick("Wedding Planners")}>Wedding Planners</span>
+            <span onClick={() => handleSuggestionClick("Catering")}>Catering</span>
+            <span onClick={() => handleSuggestionClick("Decorators")}>Decorators</span>
         </div>
     );
 
@@ -115,10 +115,12 @@ export default function AnandUtsavNavbar() {
         <>
             <header
                 className={`
-                navbar-container 
-                ${isScrolled ? 'scrolled' : ''} 
-                ${!isNavbarVisible && location.pathname === '/search-results' ? 'hidden' : ''}
-              `}
+                    navbar-container 
+                    ${isScrolled ? "scrolled" : ""} 
+                    ${!isNavbarVisible ? "hidden" : ""} 
+                `}
+            // Note: The logic for 'hidden' is now simplified in the first useEffect,
+            // so no need to check location.pathname here.
             >
                 <div className="navbar-content">
                     {/* Left Section */}
@@ -131,7 +133,7 @@ export default function AnandUtsavNavbar() {
                         </Link>
                     </div>
 
-                    {/* Center (Desktop Search) - NO DROPDOWN */}
+                    {/* Center (Desktop Search) */}
                     <div className="navbar-center">
                         <form onSubmit={handleSearchSubmit} className="desktop-search-container">
                             <div className="desktop-search-wrapper">

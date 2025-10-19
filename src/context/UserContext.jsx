@@ -1,9 +1,9 @@
-
+// src/context/UserContext.jsx
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { User } from 'lucide-react';
-import { useTheme } from './ThemeContext'; // ✅ Import the hook to use the dialog
+import { useTheme } from './ThemeContext';
 
 const UserContext = createContext(null);
 
@@ -15,9 +15,9 @@ export const UserProvider = ({ children }) => {
     const [favourites, setFavourites] = useState([]);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
-
     const { showDialog } = useTheme();
-    // --- Restore session on page load
+
+    // --- Restore session on page load ---
     useEffect(() => {
         const restoreSession = async () => {
             const storedToken = localStorage.getItem('token');
@@ -29,13 +29,13 @@ export const UserProvider = ({ children }) => {
             setToken(storedToken);
 
             try {
+                // 1. Fetch user details directly
                 const res = await axios.get('https://anand-u.vercel.app/user/me', {
                     headers: { Authorization: `Bearer ${storedToken}` },
                 });
-                setUser(res.data);
-                localStorage.setItem('user', JSON.stringify(res.data));
+                setUser(res.data); // Set in state, NOT localStorage
 
-                // fetch favourites
+                // 2. Fetch favourites
                 fetchFavourites(storedToken);
             } catch (err) {
                 console.error('Failed to restore session:', err);
@@ -46,49 +46,37 @@ export const UserProvider = ({ children }) => {
         };
 
         restoreSession();
+        // We only want this to run once on mount, so we leave the dependency array empty.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    const fetchUserDetails = async (authToken) => {
-        try {
-            const res = await axios.get('https://anand-u.vercel.app/user/me', {
-                headers: { Authorization: `Bearer ${authToken}` },
-            });
-            setUser(res.data);
-            localStorage.setItem('user', JSON.stringify(res.data));
-            return res.data;
-        } catch (err) {
-            console.error('Failed to fetch user details:', err);
-            return null;
-        }
-    };
-
-    // --- Login
+    // --- Login ---
+    // This function now trusts the data from your login component.
     const login = (userData, authToken) => {
-        localStorage.setItem('token', authToken);
-        localStorage.setItem('user', JSON.stringify(userData));
+        localStorage.setItem('token', authToken); // ONLY store the token
         setToken(authToken);
-        setUser(userData);
-        fetchUserDetails(authToken);
-        fetchFavourites(authToken);
+        setUser(userData); // Set user data from login response
+        fetchFavourites(authToken); // Fetch associated data
+        // REMOVED: Redundant fetchUserDetails() call
+        // REMOVED: localStorage.setItem('user', ...)
     };
 
-    // --- Logout
+    // --- Logout ---
     const logout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+        localStorage.removeItem('token'); // ONLY remove the token
+        // REMOVED: localStorage.removeItem('user')
         setToken(null);
         setUser(null);
         setFavourites([]);
     };
 
-    // --- Fetch favourites
+    // --- Fetch favourites (No changes needed here) ---
     const fetchFavourites = async (authToken) => {
         try {
             const res = await axios.get('https://anand-u.vercel.app/user/getFavorite', {
                 headers: { Authorization: `Bearer ${authToken}` },
             });
             if (res.data.success) {
-                // store only IDs
                 const favIds = res.data.favorites.map(f => f._id ? f._id : f);
                 setFavourites(favIds);
             }
@@ -97,7 +85,28 @@ export const UserProvider = ({ children }) => {
         }
     };
 
-    // --- Toggle favourite (uses dialog instead of alert)
+    // --- ADDED: Function to refresh user data on demand ---
+    // Call this after a user edits their profile
+    const refreshUser = async () => {
+        if (!token) return; // Don't refresh if not logged in
+
+        setLoading(true); // Optional: show a loading state
+        try {
+            const res = await axios.get('https://anand-u.vercel.app/user/me', {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            setUser(res.data);
+            // Also refresh favourites in case they changed
+            fetchFavourites(token);
+        } catch (err) {
+            console.error('Failed to refresh user data:', err);
+            logout(); // Log out if token is now invalid
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // --- Toggle favourite (No changes needed here) ---
     const toggleFavourite = async (serviceId) => {
         if (!user) {
             showDialog({
@@ -107,9 +116,9 @@ export const UserProvider = ({ children }) => {
                 icon: <User />,
                 confirmText: 'Login',
                 cancelText: 'Cancel',
-                confirmButtonOnly: false, // ✅ shows both buttons
+                confirmButtonOnly: false,
                 onConfirm: () => {
-                    navigate('/login'); // ✅ Redirect to login
+                    navigate('/login');
                 },
             });
             return;
@@ -120,7 +129,7 @@ export const UserProvider = ({ children }) => {
             ? favourites.filter(id => id !== serviceId)
             : [...favourites, serviceId];
 
-        setFavourites(updatedFavourites);
+        setFavourites(updatedFavourites); // Optimistic update
 
         try {
             if (isFav) {
@@ -137,7 +146,7 @@ export const UserProvider = ({ children }) => {
             }
         } catch (err) {
             console.error('Error toggling favourite:', err);
-            setFavourites(favourites); // rollback
+            setFavourites(favourites); // Rollback on error
             showDialog({
                 title: 'Error',
                 message: 'Failed to update favourites. Please try again.',
@@ -156,7 +165,8 @@ export const UserProvider = ({ children }) => {
         favourites,
         toggleFavourite,
         loading,
-        showDialog,
+        refreshUser, // ADDED
+        showDialog,  // This is still from useTheme, but fine to pass through
     };
 
     return (

@@ -3,7 +3,6 @@ import HomePage from './pages/HomePage.jsx';
 import FestiveAuth from './pages/FestiveAuth';
 import ProviderAuth from './pages/ProviderAuth';
 import CategoryServicesPage from './pages/CategoryServicesPage';
-import AllServicesPage from './pages/AllServicesPage';
 import ServiceDetailsPage from './pages/ServiceDetailsPage';
 import ScrollToTop from './components/ScrollToTop';
 import { Routes, Route, Navigate } from 'react-router-dom';
@@ -54,7 +53,6 @@ function App() {
                 <Route path="/service/:id" element={<ServiceDetailsPage />} />
 
                 <Route path="/my-reviews" element={<MyReviewsPage />} />
-                <Route path="/services" element={<AllServicesPage />} />
                 <Route path="/favourites" element={<Favourites />} />
                 <Route path="/my-bookings" element={<UserBookingsPage />} />
                 <Route path="/dashboard" element={<DashboardPage />} />

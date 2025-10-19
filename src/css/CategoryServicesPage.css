@@ -1,0 +1,514 @@
+/* --- Base Page Layout --- */
+.csp-page {
+    font-family: var(--font-body);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    min-height: 100vh;
+    padding-top: 1rem;
+}
+
+.csp-header,
+.csp-main-content {
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.csp-header {
+    margin-bottom: 1rem;
+    padding-top: 1rem;
+    text-align: center;
+}
+
+.csp-header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 0.5rem;
+}
+
+/* --- Sticky Header & Controls --- */
+.csp-sticky-header {
+    position: sticky;
+    top: 0;
+    z-index: 900;
+    background-color: var(--bg-color);
+    padding-top: 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+    transition: box-shadow 0.2s;
+}
+
+.csp-sticky-header.scrolled {
+    box-shadow: var(--shadow-light);
+}
+
+.csp-controls {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 1rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+/* --- Control Buttons & Dropdown --- */
+.csp-filter-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--input-bg-color);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    padding: 0.7rem 1.2rem;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+.csp-filter-toggle:hover {
+    border-color: var(--primary-color);
+}
+
+/* Sort Dropdown */
+.csp-custom-dropdown {
+    position: relative;
+}
+
+.csp-dropdown-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.7rem 1.2rem;
+    cursor: pointer;
+    background: var(--input-bg-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    border-radius: 50px;
+    font-size: 0.9rem;
+    transition: border-color 0.2s;
+    /* REMOVED min-width to prevent overflow */
+}
+
+.csp-dropdown-toggle:hover {
+    border-color: var(--primary-color);
+}
+
+.csp-dropdown-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    overflow: hidden;
+    /* <-- ADDED to make ellipsis work */
+    max-width: 220px;
+    /* <-- ADDED to set a max width on the text */
+}
+
+.csp-dropdown-label span {
+    color: var(--text-color-light);
+    white-space: nowrap;
+    /* Keep "Sort by:" on one line */
+}
+
+.csp-dropdown-label strong {
+    font-weight: 500;
+    color: var(--text-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    /* <-- ADDED to make ellipsis work inside flex */
+}
+
+.csp-dropdown-arrow {
+    transition: transform 0.2s ease-in-out;
+    flex-shrink: 0;
+}
+
+.csp-dropdown-menu {
+    position: absolute;
+    right: 0;
+    /* <-- BUG FIX (was 'left: 0') */
+    top: calc(100% + 8px);
+    width: 240px;
+    /* Match the SRP page */
+    min-width: 220px;
+    padding: 0.5rem;
+    list-style: none;
+    background: var(--dropdown-bg);
+    border: 1px solid var(--dropdown-border);
+    border-radius: 8px;
+    box-shadow: var(--shadow-heavy);
+    z-index: 20;
+
+    /* --- NEW ANIMATION --- */
+    opacity: 0;
+    visibility: hidden;
+    transform: scaleX(0.8);
+    /* Start at 80% width */
+    transform-origin: right center;
+    /* Animate from the right edge */
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+}
+
+.csp-custom-dropdown.is-open .csp-dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: scaleX(1);
+    /* Animate to 100% width */
+}
+
+.csp-custom-dropdown.is-open .csp-dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+.csp-dropdown-menu li {
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    color: var(--dropdown-text);
+    font-weight: 500;
+}
+
+.csp-dropdown-menu li:hover {
+    background-color: var(--dropdown-item-hover-bg);
+}
+
+.csp-dropdown-menu li.active {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+/* --- Filter Pills --- */
+.csp-active-filters {
+    display: flex;
+    gap: 0.75rem;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding: 0.5rem 1rem 0.75rem;
+    margin: 0;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+
+.csp-active-filters::-webkit-scrollbar {
+    display: none;
+}
+
+.csp-filter-pill {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    background-color: var(--primary-color-light);
+    color: var(--primary-color);
+    border: 1px solid transparent;
+    border-radius: 20px;
+    padding: 0.3rem 0.3rem 0.3rem 0.8rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    animation: pillFadeIn 0.3s ease;
+}
+
+@keyframes pillFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.csp-filter-pill span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+    padding-right: 0.25rem;
+}
+
+.csp-filter-pill button {
+    background: rgba(var(--primary-color-rgb), 0.2);
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    color: var(--primary-color);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.csp-filter-pill button:hover {
+    background: rgba(var(--primary-color-rgb), 0.3);
+}
+
+/* --- Sections and Grids --- */
+.csp-section {
+    margin-bottom: 3rem;
+    margin-top: 1.5rem;
+    margin-inline: 1.5rem;
+    /* Add margin-top */
+}
+
+.csp-section-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--primary-color);
+}
+
+.csp-grid {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+}
+
+.csp-message-box {
+    text-align: center;
+    padding: 4rem 2rem;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    grid-column: 1 / -1;
+}
+
+.csp-message-box h3 {
+    font-size: 1.5rem;
+    color: var(--text-color);
+}
+
+/* --- Loading Spinner --- */
+.csp-loader-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 5rem 0;
+    min-height: 300px;
+    grid-column: 1 / -1;
+}
+
+.csp-loader {
+    width: 48px;
+    height: 48px;
+    border: 5px solid var(--primary-color-light);
+    border-bottom-color: var(--primary-color);
+    border-radius: 50%;
+    display: inline-block;
+    box-sizing: border-box;
+    animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* --- Filter Panel --- */
+.csp-filter-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+    pointer-events: none;
+    visibility: hidden;
+}
+
+.csp-filter-backdrop {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.csp-filter-panel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 350px;
+    height: 100%;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.2);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease-out;
+    display: flex;
+    flex-direction: column;
+}
+
+.csp-filter-container.is-open {
+    pointer-events: auto;
+    visibility: visible;
+}
+
+.csp-filter-container.is-open .csp-filter-backdrop {
+    opacity: 1;
+}
+
+.csp-filter-container.is-open .csp-filter-panel {
+    transform: translateX(0);
+}
+
+.csp-filter-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-secondary);
+    flex-shrink: 0;
+}
+
+.csp-filter-header h3 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.csp-filter-close-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    color: var(--text-color);
+}
+
+.csp-filter-body {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 1.5rem;
+}
+
+.csp-filter-group {
+    margin-bottom: 2rem;
+}
+
+.csp-filter-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Filter Pills (Price/Rating) */
+.csp-price-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.csp-price-pill,
+.csp-rating-pill {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    border-radius: 8px;
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.csp-price-pill:hover,
+.csp-rating-pill:hover {
+    border-color: var(--primary-color);
+}
+
+.csp-price-pill.active,
+.csp-rating-pill.active {
+    background: var(--primary-color);
+    color: var(--unread-badge-text, white);
+    border-color: var(--primary-color);
+    font-weight: 600;
+}
+
+.csp-rating-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+}
+
+/* Filter Footer */
+.csp-filter-footer {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--border-color);
+    background: var(--bg-secondary);
+    flex-shrink: 0;
+}
+
+.csp-clear-filters-btn,
+.csp-apply-btn {
+    flex: 1;
+    padding: 0.8rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.csp-clear-filters-btn {
+    background: none;
+    border: 1px solid var(--text-color-light);
+    color: var(--text-color-light);
+}
+
+.csp-apply-btn {
+    background: var(--primary-color);
+    color: var(--unread-badge-text, white);
+    border: none;
+}
+
+/* --- Responsiveness --- */
+@media (max-width: 768px) {
+    .csp-header h1 {
+        font-size: 2rem;
+    }
+
+    /* REMOVED justify-content: space-between */
+
+    .csp-section-title {
+        text-align: center;
+        border-bottom: none;
+    }
+
+    .csp-section-title::after {
+        content: '';
+        display: block;
+        width: 60px;
+        height: 2px;
+        background: var(--primary-color);
+        margin: 0.5rem auto 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .csp-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .csp-filter-panel {
+        width: 90%;
+    }
+
+    /* REMOVED min-width: 180px rule */
+}
