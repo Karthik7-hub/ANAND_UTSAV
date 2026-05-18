@@ -1,18 +1,61 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import { Edit, Trash2, Package, Tag } from 'lucide-react';
+import { allCategories } from "../data/categoriesData";
+
+const categoryImageMap = allCategories.reduce((map, category) => {
+  map[category.name.toLowerCase()] = category.image;
+  return map;
+}, {});
 
 export default function ServiceProviderCard({ service, onDelete }) {
-    // Dummy handler for the edit button
-    const navigate = useNavigate(); // ✅ add this
+    const navigate = useNavigate();
 
-    // REPLACE handleEdit with:
+    const getSafeUrl = (imgData) => {
+        if (!imgData) return null;
+        if (typeof imgData === "string") return imgData;
+        if (imgData.url && typeof imgData.url === "string") return imgData.url;
+        return null;
+    };
+
+    const primaryImageRaw = service.images?.[0];
+    const primaryImage = getSafeUrl(primaryImageRaw);
+
+    const categoryImage = service.categories?.name
+        ? categoryImageMap[service.categories.name.toLowerCase()]
+        : service.categoryName
+        ? categoryImageMap[service.categoryName.toLowerCase()]
+        : null;
+
+    const getInitialImage = () => {
+        if (primaryImage) return primaryImage;
+        if (categoryImage) return categoryImage;
+        return null;
+    };
+
+    const [currentImageSrc, setCurrentImageSrc] = useState(getInitialImage);
+
+    useEffect(() => {
+        setCurrentImageSrc(getInitialImage());
+    }, [service._id, primaryImage]);
+
+    const handleImageError = () => {
+        if (currentImageSrc === primaryImage) {
+            if (categoryImage) {
+                setCurrentImageSrc(categoryImage);
+            } else {
+                setCurrentImageSrc(null);
+            }
+        } else if (currentImageSrc === categoryImage) {
+            setCurrentImageSrc(null);
+        }
+    };
+
     const handleEdit = (e) => {
         e.preventDefault();
         navigate("/provider/edit-service", { state: { service } });
     };
 
-    // Handler for the delete button, calls the function from the dashboard
     const handleDeleteClick = (e) => {
         e.preventDefault();
         onDelete();
@@ -112,8 +155,8 @@ export default function ServiceProviderCard({ service, onDelete }) {
                 .card-action-btn.delete-btn:hover { background-color: #ef4444; }
             `}</style>
             <div className="provider-card">
-                {service.images && service.images[0] ? (
-                    <img src={service.images[0]} className="card-bg-image" alt={service.name} />
+                {currentImageSrc ? (
+                    <img src={currentImageSrc} className="card-bg-image" alt={service.name} onError={handleImageError} />
                 ) : (
                     <div className="card-image-placeholder"><Package size={48} /></div>
                 )}

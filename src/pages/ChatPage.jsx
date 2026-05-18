@@ -9,8 +9,11 @@ import { useTheme } from '../context/ThemeContext';
 import { format, isToday, isYesterday, isThisWeek, differenceInCalendarDays } from 'date-fns';
 
 // --- Configuration ---
-const API_BASE_URL = 'https://anandnihal.onrender.com';
-const SOCKET_URL = 'https://anandnihal.onrender.com/';
+const envChatApiUrl = import.meta.env.VITE_CHAT_API_URL;
+const envApiUrl = import.meta.env.VITE_API_BASE_URL;
+const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+const API_BASE_URL = envChatApiUrl || envApiUrl || (isDev ? 'http://localhost:5000' : 'https://anandnihal.onrender.com');
+const SOCKET_URL = API_BASE_URL;
 
 // --- Helper Functions & Components ---
 const useChatScroll = (chatRef, dependency, isLoadingMessages, isTyping) => {

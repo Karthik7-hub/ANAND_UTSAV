@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { providerUpdateServiceRequest } from "../utils/providerAuthApi";
-import { PlusCircle, Trash2, CheckCircle, XCircle, ArrowLeft } from 'lucide-react';
+import { PlusCircle, Trash2, CheckCircle, XCircle, ArrowLeft, MapPin } from 'lucide-react';
 import Dialog from '../components/Dialog';
+import LocationAutocomplete from '../components/LocationAutocomplete';
 import '../css/AddService.css'; // Use the same CSS as the Add Service page
 
 export default function EditService() {
@@ -20,7 +21,10 @@ export default function EditService() {
     images: [""],
     minPeople: "",
     maxPeople: "",
-    mindaysprior: ""
+    mindaysprior: "",
+    lat: "",
+    lng: "",
+    locationName: ""
   });
 
   const [loading, setLoading] = useState(false);
@@ -44,10 +48,13 @@ export default function EditService() {
         priceAmount: serviceToEdit.priceInfo?.amount || "",
         priceUnit: serviceToEdit.priceInfo?.unit || "full-package",
         description: serviceToEdit.description || "",
-        images: serviceToEdit.images && serviceToEdit.images.length ? serviceToEdit.images : [""],
+        images: serviceToEdit.images && serviceToEdit.images.length ? serviceToEdit.images.map(img => img.url || img) : [""],
         minPeople: serviceToEdit.minPeople || "",
         maxPeople: serviceToEdit.maxPeople || "",
         mindaysprior: serviceToEdit.mindaysprior || "",
+        lat: serviceToEdit.exactLocation?.coordinates?.[1] || "",
+        lng: serviceToEdit.exactLocation?.coordinates?.[0] || "",
+        locationName: ""
       });
     }
   }, [serviceToEdit]);
@@ -80,6 +87,35 @@ export default function EditService() {
     setForm({ ...form, images: newImages });
   };
 
+  const getLocation = () => {
+    if ("geolocation" in navigator) {
+      setLoading(true);
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          try {
+            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+            const data = await response.json();
+            const locationName = data.address?.city || data.address?.town || data.address?.village || data.address?.state || "Current Location";
+            setForm(prev => ({ ...prev, lat, lng, locationName }));
+            showDialog({ type: 'success', title: 'Location Captured', icon: <CheckCircle />, children: `Service location updated to ${locationName}.`, confirmButtonOnly: true, onConfirm: closeDialog });
+          } catch (e) {
+            setForm(prev => ({ ...prev, lat, lng }));
+            showDialog({ type: 'success', title: 'Location Captured', icon: <CheckCircle />, children: "Your service location coordinates have been successfully set.", confirmButtonOnly: true, onConfirm: closeDialog });
+          }
+          setLoading(false);
+        },
+        (error) => {
+          setLoading(false);
+          showDialog({ type: 'error', title: 'Location Error', icon: <XCircle />, children: "Failed to get location. Please enable location permissions.", confirmButtonOnly: true, onConfirm: closeDialog });
+        }
+      );
+    } else {
+      showDialog({ type: 'error', title: 'Not Supported', icon: <XCircle />, children: "Geolocation is not supported by your browser.", confirmButtonOnly: true, onConfirm: closeDialog });
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -97,11 +133,15 @@ export default function EditService() {
     const payload = {
       serviceId: form.serviceId, name: form.name.trim(), categoryName: form.categoryName.trim(),
       description: form.description.trim(),
-      images: form.images.map(img => img.trim()).filter(img => img !== ""),
+      imagesToKeep: form.images.map(img => typeof img === 'string' ? img.trim() : img.url).filter(img => img !== ""),
       priceInfo: { amount: Number(form.priceAmount), unit: form.priceUnit },
       minPeople: Number(form.minPeople), maxPeople: Number(form.maxPeople),
       mindaysprior: Number(form.mindaysprior || 0),
     };
+    if (form.lat && form.lng) {
+      payload.lat = Number(form.lat);
+      payload.lng = Number(form.lng);
+    }
 
     const res = await providerUpdateServiceRequest(payload);
 
@@ -128,7 +168,7 @@ export default function EditService() {
         <button
           type="button"
           className="asf-back-icon-btn"
-          onClick={() => navigate(-1)}
+          onClick={() => navigate("/provider/dashboard")}
           aria-label="Go back to dashboard"
         >
           <ArrowLeft size={24} />
@@ -200,6 +240,29 @@ export default function EditService() {
             <input type="number" placeholder="e.g., 7" value={form.mindaysprior}
               onChange={(e) => handleNumberChange('mindaysprior', e.target.value)}
               className="asf-form-input" min="0" />
+          </div>
+
+          {/* --- LOCATION CAPTURE --- */}
+          <div className="asf-form-group full-width">
+            <label>Service Specific Location</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <LocationAutocomplete 
+                value={form.locationName}
+                onLocationSelect={(loc) => setForm(prev => ({...prev, locationName: loc.name, lat: loc.lat, lng: loc.lng}))}
+                required
+                placeholder="e.g. New York"
+                className="auth-location-autocomplete"
+                style={{ flex: 1, marginBottom: 0, height: '48px' }}
+              />
+              <button type="button" onClick={getLocation} className="asf-submit-btn" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', height: '48px', padding: '0 1.5rem', width: 'auto', marginBottom: '0', backgroundColor: 'var(--primary-color, #FF9933)', borderRadius: '8px', border: 'none', color: '#ffffff', cursor: 'pointer', transition: 'all 0.2s', flexShrink: 0 }}>
+                <MapPin size={18} /> Update Current Location
+              </button>
+            </div>
+            {form.lat && form.lng && (
+              <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.25rem', color: 'var(--primary-color)', fontSize: '0.85rem' }}>
+                <CheckCircle size={14}/> {Number(form.lat).toFixed(4)}, {Number(form.lng).toFixed(4)}
+              </div>
+            )}
           </div>
 
           {/* --- DESCRIPTION --- */}

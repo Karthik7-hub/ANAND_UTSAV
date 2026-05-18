@@ -19,6 +19,8 @@ const sortOptions = {
 export default function SearchResultsPage() {
     const [searchParams] = useSearchParams();
     const query = searchParams.get('q');
+    const latParam = searchParams.get('lat');
+    const lngParam = searchParams.get('lng');
 
     const [results, setResults] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -48,9 +50,20 @@ export default function SearchResultsPage() {
             setLoading(true);
             setError(null);
             try {
-                const searchResults = await performSearch(query);
-                const items = searchResults.map(res => res.item);
-                setResults(items);
+                // Determine location to use (URL params or local storage)
+                let lat = latParam;
+                let lng = lngParam;
+                if (!lat || !lng) {
+                    const storedLoc = localStorage.getItem("userLocation");
+                    if (storedLoc) {
+                        const parsed = JSON.parse(storedLoc);
+                        lat = parsed.lat;
+                        lng = parsed.lng;
+                    }
+                }
+
+                const searchResults = await performSearch(query, lat, lng);
+                setResults(searchResults);
                 // Reset filters on new search
                 setActiveFilters({ categories: [], price: defaultPriceRange, rating: 0 });
             } catch (err) {
@@ -61,7 +74,7 @@ export default function SearchResultsPage() {
             }
         };
         fetchData();
-    }, [query]);
+    }, [query, latParam, lngParam]);
 
     // --- Derived State with useMemo for Performance ---
     const categories = useMemo(() => results.filter(item => item.isCategory === true), [results]);

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import '../css/ServiceDetailsPage.css';
 import { CalendarCheck, MessageSquare, ChevronLeft, ChevronRight, User as UserIcon, MapPin, Briefcase } from 'lucide-react';
-import axios from 'axios';
+import { fetchServiceById, fetchServiceReviews, submitReview, createConversation } from '../api';
 import { useUser } from '../context/UserContext';
 import { useTheme } from '../context/ThemeContext';
 import ServiceDetailsSkeleton from '../components/ServiceDetailsSkeleton';
@@ -161,14 +161,14 @@ export default function ServiceDetailsPage() {
       setLoading(true);
       try {
         await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate loading
-        const serviceRes = await axios.get(`https://anand-u.vercel.app/provider/getServiceById/${id}`);
-        if (serviceRes.data && serviceRes.data.service) {
-          setService(serviceRes.data.service);
+        const serviceData = await fetchServiceById(id);
+        if (serviceData && serviceData.service) {
+          setService(serviceData.service);
         }
-        const reviewRes = await axios.get(`https://anand-u.vercel.app/review/serviceReview/${id}`);
-        if (reviewRes.data.success) {
-          setReviews(reviewRes.data.reviews || []);
-          setAvgRating(reviewRes.data.averageRating || 0);
+        const reviewData = await fetchServiceReviews(id);
+        if (reviewData && reviewData.success) {
+          setReviews(reviewData.reviews || []);
+          setAvgRating(reviewData.averageRating || 0);
         }
       } catch (err) {
         console.error('❌ Failed to fetch data:', err);
@@ -191,19 +191,19 @@ export default function ServiceDetailsPage() {
     }
     try {
       setSubmitting(true);
-      const res = await axios.post(`https://anand-u.vercel.app/review/givereview`, { serviceId: id, rating: ratingValue, review: reviewText }, { headers: { Authorization: `Bearer ${token}` } });
-      if (res.data.success) {
-        showDialog({ title: 'Success!', message: res.data.msg, type: 'success' });
+      const data = await submitReview(id, ratingValue, reviewText);
+      if (data && data.success) {
+        showDialog({ title: 'Success!', message: data.msg, type: 'success' });
         setReviewText('');
         setRatingValue(0);
         setIsReviewFormOpen(false);
-        const reviewRes = await axios.get(`https://anand-u.vercel.app/review/serviceReview/${id}`);
-        if (reviewRes.data.success) {
-          setReviews(reviewRes.data.reviews || []);
-          setAvgRating(reviewRes.data.averageRating || 0);
+        const reviewData = await fetchServiceReviews(id);
+        if (reviewData && reviewData.success) {
+          setReviews(reviewData.reviews || []);
+          setAvgRating(reviewData.averageRating || 0);
         }
       } else {
-        showDialog({ title: 'Submission Failed', message: res.data.msg || 'Failed to submit review', type: 'error' });
+        showDialog({ title: 'Submission Failed', message: data?.msg || 'Failed to submit review', type: 'error' });
       }
     } catch (err) {
       console.error('❌ Error submitting review:', err);
@@ -260,14 +260,14 @@ export default function ServiceDetailsPage() {
                   return;
                 }
                 try {
-                  const res = await axios.post("https://anand-u.vercel.app/convo/", { providerId: service.providers._id }, { headers: { Authorization: `Bearer ${token}` } });
-                  if (res.data && res.data._id) {
-                    navigate(`/chat/${res.data._id}`);
+                  const data = await createConversation(service.providers._id);
+                  if (data && data._id) {
+                    navigate(`/chat/${data._id}`);
                   } else {
                     showDialog({ title: "Failed", message: "Could not initiate chat.", type: 'error' });
                   }
                 } catch (err) {
-                  console.error('Failed to start chat:', err.response?.data || err.message);
+                  console.error('Failed to start chat:', err.message);
                   showDialog({ title: "Error", message: "An error occurred while starting the chat.", type: 'error' });
                 }
               }}>

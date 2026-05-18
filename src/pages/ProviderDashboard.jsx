@@ -49,8 +49,15 @@ export default function ProviderDashboard() {
   const profileRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
-  const { provider, logout } = useProvider();
+  const { provider, logout, loading: providerLoading } = useProvider();
   const { theme, toggleTheme } = useTheme();
+
+  // --- REDIRECT IF NOT AUTHENTICATED ---
+  useEffect(() => {
+    if (!providerLoading && !provider) {
+      navigate("/provider-login", { replace: true });
+    }
+  }, [provider, providerLoading, navigate]);
 
   const averageRating = useMemo(() => calculateOverallAverageRating(services), [services]);
 
@@ -245,6 +252,16 @@ export default function ProviderDashboard() {
     </div>
   );
 
+  if (providerLoading) {
+    return (
+      <div className="provider-dashboard-theme-wrapper" data-theme={theme} style={{
+        height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: 'var(--bg-color)'
+      }}>
+        <div className="status-container"><div className="loading-spinner"></div></div>
+      </div>
+    );
+  }
+
   return (
     <div className="provider-dashboard-theme-wrapper" data-theme={theme}>
       <div className="dashboard-layout">
@@ -301,7 +318,7 @@ export default function ProviderDashboard() {
             </div>
           </header>
 
-          <main className="dashboard-main" id="dashboard-main-content">
+          <main className={`dashboard-main ${activeView === 'messages' ? 'no-padding no-scroll' : ''}`} id="dashboard-main-content">
             {urgentBookings.length > 0 && (
               <div className="urgent-notifications-container">
                 {urgentBookings.map(booking => (
@@ -332,7 +349,7 @@ export default function ProviderDashboard() {
             )}
 
             {activeView === 'dashboard' && <ServicesView />}
-            {activeView === 'messages' && <ProviderChatPage />}
+            {activeView === 'messages' && <ProviderChatPage isInline={true} />}
             {activeView === 'bookings' && <ProviderBookingsPage />}
           </main>
         </div>

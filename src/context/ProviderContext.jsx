@@ -1,6 +1,6 @@
 // src/context/ProviderContext.jsx
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import axios from 'axios'; // Import axios
+import { fetchCurrentProvider } from '../api'; // Import fetchCurrentProvider
 
 // Create the context
 const ProviderContext = createContext(null);
@@ -28,11 +28,12 @@ export const ProviderProvider = ({ children }) => {
 
             try {
                 // Fetch provider data from server
-                // PLEASE UPDATE THIS ENDPOINT if it's incorrect
-                const res = await axios.get('https://anand-u.vercel.app/provider/me', {
-                    headers: { Authorization: `Bearer ${storedToken}` },
-                });
-                setProvider(res.data); // Set in state, NOT localStorage
+                const data = await fetchCurrentProvider();
+                if (data && data.success !== false) {
+                    setProvider(data);
+                } else {
+                    logout();
+                }
             } catch (err) {
                 console.error('Failed to restore provider session:', err);
                 logout(); // Clear invalid token
@@ -67,11 +68,12 @@ export const ProviderProvider = ({ children }) => {
 
         setLoading(true);
         try {
-            // PLEASE UPDATE THIS ENDPOINT if it's incorrect
-            const res = await axios.get('https://anand-u.vercel.app/provider/me', {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            setProvider(res.data);
+            const data = await fetchCurrentProvider();
+            if (data && data.success !== false) {
+                setProvider(data);
+            } else {
+                logout();
+            }
         } catch (err) {
             console.error('Failed to refresh provider data:', err);
             logout(); // Log out if token is now invalid

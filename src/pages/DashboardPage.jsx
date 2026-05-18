@@ -2,7 +2,7 @@
 import { User, Heart, CalendarCheck, MessageSquare, Star, TriangleAlert } from 'lucide-react';
 import React, { useState } from 'react';
 import { NavLink, useNavigate } from "react-router-dom";
-import axios from 'axios';
+import { deleteCurrentUserAccount } from '../api';
 import '../css/Dashboard.css';
 import Dialog from '../components/Dialog';
 import { useUser } from '../context/UserContext';
@@ -20,10 +20,8 @@ export default function DashboardPage() {
         setConfirmOpen(false); // Close the confirmation dialog first
 
         try {
-            const res = await axios.delete("https://anand-u.vercel.app/user/deleteAccount", {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            if (res.data.success) {
+            const data = await deleteCurrentUserAccount();
+            if (data && data.success) {
                 // On success, configure the result dialog to show a success message
                 setResultDialog({
                     type: 'success',
@@ -35,6 +33,12 @@ export default function DashboardPage() {
                         navigate("/");
                     }
                 });
+            } else {
+                setResultDialog({
+                    type: 'error',
+                    title: 'Deletion Failed',
+                    message: data?.msg || 'Could not delete your account.'
+                });
             }
         } catch (err) {
             console.error("Error deleting account:", err);
@@ -42,7 +46,7 @@ export default function DashboardPage() {
             setResultDialog({
                 type: 'error',
                 title: 'Deletion Failed',
-                message: err.response?.data?.message || 'An unexpected error occurred. Please try again.'
+                message: err.message || 'An unexpected error occurred. Please try again.'
             });
         }
     };

@@ -153,6 +153,40 @@
     gap: 0.5rem;
 }
 
+.auth-location-autocomplete {
+    --input-bg-color: var(--asf-input-bg);
+    --text-color: var(--asf-text-primary);
+    --input-border-color: var(--asf-input-border);
+    /* Dropdown theming */
+    --dropdown-bg: var(--asf-dropdown-option-bg);
+    --dropdown-border: var(--asf-card-border);
+    --dropdown-item-hover-bg: var(--asf-input-bg);
+    position: relative;
+    z-index: 60;
+}
+
+.auth-location-autocomplete .location-autocomplete-input {
+    border-radius: 8px;
+    padding: 12px 12px 12px 40px;
+    font-family: inherit;
+    font-size: 1rem;
+    height: 100%;
+}
+
+.auth-location-autocomplete .location-autocomplete-input:focus {
+    border-color: var(--asf-primary-color);
+    box-shadow: 0 0 10px var(--asf-primary-color-translucent);
+}
+
+.auth-location-autocomplete .location-input-icon {
+    left: 12px;
+    color: var(--asf-text-secondary);
+}
+
+.auth-location-autocomplete .location-autocomplete-input:focus ~ .location-input-icon {
+    color: var(--asf-primary-color);
+}
+
 /* ============================================= */
 /* 3. BUTTONS (BACK, REMOVE, ADD, SUBMIT)        */
 /* ============================================= */

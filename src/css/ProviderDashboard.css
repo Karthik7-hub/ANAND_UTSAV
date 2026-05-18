@@ -299,6 +299,19 @@
 .dashboard-main {
     padding: 2.5rem;
     overflow: auto;
+    flex-grow: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.dashboard-main.no-padding {
+    padding: 0 !important;
+}
+
+.dashboard-main.no-scroll {
+    overflow: hidden !important;
+    height: 100%;
 }
 
 .welcome-header {

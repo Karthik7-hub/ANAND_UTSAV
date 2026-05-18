@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
+import { fetchServicesByCategory } from '../api';
 import ServiceCard from '../components/ServiceCard';
 import { SlidersHorizontal, X, ChevronDown, Tag, Star } from 'lucide-react';
 import '../css/CategoryServicesPage.css'; // Import the new CSS file
@@ -58,8 +58,8 @@ export default function CategoryServicesPage() {
             try {
                 setLoading(true);
                 setError(null);
-                const res = await axios.get(`https://anand-u.vercel.app/category/services/${slug}`);
-                setServices(res.data);
+                const data = await fetchServicesByCategory(slug);
+                setServices(Array.isArray(data) ? data : []);
 
                 // Set category name from slug
                 setCategory({ name: slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) });

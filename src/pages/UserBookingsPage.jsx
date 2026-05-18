@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import axios from "axios";
+import { fetchUserBookings, payDemoPayment } from "../api";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../context/UserContext";
 import "../css/UserBookingsPage.css";
@@ -29,21 +29,24 @@ export default function UserBookingsPage() {
       if (!token) { setLoading(false); return; }
       try {
         setLoading(true);
-        const res = await axios.get("https://anand-u.vercel.app/booking/getUserBookings", { headers: { Authorization: `Bearer ${token}` } });
+        const data = await fetchUserBookings();
 
-        // ✨ --- FETCHING PROVIDER NAME FROM API RESPONSE --- ✨
-        setBookings(res.data.bookings.map(b => ({
-          bookingId: b._id,
-          serviceId: b.service?._id,
-          serviceName: b.service?.name || "Unknown Service",
-          providerName: b.service?.providers?.name || "Unknown Provider",
-          status: b.status || "Pending",
-          paymentStatus: b.paymentStatus || "Pending",
-          eventDate: b.eventDate || null,
-          guests: b.avgGuestsCount || 0,
-          venue: b.venue || "N/A",
-          totalAmount: b.totalAmount || 0,
-        })));
+        if (data && Array.isArray(data.bookings)) {
+          setBookings(data.bookings.map(b => ({
+            bookingId: b._id,
+            serviceId: b.service?._id,
+            serviceName: b.service?.name || "Unknown Service",
+            providerName: b.service?.providers?.name || "Unknown Provider",
+            status: b.status || "Pending",
+            paymentStatus: b.paymentStatus || "Pending",
+            eventDate: b.eventDate || null,
+            guests: b.avgGuestsCount || 0,
+            venue: b.venue || "N/A",
+            totalAmount: b.totalAmount || 0,
+          })));
+        } else {
+          setBookings([]);
+        }
       } catch (err) { console.error("Error fetching bookings:", err); }
       finally { setLoading(false); }
     };
@@ -54,11 +57,11 @@ export default function UserBookingsPage() {
     if (!window.confirm("This will simulate a payment. Proceed?")) return;
     setPayingId(bookingId);
     try {
-      const res = await axios.post("https://anand-u.vercel.app/booking/demo-payment", { bookingId }, { headers: { Authorization: `Bearer ${token}` } });
-      if (res.data.success) {
+      const data = await payDemoPayment(bookingId);
+      if (data && data.success) {
         alert("Payment successful!");
         setBookings(prev => prev.map(b => b.bookingId === bookingId ? { ...b, paymentStatus: "Paid", status: "Completed" } : b));
-      } else { alert(res.data.msg || "Payment failed."); }
+      } else { alert(data?.msg || "Payment failed."); }
     } catch (err) { console.error("Payment error:", err); alert("Payment processing failed."); }
     finally { setPayingId(null); }
   };

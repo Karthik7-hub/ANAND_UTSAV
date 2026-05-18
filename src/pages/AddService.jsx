@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { providerAddServiceRequest } from "../utils/providerAuthApi";
-import { useTheme } from '../context/ThemeContext'; // ✅ Uses the global showDialog function from ThemeContext
-import { PlusCircle, Trash2, CheckCircle, XCircle, ArrowLeft, Image as ImageIcon, X } from 'lucide-react';
+import { useTheme } from '../context/ThemeContext';
+import { PlusCircle, Trash2, CheckCircle, XCircle, ArrowLeft, Image as ImageIcon, X, MapPin } from 'lucide-react';
+import LocationAutocomplete from '../components/LocationAutocomplete';
 import '../css/AddService.css';
 
 // ✅ The self-contained modal for viewing images is included.
@@ -29,7 +30,10 @@ export default function AddService() {
     images: [null], // This will hold the File objects
     minPeople: "",
     maxPeople: "",
-    mindaysprior: ""
+    mindaysprior: "",
+    lat: "",
+    lng: "",
+    locationName: ""
   });
 
   const [imagePreviews, setImagePreviews] = useState([null]);
@@ -72,6 +76,35 @@ export default function AddService() {
     setImagePreviews(imagePreviews.filter((_, i) => i !== index));
   };
 
+  const getLocation = () => {
+    if ("geolocation" in navigator) {
+      setLoading(true);
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          try {
+            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+            const data = await response.json();
+            const locationName = data.address?.city || data.address?.town || data.address?.village || data.address?.state || "Current Location";
+            setForm(prev => ({ ...prev, lat, lng, locationName }));
+            showDialog({ type: 'success', title: 'Location Captured', icon: <CheckCircle />, message: `Service pinned to ${locationName}.`, confirmButtonOnly: true });
+          } catch (e) {
+            setForm(prev => ({ ...prev, lat, lng }));
+            showDialog({ type: 'success', title: 'Location Captured', icon: <CheckCircle />, message: "Your service location coordinates have been successfully set.", confirmButtonOnly: true });
+          }
+          setLoading(false);
+        },
+        (error) => {
+          setLoading(false);
+          showDialog({ type: 'error', title: 'Location Error', icon: <XCircle />, message: "Failed to get location. Please enable location permissions.", confirmButtonOnly: true });
+        }
+      );
+    } else {
+      showDialog({ type: 'error', title: 'Not Supported', icon: <XCircle />, message: "Geolocation is not supported by your browser.", confirmButtonOnly: true });
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -96,6 +129,11 @@ export default function AddService() {
     formData.append('minPeople', Number(form.minPeople));
     formData.append('maxPeople', Number(form.maxPeople));
     formData.append('mindaysprior', Number(form.mindaysprior || 0));
+    
+    if (form.lat && form.lng) {
+      formData.append('lat', Number(form.lat));
+      formData.append('lng', Number(form.lng));
+    }
 
     // Append each valid file with the key 'images'
     form.images.forEach(file => {
@@ -129,7 +167,7 @@ export default function AddService() {
       <ImageViewerModal imageUrl={viewingImage} onClose={() => setViewingImage(null)} />
 
       <div className="asf-service-form-card">
-        <button type="button" className="asf-back-icon-btn" onClick={() => navigate(-1)} aria-label="Go back">
+        <button type="button" className="asf-back-icon-btn" onClick={() => navigate("/provider/dashboard")} aria-label="Go back">
           <ArrowLeft size={24} />
         </button>
         <h2 className="asf-form-title">Create a New Service</h2>
@@ -194,6 +232,29 @@ export default function AddService() {
           <div className="asf-form-group">
             <label>Minimum Days Prior Booking</label>
             <input type="number" placeholder="e.g., 7" value={form.mindaysprior} onChange={(e) => handleNumberChange('mindaysprior', e.target.value)} className="asf-form-input" min="0" />
+          </div>
+
+          {/* --- LOCATION CAPTURE --- */}
+          <div className="asf-form-group full-width">
+            <label>Service Specific Location</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <LocationAutocomplete 
+                value={form.locationName}
+                onLocationSelect={(loc) => setForm(prev => ({...prev, locationName: loc.name, lat: loc.lat, lng: loc.lng}))}
+                required
+                placeholder="e.g. New York"
+                className="auth-location-autocomplete"
+                style={{ flex: 1, marginBottom: 0, height: '48px' }}
+              />
+              <button type="button" onClick={getLocation} className="asf-submit-btn" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', height: '48px', padding: '0 1.5rem', width: 'auto', marginBottom: '0', backgroundColor: 'var(--primary-color, #FF9933)', borderRadius: '8px', border: 'none', color: '#ffffff', cursor: 'pointer', transition: 'all 0.2s', flexShrink: 0 }}>
+                <MapPin size={18} /> Use Current Location
+              </button>
+            </div>
+            {form.lat && form.lng && (
+              <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.25rem', color: 'var(--primary-color)', fontSize: '0.85rem' }}>
+                <CheckCircle size={14}/> {Number(form.lat).toFixed(4)}, {Number(form.lng).toFixed(4)}
+              </div>
+            )}
           </div>
 
           {/* --- ROW 4: Description --- */}

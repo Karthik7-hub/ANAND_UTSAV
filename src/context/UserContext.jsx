@@ -1,7 +1,7 @@
 // src/context/UserContext.jsx
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { fetchCurrentUser, fetchFavoritesList, addToFavorites, removeFromFavorites } from '../api';
 import { User } from 'lucide-react';
 import { useTheme } from './ThemeContext';
 
@@ -30,13 +30,14 @@ export const UserProvider = ({ children }) => {
 
             try {
                 // 1. Fetch user details directly
-                const res = await axios.get('https://anand-u.vercel.app/user/me', {
-                    headers: { Authorization: `Bearer ${storedToken}` },
-                });
-                setUser(res.data); // Set in state, NOT localStorage
-
-                // 2. Fetch favourites
-                fetchFavourites(storedToken);
+                const userData = await fetchCurrentUser();
+                if (userData && userData.success !== false) {
+                    setUser(userData);
+                    // 2. Fetch favourites
+                    fetchFavourites();
+                } else {
+                    logout();
+                }
             } catch (err) {
                 console.error('Failed to restore session:', err);
                 logout(); // clear invalid token
@@ -56,7 +57,7 @@ export const UserProvider = ({ children }) => {
         localStorage.setItem('token', authToken); // ONLY store the token
         setToken(authToken);
         setUser(userData); // Set user data from login response
-        fetchFavourites(authToken); // Fetch associated data
+        fetchFavourites(); // Fetch associated data
         // REMOVED: Redundant fetchUserDetails() call
         // REMOVED: localStorage.setItem('user', ...)
     };
@@ -70,14 +71,12 @@ export const UserProvider = ({ children }) => {
         setFavourites([]);
     };
 
-    // --- Fetch favourites (No changes needed here) ---
-    const fetchFavourites = async (authToken) => {
+    // --- Fetch favourites ---
+    const fetchFavourites = async () => {
         try {
-            const res = await axios.get('https://anand-u.vercel.app/user/getFavorite', {
-                headers: { Authorization: `Bearer ${authToken}` },
-            });
-            if (res.data.success) {
-                const favIds = res.data.favorites.map(f => f._id ? f._id : f);
+            const data = await fetchFavoritesList();
+            if (data && data.success) {
+                const favIds = data.favorites.map(f => f._id ? f._id : f);
                 setFavourites(favIds);
             }
         } catch (err) {
@@ -92,12 +91,14 @@ export const UserProvider = ({ children }) => {
 
         setLoading(true); // Optional: show a loading state
         try {
-            const res = await axios.get('https://anand-u.vercel.app/user/me', {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            setUser(res.data);
-            // Also refresh favourites in case they changed
-            fetchFavourites(token);
+            const userData = await fetchCurrentUser();
+            if (userData && userData.success !== false) {
+                setUser(userData);
+                // Also refresh favourites in case they changed
+                fetchFavourites();
+            } else {
+                logout();
+            }
         } catch (err) {
             console.error('Failed to refresh user data:', err);
             logout(); // Log out if token is now invalid
@@ -106,7 +107,7 @@ export const UserProvider = ({ children }) => {
         }
     };
 
-    // --- Toggle favourite (No changes needed here) ---
+    // --- Toggle favourite ---
     const toggleFavourite = async (serviceId) => {
         if (!user) {
             showDialog({
@@ -133,16 +134,9 @@ export const UserProvider = ({ children }) => {
 
         try {
             if (isFav) {
-                await axios.delete('https://anand-u.vercel.app/user/removeFavorite', {
-                    data: { serviceId },
-                    headers: { Authorization: `Bearer ${token}` },
-                });
+                await removeFromFavorites(serviceId);
             } else {
-                await axios.post(
-                    'https://anand-u.vercel.app/user/addFavorite',
-                    { serviceId },
-                    { headers: { Authorization: `Bearer ${token}` } }
-                );
+                await addToFavorites(serviceId);
             }
         } catch (err) {
             console.error('Error toggling favourite:', err);

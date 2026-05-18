@@ -659,3 +659,20 @@
     transform: translateY(0);
   }
 }
+
+/* --- Inline Chat styling for Service Provider Dashboard --- */
+.chat-page-container.is-inline {
+  height: 100% !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  border: none !important;
+  overflow: hidden;
+  position: relative;
+}
+
+.dashboard-main.no-padding.no-scroll {
+  padding: 0 !important;
+  overflow: hidden !important;
+}

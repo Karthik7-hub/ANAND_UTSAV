@@ -1,6 +1,6 @@
 // src/pages/MyReviewsPage.jsx
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { fetchUserReviews, deleteReview } from '../api';
 import { Trash2, Star } from 'lucide-react';
 import { useUser } from '../context/UserContext';
 import '../css/MyReviewPage.css';
@@ -26,10 +26,8 @@ export default function MyReviewsPage() {
   const fetchMyReviews = async () => {
     try {
       setLoading(true);
-      const res = await axios.get('https://anand-u.vercel.app/review/userReview', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.data.success) setReviews(res.data.reviews);
+      const data = await fetchUserReviews();
+      if (data && data.success) setReviews(data.reviews || []);
     } catch (err) {
       console.error('❌ Failed to fetch user reviews:', err);
     } finally {
@@ -51,18 +49,13 @@ export default function MyReviewsPage() {
 
     try {
       setDeletingId(reviewId);
-      const res = await axios.delete(
-        `https://anand-u.vercel.app/review/removereview/${reviewId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const data = await deleteReview(reviewId);
 
-      if (res.data.success) {
-        alert(res.data.msg);
+      if (data && data.success) {
+        alert(data.msg);
         await fetchMyReviews(); // Refresh list
       } else {
-        alert(res.data.msg || 'Failed to delete review');
+        alert(data?.msg || 'Failed to delete review');
       }
     } catch (err) {
       console.error('❌ Error deleting review:', err);

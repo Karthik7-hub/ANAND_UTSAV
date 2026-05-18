@@ -9,8 +9,11 @@ import '../css/ChatPage.css'; // Uses the same CSS
 import { format, isToday, isYesterday, isThisWeek, differenceInCalendarDays } from 'date-fns';
 
 // --- Configuration ---
-const API_BASE_URL = 'https://anandnihal.onrender.com';
-const SOCKET_URL = 'https://anandnihal.onrender.com/';
+const envChatApiUrl = import.meta.env.VITE_CHAT_API_URL;
+const envApiUrl = import.meta.env.VITE_API_BASE_URL;
+const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+const API_BASE_URL = envChatApiUrl || envApiUrl || (isDev ? 'http://localhost:5000' : 'https://anandnihal.onrender.com');
+const SOCKET_URL = API_BASE_URL;
 
 // --- Helper Functions & Components (Same as User's Chat) ---
 const useChatScroll = (chatRef, dependency, isLoadingMessages, isTyping) => { /* ... same as above ... */
@@ -63,13 +66,14 @@ const MessageSkeleton = () => ( /* ... same as above ... */
 );
 
 
-export default function ProviderChatPage() {
+export default function ProviderChatPage({ isInline = false }) {
     const { provider, token, logout } = useProvider();
     const { conversationId: conversationIdFromUrl } = useParams();
     const navigate = useNavigate();
     const { theme, toggleTheme } = useTheme();
 
     const [conversations, setConversations] = useState([]);
+    const [errorMsg, setErrorMsg] = useState(null);
     const [selectedConversation, setSelectedConversation] = useState(null);
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState('');
@@ -135,17 +139,30 @@ export default function ProviderChatPage() {
     }, [provider, token, typingConversationId]);
 
     useEffect(() => {
-        if (!token) return;
+        console.log('ProviderChatPage mounted. Token:', token, 'API_BASE_URL:', API_BASE_URL);
+        if (!token) {
+            console.warn('No token found in ProviderChatPage context!');
+            setErrorMsg('No authentication token found.');
+            return;
+        }
         const fetchConversations = async () => {
             try {
+                setErrorMsg(null);
+                console.log('Fetching conversations from:', `${API_BASE_URL}/convo/`);
                 const { data } = await api.get('/convo/');
+                console.log('Successfully fetched conversations:', data);
                 setConversations(data || []);
-            } catch (error) { console.error('Failed to fetch conversations:', error); }
+            } catch (error) { 
+                const msg = error.response?.data?.message || error.response?.data?.msg || error.message;
+                console.error('Failed to fetch conversations:', msg);
+                setErrorMsg(msg || 'Failed to fetch conversations.');
+            }
         };
         fetchConversations();
     }, [token, api]);
 
     useEffect(() => {
+        if (isInline) return; // Skip URL synchronization if inline
         if (conversationIdFromUrl && conversations.length > 0) {
             const convo = conversations.find((c) => c._id === conversationIdFromUrl);
             if (convo) setSelectedConversation(convo);
@@ -153,7 +170,7 @@ export default function ProviderChatPage() {
         } else {
             setSelectedConversation(null);
         }
-    }, [conversationIdFromUrl, conversations, navigate]);
+    }, [conversationIdFromUrl, conversations, navigate, isInline]);
 
     useEffect(() => {
         if (!selectedConversation || !token) {
@@ -221,7 +238,7 @@ export default function ProviderChatPage() {
     const handleLogout = () => { if (logout) logout(); navigate('/provider/login'); };
     const getOtherParticipant = (convo) => (!convo || !provider) ? { name: 'Unknown' } : (convo.provider?._id === provider._id ? convo.user : convo.provider);
     const otherUser = selectedConversation ? getOtherParticipant(selectedConversation) : null;
-    const isChatVisibleMobile = !!conversationIdFromUrl;
+    const isChatVisibleMobile = isInline ? !!selectedConversation : !!conversationIdFromUrl;
 
     const MessageStatus = ({ status }) => {
         if (status === 'sending') return <Clock size={12} className="timestamp" />;
@@ -232,25 +249,40 @@ export default function ProviderChatPage() {
     const formatTimestamp = (dateString) => dateString ? new Date(dateString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
 
     return (
-        <div className={`chat-page-container ${isChatVisibleMobile ? 'show-chat' : ''}`}>
+        <div className={`chat-page-container ${isChatVisibleMobile ? 'show-chat' : ''} ${isInline ? 'is-inline' : ''}`}>
             {/* ... JSX remains the same, but with provider-specific links/navigation ... */}
             <div className="conversation-list-panel">
                 <div className="chatNav-header">
-                    <button className="chatNav-menuButton" onClick={() => setIsDropdownOpen(true)}><Menu size={22} /></button>
+                    {!isInline && <button className="chatNav-menuButton" onClick={() => setIsDropdownOpen(true)}><Menu size={22} /></button>}
                     <h3 className="chatNav-title">Chats</h3>
-                    <div className={`chatNav-sideMenu ${isDropdownOpen ? "open" : ""}`}>
-                        <div className="chatNav-menuContent">
-                            <button onClick={() => { navigate('/provider/dashboard'); setIsDropdownOpen(false); }}><LayoutDashboard size={18} />My Dashboard</button>
-                            <button onClick={() => { handleLogout(); setIsDropdownOpen(false); }}><LogOut size={18} /> Logout</button>
-                        </div>
-                    </div>
-                    {isDropdownOpen && <div className="chatNav-overlay" onClick={() => setIsDropdownOpen(false)} />}
+                    {!isInline && (
+                        <>
+                            <div className={`chatNav-sideMenu ${isDropdownOpen ? "open" : ""}`}>
+                                <div className="chatNav-menuContent">
+                                    <button onClick={() => { navigate('/provider/dashboard'); setIsDropdownOpen(false); }}><LayoutDashboard size={18} />My Dashboard</button>
+                                    <button onClick={() => { handleLogout(); setIsDropdownOpen(false); }}><LogOut size={18} /> Logout</button>
+                                </div>
+                            </div>
+                            {isDropdownOpen && <div className="chatNav-overlay" onClick={() => setIsDropdownOpen(false)} />}
+                        </>
+                    )}
                 </div>
                 <div className="conversations">
+                    {errorMsg && (
+                        <div className="chat-error-banner" style={{ padding: '12px 16px', color: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.1)', fontSize: '0.85rem', borderBottom: '1px solid rgba(239, 68, 68, 0.2)', textAlign: 'center' }}>
+                            ⚠️ {errorMsg}
+                        </div>
+                    )}
                     {conversations.map((convo) => {
                         const other = getOtherParticipant(convo);
                         return (
-                            <div key={convo._id} className={`conversation-item ${selectedConversation?._id === convo._id ? 'active' : ''}`} onClick={() => navigate(`/provider/chat/${convo._id}`)}>
+                            <div key={convo._id} className={`conversation-item ${selectedConversation?._id === convo._id ? 'active' : ''}`} onClick={() => {
+                                if (isInline) {
+                                    setSelectedConversation(convo);
+                                } else {
+                                    navigate(`/provider/chat/${convo._id}`);
+                                }
+                            }}>
                                 <Avatar name={other?.fullName || other?.name} />
                                 <div className="convo-details">
                                     <p className="convo-name">{other?.fullName || other?.name}</p>
@@ -272,7 +304,13 @@ export default function ProviderChatPage() {
                 {selectedConversation ? (
                     <>
                         <div className="chat-header">
-                            <button className="back-button icon-button" onClick={() => navigate('/provider/chat')}><ArrowLeft size={22} /></button>
+                            <button className="back-button icon-button" onClick={() => {
+                                if (isInline) {
+                                    setSelectedConversation(null);
+                                } else {
+                                    navigate('/provider/chat');
+                                }
+                            }}><ArrowLeft size={22} /></button>
                             <Avatar name={otherUser?.fullName || otherUser?.name} />
                             <h3>{otherUser?.fullName || otherUser?.name}</h3>
                             <div className="header-actions">

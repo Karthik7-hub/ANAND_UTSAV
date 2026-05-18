@@ -119,7 +119,7 @@ export default function ProviderBookingsPage() {
           </div>
           <div className="info-row">
             <span className="info-label">Total Price</span>
-            <span className="info-value price">₹{booking.totalPrice?.toLocaleString() || 0}</span>
+            <span className="info-value price">₹{booking.totalAmount?.toLocaleString() || 0}</span>
           </div>
           <div className="info-row">
             <span className="info-label">Payment</span>

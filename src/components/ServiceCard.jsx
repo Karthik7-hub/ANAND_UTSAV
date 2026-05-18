@@ -1,6 +1,6 @@
 // src/components/ServiceCard.jsx
 
-import React, { useState, useEffect } from "react"; // ✨ Import useState and useEffect
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Heart, Star } from "lucide-react";
 import { useUser } from "../context/UserContext";
@@ -16,31 +16,59 @@ export default function ServiceCard({ service }) {
   const { favourites, toggleFavourite } = useUser();
   const isFavorited = favourites.includes(service._id);
 
-  // --- Image Fallback Logic ---
-  const primaryImage = service.images?.[0];
-  const categoryImage = service.categories?.name ? categoryImageMap[service.categories.name.toLowerCase()] : null;
+  // --- ✨ Helper: Safely Extract URL from Data ---
+  const getSafeUrl = (imgData) => {
+    if (!imgData) return null;
 
-  // ✨ 1. Create a state to hold the current image source
-  const [currentImageSrc, setCurrentImageSrc] = useState(primaryImage);
+    // 1. If it's a simple string URL
+    if (typeof imgData === "string") return imgData;
 
-  // This effect resets the image when the service prop changes
+    // 2. If it's a Cloudinary object (based on your JSON)
+    if (imgData.url && typeof imgData.url === "string") return imgData.url;
+
+    // 3. If it's the corrupted data {"0":"h", ...}, return null so fallback happens
+    return null;
+  };
+
+  // --- Image Logic Variables ---
+  const primaryImageRaw = service.images?.[0];
+  const primaryImage = getSafeUrl(primaryImageRaw); // ✨ Use the helper
+
+  const categoryImage = service.categories?.name
+    ? categoryImageMap[service.categories.name.toLowerCase()]
+    : null;
+
+  // Function to determine where to START
+  const getInitialImage = () => {
+    if (primaryImage) return primaryImage;
+    if (categoryImage) return categoryImage;
+    return null;
+  };
+
+  const [currentImageSrc, setCurrentImageSrc] = useState(getInitialImage);
+
+  // Reset state if the service object changes
   useEffect(() => {
-    setCurrentImageSrc(service.images?.[0]);
-  }, [service.images]);
+    setCurrentImageSrc(getInitialImage());
+  }, [service._id, primaryImage]);
 
-  // ✨ 2. Create an error handler to switch to the next fallback
+  // --- Error Handler ---
   const handleImageError = () => {
-    // If the primary image failed, try the category image
     if (currentImageSrc === primaryImage) {
-      setCurrentImageSrc(categoryImage);
+      // If Primary fails, try Category
+      if (categoryImage) {
+        setCurrentImageSrc(categoryImage);
+      } else {
+        setCurrentImageSrc(null); // Go to Gradient
+      }
     }
-    // If the category image also failed, set the source to null to trigger the gradient
-    else {
+    else if (currentImageSrc === categoryImage) {
+      // If Category fails, go to Gradient
       setCurrentImageSrc(null);
     }
   };
 
-  // --- Other helper variables ---
+  // --- Standard Helpers ---
   const serviceName = service.name || "Service Name";
   const serviceCategory = service.categories?.name || "General";
   const priceAmount = service.priceInfo?.amount;
@@ -58,13 +86,14 @@ export default function ServiceCard({ service }) {
     <Link to={`/service/${service._id}`} className="service-card-link">
       <div className="service-card">
         <div className="card-image-container">
-          {/* ✨ 3. Render based on the state */}
+
           {currentImageSrc ? (
             <img
               src={currentImageSrc}
               className="card-image"
               alt={serviceName}
-              onError={handleImageError} // This is the crucial part
+              onError={handleImageError}
+              loading="lazy"
             />
           ) : (
             <div className="card-image-fallback-gradient"></div>

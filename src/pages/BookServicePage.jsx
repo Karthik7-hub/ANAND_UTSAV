@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import { fetchAllServices, checkServiceAvailability, createBooking } from "../api";
 import "../css/BookServicePage.css"; // Import the new stylesheet
 import { useUser } from "../context/UserContext";
 import Dialog from '../components/Dialog'; // Import the Dialog component
@@ -56,8 +56,8 @@ export default function BookServicePage() {
     const fetchService = async () => {
       try {
         setPageLoading(true);
-        const res = await axios.get(`https://anand-u.vercel.app/provider/allservices`);
-        const allServices = Array.isArray(res.data) ? res.data : [];
+        const data = await fetchAllServices();
+        const allServices = Array.isArray(data) ? data : [];
         const selectedService = allServices.find((s) => s._id === id);
         setService(selectedService);
       } catch (err) {
@@ -82,12 +82,12 @@ export default function BookServicePage() {
 
     setActionLoading(true);
     try {
-      const res = await axios.post("https://anand-u.vercel.app/booking/availabilty", {
+      const data = await checkServiceAvailability({
         minp: Number(form.minp), maxp: Number(form.maxp),
         date: form.date, serviceId: id,
       });
 
-      if (res.data.success) {
+      if (data.success) {
         showDialog({
           type: 'success', title: 'Service Available!', icon: <CheckCircle />,
           children: 'Great news! The service is available for your selected date and guest count.',
@@ -95,7 +95,7 @@ export default function BookServicePage() {
           onConfirm: () => { setStep(2); closeDialog(); }
         });
       } else {
-        showDialog({ type: 'warning', title: 'Not Available', icon: <XCircle />, children: res.data.msg || "Sorry, this service is not available for the selected criteria.", confirmButtonOnly: true, onConfirm: closeDialog });
+        showDialog({ type: 'warning', title: 'Not Available', icon: <XCircle />, children: data.msg || "Sorry, this service is not available for the selected criteria.", confirmButtonOnly: true, onConfirm: closeDialog });
       }
     } catch (err) {
       showDialog({ type: 'error', title: 'Error', icon: <XCircle />, children: "An error occurred while checking availability.", confirmButtonOnly: true, onConfirm: closeDialog });
@@ -112,14 +112,14 @@ export default function BookServicePage() {
 
     setActionLoading(true);
     try {
-      const res = await axios.post("https://anand-u.vercel.app/booking/book", {
+      const data = await createBooking({
         minp: Number(form.minp), maxp: Number(form.maxp),
         date: form.date, venue: form.venue, specialRequests: form.specialRequests,
         totalAmount: service?.priceInfo?.amount || 0,
-        serviceId: id, provider: service?.providers,
-      }, { headers: { Authorization: `Bearer ${token}` } });
+        serviceId: id, provider: service?.providers?._id || service?.providers,
+      });
 
-      if (res.data.success) {
+      if (data.success) {
         showDialog({
           type: 'success', title: 'Booking Request Sent!', icon: <CheckCircle />,
           children: "Your request has been sent to the provider. You will be notified upon their confirmation.",
@@ -127,7 +127,7 @@ export default function BookServicePage() {
           onConfirm: () => navigate(`/service/${id}`)
         });
       } else {
-        showDialog({ type: 'error', title: 'Booking Failed', icon: <XCircle />, children: res.data.msg || "Your booking could not be processed. Please try again.", confirmButtonOnly: true, onConfirm: closeDialog });
+        showDialog({ type: 'error', title: 'Booking Failed', icon: <XCircle />, children: data.msg || "Your booking could not be processed. Please try again.", confirmButtonOnly: true, onConfirm: closeDialog });
       }
     } catch (err) {
       showDialog({ type: 'error', title: 'Error', icon: <XCircle />, children: "An unexpected error occurred during booking.", confirmButtonOnly: true, onConfirm: closeDialog });

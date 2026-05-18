@@ -1,7 +1,7 @@
 // src/pages/MyAccountPage.jsx
 
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import { fetchCurrentUser, updateCurrentUser } from "../api";
 import { useUser } from "../context/UserContext";
 import { useNavigate } from "react-router-dom";
 import "../css/MyAccountPage.css";
@@ -50,16 +50,16 @@ export default function MyAccountPage() {
   useEffect(() => {
     const fetchUserDetails = async () => {
       try {
-        const res = await axios.get("https://anand-u.vercel.app/user/me", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setUserDetails(res.data);
-        setFormData({
-          fullName: res.data.fullName || "",
-          username: res.data.username || "",
-          phone: res.data.phone || "",
-          location: res.data.location || "",
-        });
+        const data = await fetchCurrentUser();
+        if (data) {
+          setUserDetails(data);
+          setFormData({
+            fullName: data.fullName || "",
+            username: data.username || "",
+            phone: data.phone || "",
+            location: data.location || "",
+          });
+        }
       } catch (err) {
         console.error("Failed to fetch user details:", err);
       } finally {
@@ -76,12 +76,12 @@ export default function MyAccountPage() {
 
   const handleSave = async () => {
     try {
-      const res = await axios.put("https://anand-u.vercel.app/user/updateUser", formData, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setUserDetails(res.data);
-      setEditing(false);
-      alert("Profile updated successfully!");
+      const data = await updateCurrentUser(formData);
+      if (data) {
+        setUserDetails(data);
+        setEditing(false);
+        alert("Profile updated successfully!");
+      }
     } catch (err) {
       console.error("Error updating profile:", err);
       alert("Failed to update profile");

@@ -5,6 +5,7 @@ import { useProvider } from "../context/ProviderContext";
 import { useTheme } from "../context/ThemeContext";
 import { CheckCircle, XCircle, Mail, Lock, User, Phone, MapPin, KeyRound, Sun, Moon, Eye, EyeOff } from 'lucide-react';
 import Dialog from '../components/Dialog';
+import LocationAutocomplete from "../components/LocationAutocomplete";
 import "../css/ProviderAuth.css";
 
 const INITIAL_FORM = {
@@ -20,9 +21,16 @@ export default function ProviderAuth() {
   const [loading, setLoading] = useState(false);
   const [dialogState, setDialogState] = useState({ isOpen: false });
 
-  const { login } = useProvider();
+  const { provider, login } = useProvider();
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
+
+  // --- REDIRECT IF ALREADY LOGGED IN ---
+  useEffect(() => {
+    if (provider) {
+      navigate("/provider/dashboard", { replace: true });
+    }
+  }, [provider, navigate]);
 
   const [showLoginPass, setShowLoginPass] = useState(false);
   const [showRegisterPass, setShowRegisterPass] = useState(false);
@@ -198,9 +206,49 @@ export default function ProviderAuth() {
                   <h2>Become a Provider</h2>
                   {/* ✅ FIX: Added name attributes to all inputs */}
                   <div className="input-group"><label htmlFor="name">Full Name / Company</label><div className="input-field"><User className="input-icon" size={20} /><input id="name" name="name" value={form.name} onChange={handleChange} required placeholder="e.g. John's Catering" /></div></div>
-                  <div className="input-group"><label htmlFor="phone">Phone Number</label><div className="input-field"><Phone className="input-icon" size={20} /><input id="phone" name="phone" type="tel" value={form.phone} onChange={handleChange} required placeholder="+91 12345 67890" /></div></div>
                   <div className={`input-group ${isGenderMenuOpen ? 'dropdown-open' : ''}`} ref={genderMenuRef}> <label>Gender</label> <div className="custom-select-container"> <button type="button" className={`custom-select-trigger ${form.gender ? "selected" : ""}`} onClick={() => setIsGenderMenuOpen(!isGenderMenuOpen)}> {form.gender || "Select Gender"} <span className={`arrow ${isGenderMenuOpen ? "open" : ""}`}></span> </button> {isGenderMenuOpen && (<div className="custom-select-options"> <div className="custom-select-option" onClick={() => selectGender("Male")}>Male</div> <div className="custom-select-option" onClick={() => selectGender("Female")}>Female</div> <div className="custom-select-option" onClick={() => selectGender("Other")}>Other</div> </div>)} </div> </div>
-                  <div className="input-group"><label htmlFor="location">Base Location / City</label><div className="input-field"><MapPin className="input-icon" size={20} /><input id="location" name="location" value={form.location} onChange={handleChange} required placeholder="e.g. New York" /></div></div>
+                  <div className="input-group" style={{ zIndex: 50 }}>
+                    <label htmlFor="location">Base Location / City</label>
+                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                      <LocationAutocomplete 
+                        value={form.location}
+                        onLocationSelect={(loc) => setForm(prev => ({ ...prev, location: loc.name, lat: loc.lat, lng: loc.lng }))}
+                        required
+                        placeholder="e.g. New York"
+                        className="auth-location-autocomplete"
+                        style={{ flex: 1, marginBottom: 0, height: '48px' }}
+                      />
+                      <button type="button" style={{ width: '48px', height: '48px', flexShrink: 0, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', borderRadius: '10px', backgroundColor: 'var(--festive-primary, #ff6b00)', color: 'white', border: 'none', cursor: 'pointer', transition: 'all 0.2s', padding: 0 }}
+                        title="Use My Current Location"
+                        onClick={async () => {
+                          if ("geolocation" in navigator) {
+                            setLoading(true);
+                            navigator.geolocation.getCurrentPosition(async (pos) => {
+                              const lat = pos.coords.latitude;
+                              const lng = pos.coords.longitude;
+                              try {
+                                const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+                                const data = await response.json();
+                                const locationName = data.address?.city || data.address?.town || data.address?.village || data.address?.state || "Current Location";
+                                setForm(prev => ({ ...prev, lat, lng, location: locationName }));
+                                showDialog({ type: 'success', title: 'Location Captured', icon: <CheckCircle />, children: `Coordinates set securely to ${locationName} (${lat.toFixed(4)}, ${lng.toFixed(4)})`, confirmButtonOnly: true, onConfirm: closeDialog });
+                              } catch(e) {
+                                setForm(prev => ({ ...prev, lat, lng }));
+                                showDialog({ type: 'success', title: 'Coordinates Captured', icon: <CheckCircle />, children: 'Coordinates have been set, but failed to fetch city name.', confirmButtonOnly: true, onConfirm: closeDialog });
+                              }
+                              setLoading(false);
+                            }, err => {
+                              setLoading(false);
+                              showDialog({ type: 'error', title: 'Location Error', icon: <XCircle />, children: 'Could not get location. Please allow permissions.', confirmButtonOnly: true, onConfirm: closeDialog });
+                            });
+                          }
+                        }}>
+                        <MapPin size={18} />
+                      </button>
+                    </div>
+                    {form.lat && form.lng && <span style={{ color: 'var(--primary-color)', fontSize: '0.85rem', marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}><CheckCircle size={14}/> Coordinates: {Number(form.lat).toFixed(4)}, {Number(form.lng).toFixed(4)}</span>}
+                  </div>
+                  <div className="input-group"><label htmlFor="phone">Phone Number</label><div className="input-field"><Phone className="input-icon" size={20} /><input id="phone" name="phone" type="tel" value={form.phone} onChange={handleChange} required placeholder="+91 12345 67890" /></div></div>
                   <div className="input-group"><label htmlFor="register-email">Email Address</label><div className="input-field"><Mail className="input-icon" size={20} /><input id="register-email" name="email" type="email" value={form.email} onChange={handleChange} required placeholder="you@company.com" /></div></div>
                   <div className="input-group"><label htmlFor="register-password">Create Password</label><div className="input-field"><Lock className="input-icon" size={20} /><input id="register-password" name="password" type={showRegisterPass ? "text" : "password"} value={form.password} onChange={handleChange} required placeholder="Choose a strong password" /><button type="button" className="password-toggle-btn" onClick={() => setShowRegisterPass(!showRegisterPass)}>{showRegisterPass ? <EyeOff size={20} /> : <Eye size={20} />}</button></div></div>
                   <button type="submit" className="submit-btn primary-btn" disabled={loading}>{loading ? "Creating Account..." : "Register as Provider"}</button>
