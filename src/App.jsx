@@ -22,6 +22,21 @@ import BookServicePage from "./pages/BookServicePage";
 import EditService from "./pages/EditService.jsx";
 import UserBookingsPage from './pages/UserBookingsPage';
 import SearchResultsPage from './pages/SearchResultsPage';
+import AboutUsPage from './pages/info/AboutUsPage.jsx';
+import TeamPage from './pages/info/TeamPage.jsx';
+import ContactUsPage from './pages/info/ContactUsPage.jsx';
+import ReportFraudPage from './pages/info/ReportFraudPage.jsx';
+import PrivacyPolicyPage from './pages/info/PrivacyPolicyPage.jsx';
+import TermsAndConditionsPage from './pages/info/TermsAndConditionsPage.jsx';
+import RefundPolicyPage from './pages/info/RefundPolicyPage.jsx';
+import BlogPage from './pages/info/BlogPage.jsx';
+import CareersPage from './pages/info/CareersPage.jsx';
+import InvestorRelationsPage from './pages/info/InvestorRelationsPage.jsx';
+import CorporatePage from './pages/info/CorporatePage.jsx';
+import SecurityPage from './pages/info/SecurityPage.jsx';
+import PiracyPage from './pages/info/PiracyPage.jsx';
+import CookiePolicyPage from './pages/info/CookiePolicyPage.jsx';
+import ContentPoliciesPage from './pages/info/ContentPoliciesPage.jsx';
 
 function App() {
   return (
@@ -58,7 +73,22 @@ function App() {
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/search-results" element={<SearchResultsPage />} />
 
-                {/* The chat routes have been MOVED out of here */}
+                {/* Footer Info Routes */}
+                <Route path="/about" element={<AboutUsPage />} />
+                <Route path="/team" element={<TeamPage />} />
+                <Route path="/contact" element={<ContactUsPage />} />
+                <Route path="/report-fraud" element={<ReportFraudPage />} />
+                <Route path="/privacy" element={<PrivacyPolicyPage />} />
+                <Route path="/terms" element={<TermsAndConditionsPage />} />
+                <Route path="/refund-policy" element={<RefundPolicyPage />} />
+                <Route path="/blog" element={<BlogPage />} />
+                <Route path="/careers" element={<CareersPage />} />
+                <Route path="/investor-relations" element={<InvestorRelationsPage />} />
+                <Route path="/corporate" element={<CorporatePage />} />
+                <Route path="/security" element={<SecurityPage />} />
+                <Route path="/piracy" element={<PiracyPage />} />
+                <Route path="/cookie-policy" element={<CookiePolicyPage />} />
+                <Route path="/content-policies" element={<ContentPoliciesPage />} />
               </Route>
 
               {/* --- Fullscreen App Routes (These DO NOT use MainLayout) --- */}

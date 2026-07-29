@@ -297,4 +297,10 @@ export const removeFromFavorites = (serviceId) => handleRequest(api.delete('/use
 // ==========================================
 export const fetchCurrentProvider = () => handleRequest(api.get('/provider/me'));
 
+// ==========================================
+// 📩 CONTACT & FRAUD REPORT API endpoints
+// ==========================================
+export const submitContactForm = (formData) => handleRequest(api.post('/contact/send', formData));
+export const submitFraudReport = (reportData) => handleRequest(api.post('/contact/report-fraud', reportData));
+
 export default api;
