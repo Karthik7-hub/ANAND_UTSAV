@@ -315,6 +315,74 @@
     opacity: 0.88;
 }
 
+/* Team Card Work & Layout */
+.team-card-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.team-card-header .team-avatar {
+    width: 60px;
+    height: 60px;
+    font-size: 1.5rem;
+    margin-bottom: 0;
+    flex-shrink: 0;
+}
+
+.team-card-info {
+    text-align: left;
+}
+
+.team-card-info .team-name {
+    font-size: 1.15rem;
+    margin: 0;
+}
+
+.team-card-info .team-role {
+    font-size: 0.85rem;
+    margin: 2px 0 0 0;
+}
+
+.team-work-section {
+    flex-grow: 1;
+    width: 100%;
+    margin: 0.8rem 0;
+    text-align: left;
+}
+
+.team-work-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--text-color);
+    opacity: 0.9;
+}
+
+.team-work-list {
+    margin: 0;
+    padding-left: 1.2rem;
+    font-size: 0.85rem;
+    color: var(--text-color-light);
+    line-height: 1.55;
+}
+
+.team-work-list li {
+    margin-bottom: 0.35rem;
+}
+
+.team-footer-socials {
+    width: 100%;
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    gap: 0.8rem;
+    justify-content: flex-start;
+}
+
 /* Feature Grid */
 .feature-grid {
     display: grid;

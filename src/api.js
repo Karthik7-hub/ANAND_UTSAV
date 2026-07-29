@@ -1,13 +1,8 @@
 import axios from 'axios';
 
-// ✅ Centralized Base URLs (Configurable via .env)
-const envApiUrl = import.meta.env.VITE_API_BASE_URL;
-const envMlUrl = import.meta.env.VITE_ML_API_URL;
-
-const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-
-const BASE_URL = envApiUrl || (isDev ? 'http://localhost:4000' : 'https://anand-u.vercel.app');
-const SEARCH_API_URL = `${envMlUrl || 'https://captain17298-search-engine-anand-ustav.hf.space'}/search`;
+export const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+export const CHAT_URL = import.meta.env.VITE_CHAT_API_URL || BASE_URL;
+export const SEARCH_API_URL = `${import.meta.env.VITE_ML_API_URL || 'https://captain17298-anandustav-ai-recommendation.hf.space'}/search`;
 
 // Setup default axios instance with credentials
 const api = axios.create({
@@ -51,7 +46,10 @@ const handleRequest = async (requestPromise) => {
  */
 const fetchRequest = async (endpoint, payload) => {
   try {
-    const response = await fetch(`${BASE_URL}${endpoint}`, {
+    const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    const url = `${BASE_URL}${cleanEndpoint}`;
+
+    const response = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -63,17 +61,22 @@ const fetchRequest = async (endpoint, payload) => {
     if (contentType && contentType.includes("application/json")) {
       data = await response.json();
     } else {
-      return { success: false, message: "An unexpected error occurred. The server response was not in the correct format." };
+      const text = await response.text();
+      data = { success: response.ok, msg: text || "Request processed" };
     }
 
     if (!response.ok) {
-      return { success: false, message: data.message || data.msg || `Server error: ${response.status}` };
+      return { success: false, message: data.message || data.msg || `Server error: ${response.status}`, msg: data.msg || data.message };
     }
 
-    return { ...data, message: data.message || data.msg || "" };
-  } catch (error) {
-    console.error(`Fetch Request Error to ${endpoint}:`, error);
-    return { success: false, message: "Network error. Please check your connection." };
+    return { ...data, success: data.success ?? true, message: data.message || data.msg || "" };
+  } catch (err) {
+    console.error(`Fetch Request Error to ${endpoint}:`, err);
+    return {
+      success: false,
+      msg: "Unable to connect to server. Please check your internet connection or backend server status.",
+      message: "Unable to connect to server. Please check your internet connection or backend server status."
+    };
   }
 };
 

@@ -8,12 +8,7 @@ import { Send, Menu, Sun, Moon, LogOut, ArrowLeft, LayoutDashboard, Clock, Alert
 import '../css/ChatPage.css'; // Uses the same CSS
 import { format, isToday, isYesterday, isThisWeek, differenceInCalendarDays } from 'date-fns';
 
-// --- Configuration ---
-const envChatApiUrl = import.meta.env.VITE_CHAT_API_URL;
-const envApiUrl = import.meta.env.VITE_API_BASE_URL;
-const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-const API_BASE_URL = envChatApiUrl || envApiUrl || (isDev ? 'http://localhost:5000' : 'https://anandnihal.onrender.com');
-const SOCKET_URL = API_BASE_URL;
+import { CHAT_URL } from '../api';
 
 // --- Helper Functions & Components (Same as User's Chat) ---
 const useChatScroll = (chatRef, dependency, isLoadingMessages, isTyping) => { /* ... same as above ... */
@@ -93,7 +88,7 @@ export default function ProviderChatPage({ isInline = false }) {
     useChatScroll(messagesAreaRef, messages.length, isLoadingMessages, isTyping);
 
     const api = useMemo(() => axios.create({
-        baseURL: API_BASE_URL,
+        baseURL: CHAT_URL,
         headers: { Authorization: `Bearer ${token}` },
     }), [token]);
 
@@ -101,7 +96,7 @@ export default function ProviderChatPage({ isInline = false }) {
 
     useEffect(() => {
         if (!provider || !token) return;
-        const socket = io(SOCKET_URL);
+        const socket = io(CHAT_URL);
         socketRef.current = socket;
 
         socket.emit('setup', provider);

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, Sparkles, ChevronRight, Music, Camera, Utensils, Paintbrush, Home, Gift, Star, Eye } from "lucide-react";
-import axios from "axios";
+import api from "../api";
 import { allCategories } from "../data/categoriesData";
 import "../css/HomeSearchBar.css";
 
@@ -31,8 +31,7 @@ export default function HomeSearchBar() {
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const baseUrl = import.meta.env.VITE_API_BASE_URL || "https://anand-u.vercel.app";
-        const res = await axios.get(`${baseUrl}/provider/allservices`);
+        const res = await api.get('/provider/allservices');
         if (Array.isArray(res.data)) {
           setServices(res.data);
         }
