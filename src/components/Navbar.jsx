@@ -789,16 +789,21 @@ export default function AnandUtsavNavbar() {
                 </div>
                 <nav className="mobile-nav-links">
                     <NavLink to="/" onClick={() => setIsMobileMenuOpen(false)}>Home</NavLink>
-                    <hr className="nav-divider" />
                     {user ? (
                         <>
                             <NavLink to="/dashboard" onClick={() => setIsMobileMenuOpen(false)}>My Dashboard</NavLink>
-                            <NavLink to="/favourites" onClick={() => setIsMobileMenuOpen(false)}>Favourites</NavLink>
                             <NavLink to="/my-bookings" onClick={() => setIsMobileMenuOpen(false)}>Bookings</NavLink>
+                            <NavLink to="/favourites" onClick={() => setIsMobileMenuOpen(false)}>Favourites</NavLink>
+                            <NavLink to="/chat" onClick={() => setIsMobileMenuOpen(false)}>Chats</NavLink>
                         </>
                     ) : (
                         <NavLink to="/login" onClick={() => setIsMobileMenuOpen(false)}>Login / Register</NavLink>
                     )}
+                    <div className="mobile-nav-secondary">
+                        <NavLink to="/about" onClick={() => setIsMobileMenuOpen(false)}>About Us</NavLink>
+                        <NavLink to="/contact" onClick={() => setIsMobileMenuOpen(false)}>Contact Us</NavLink>
+                        <NavLink to="/team" onClick={() => setIsMobileMenuOpen(false)}>Team</NavLink>
+                    </div>
                 </nav>
                 <div className="mobile-theme-toggle">
                     <span>Theme:</span>

@@ -252,7 +252,7 @@ html[data-theme="light"] {
     color: var(--festive-text-muted);
 }
 
-.auth-location-autocomplete .location-autocomplete-input:focus ~ .location-input-icon {
+.auth-location-autocomplete .location-autocomplete-input:focus~.location-input-icon {
     color: var(--festive-primary);
 }
 

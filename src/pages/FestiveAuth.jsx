@@ -167,43 +167,43 @@ export default function FestiveAuth() {
                     <div className="input-group" style={{ zIndex: 50 }}>
                       <label htmlFor="location">Location</label>
                       <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                      <LocationAutocomplete 
-                        value={formData.location}
-                        onLocationSelect={(loc) => setFormData(prev => ({ ...prev, location: loc.name, lat: loc.lat, lng: loc.lng }))}
-                        required
-                        placeholder="e.g. New York, USA"
-                        className="auth-location-autocomplete"
-                        style={{ flex: 1, marginBottom: 0, height: '48px' }}
-                      />
-                      <button type="button" style={{ width: '48px', height: '48px', flexShrink: 0, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', borderRadius: '10px', backgroundColor: 'var(--festive-primary, #ff6b00)', color: 'white', border: 'none', cursor: 'pointer', transition: 'all 0.2s', padding: 0 }}
-                        title="Use My Current Location"
-                        onClick={async () => {
-                          if ("geolocation" in navigator) {
-                            setIsLoading(true);
-                            navigator.geolocation.getCurrentPosition(async (pos) => {
-                              const lat = pos.coords.latitude;
-                              const lng = pos.coords.longitude;
-                              try {
-                                const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
-                                const data = await response.json();
-                                const locationName = data.address?.city || data.address?.town || data.address?.village || data.address?.state || "Current Location";
-                                setFormData(prev => ({ ...prev, lat, lng, location: locationName }));
-                                showDialog({ type: 'success', title: 'Location Captured', icon: <CheckCircle />, children: `Your location has been set to ${locationName}.`, confirmButtonOnly: true, onConfirm: closeDialog });
-                              } catch (e) {
-                                setFormData(prev => ({ ...prev, lat, lng }));
-                                showDialog({ type: 'success', title: 'Coordinates Captured', icon: <CheckCircle />, children: 'Your location coordinates have been saved.', confirmButtonOnly: true, onConfirm: closeDialog });
-                              }
-                              setIsLoading(false);
-                            }, err => {
-                              setIsLoading(false);
-                              showDialog({ type: 'error', title: 'Location Error', icon: <XCircle />, children: 'Could not get location. Please enable location permissions.', confirmButtonOnly: true, onConfirm: closeDialog });
-                            });
-                          }
-                        }}>
-                        <MapPin size={18} />
-                      </button>
-                    </div>
-                    {formData.lat && formData.lng && <span style={{ color: 'var(--primary-color)', fontSize: '0.85rem', marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}><CheckCircle size={14}/> Coordinates: {Number(formData.lat).toFixed(4)}, {Number(formData.lng).toFixed(4)}</span>}
+                        <LocationAutocomplete
+                          value={formData.location}
+                          onLocationSelect={(loc) => setFormData(prev => ({ ...prev, location: loc.name, lat: loc.lat, lng: loc.lng }))}
+                          required
+                          placeholder="e.g. New York, USA"
+                          className="auth-location-autocomplete"
+                          style={{ flex: 1, marginBottom: 0, height: '48px' }}
+                        />
+                        <button type="button" style={{ width: '48px', height: '48px', flexShrink: 0, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', borderRadius: '10px', backgroundColor: 'var(--festive-primary, #ff6b00)', color: 'white', border: 'none', cursor: 'pointer', transition: 'all 0.2s', padding: 0 }}
+                          title="Use My Current Location"
+                          onClick={async () => {
+                            if ("geolocation" in navigator) {
+                              setIsLoading(true);
+                              navigator.geolocation.getCurrentPosition(async (pos) => {
+                                const lat = pos.coords.latitude;
+                                const lng = pos.coords.longitude;
+                                try {
+                                  const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+                                  const data = await response.json();
+                                  const locationName = data.address?.city || data.address?.town || data.address?.village || data.address?.state || "Current Location";
+                                  setFormData(prev => ({ ...prev, lat, lng, location: locationName }));
+                                  showDialog({ type: 'success', title: 'Location Captured', icon: <CheckCircle />, children: `Your location has been set to ${locationName}.`, confirmButtonOnly: true, onConfirm: closeDialog });
+                                } catch (e) {
+                                  setFormData(prev => ({ ...prev, lat, lng }));
+                                  showDialog({ type: 'success', title: 'Coordinates Captured', icon: <CheckCircle />, children: 'Your location coordinates have been saved.', confirmButtonOnly: true, onConfirm: closeDialog });
+                                }
+                                setIsLoading(false);
+                              }, err => {
+                                setIsLoading(false);
+                                showDialog({ type: 'error', title: 'Location Error', icon: <XCircle />, children: 'Could not get location. Please enable location permissions.', confirmButtonOnly: true, onConfirm: closeDialog });
+                              });
+                            }
+                          }}>
+                          <MapPin size={18} />
+                        </button>
+                      </div>
+                      {formData.lat && formData.lng && <span style={{ color: 'var(--primary-color)', fontSize: '0.85rem', marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}><CheckCircle size={14} /> Coordinates: {Number(formData.lat).toFixed(4)}, {Number(formData.lng).toFixed(4)}</span>}
                     </div>
                     <div className="input-group"><label htmlFor="phone">Phone Number</label><div className="input-field"><Phone className="input-icon" size={20} /><input id="phone" type="tel" value={formData.phone} onChange={handleInputChange} required placeholder="+91 12345 67890" /></div></div>
                     <button type="submit" className="submit-btn primary-btn" disabled={isLoading}>{isLoading ? "Processing..." : "Create Account"}</button>

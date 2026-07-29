@@ -52,6 +52,7 @@ const fetchRequest = async (endpoint, payload) => {
     const response = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify(payload),
     });
 
@@ -146,13 +147,13 @@ export const sendOtpRequest = (tab, formData) => {
         lng: formData.lng,
         gender: formData.gender,
       };
-  return fetchRequest(endpoint, payload);
+  return handleRequest(api.post(endpoint, payload));
 };
 
 export const verifyOtpRequest = (tab, formData) => {
   const endpoint = tab === "login" ? "/auth/login/verifyotp" : "/auth/register/verifyotp";
   const payload = { email: formData.email, userOtp: formData.otp };
-  return fetchRequest(endpoint, payload);
+  return handleRequest(api.post(endpoint, payload));
 };
 
 

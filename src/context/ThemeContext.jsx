@@ -12,7 +12,7 @@ export const ThemeProvider = ({ children }) => {
     // --- Theme State (no changes) ---
     const [theme, setTheme] = useState(() => {
         const savedTheme = localStorage.getItem("chat-theme");
-        return savedTheme || 'dark';
+        return savedTheme || 'light';
     });
 
     // ✅ MOVED: All dialog state is now managed here

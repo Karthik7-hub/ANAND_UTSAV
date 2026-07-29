@@ -479,6 +479,24 @@
     margin: 1rem 0;
 }
 
+.mobile-nav-secondary {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    margin-top: auto;
+    padding-top: 1rem;
+}
+
+.mobile-nav-secondary a {
+    font-size: 0.95rem !important;
+    font-weight: 400 !important;
+    color: var(--text-color-light) !important;
+}
+
+.mobile-nav-secondary a:hover {
+    color: var(--primary-color) !important;
+}
+
 .mobile-theme-toggle {
     display: flex;
     justify-content: space-between;
