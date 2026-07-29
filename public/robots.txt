@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+
+# Exclude private, authentication, and user/provider dashboard endpoints from crawling
+Disallow: /login
+Disallow: /provider-login
+Disallow: /provider/
+Disallow: /my-account
+Disallow: /my-reviews
+Disallow: /favourites
+Disallow: /my-bookings
+Disallow: /dashboard
+Disallow: /search-results
+Disallow: /book/
+Disallow: /chat
+
+Sitemap: https://anand-utsav.vercel.app/sitemap.xml
